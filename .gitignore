@@ -1,0 +1,9 @@
+# Front-end
+frontend/node_modules/
+frontend/dist/
+
+# Back-end
+backend/venv/
+backend/__pycache__/
+backend/*.sqlite3
+backend/.env
