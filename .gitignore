@@ -1,9 +1,9 @@
-.ideia
+.idea
 
 # Front-end
 frontend/node_modules/
 frontend/dist/
-frontend/.ideia/
+frontend/.idea/
 
 # Back-end
 backend/venv/
