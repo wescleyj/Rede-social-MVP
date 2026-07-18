@@ -35,39 +35,41 @@ export default function SignIn() {
     }
 
     return (
-        <div className="auth-container">
-            <div className="auth-header">
-                <div className="logo">
-                    <div className="logo-circle"></div>
-                    <span>Vórtice</span>
+        <div className="auth-page">
+            <div className="auth-container">
+                <div className="auth-header">
+                    <div className="logo">
+                        <div className="logo-circle"></div>
+                        <span>Vórtice</span>
+                    </div>
+                    <h1>Bem-vindo de volta</h1>
+                    <p>Entre para continuar a conversa.</p>
                 </div>
-                <h1>Bem-vindo de volta</h1>
-                <p>Entre para continuar a conversa.</p>
-            </div>
 
-            <div className="auth-body">
-                {mensagem && <p className={mensagem.tipo}>{mensagem.texto}</p>}
-            </div>
-
-            {/* Forms de Login */}
-            <form className="auth-form" onSubmit={checkUser}>
-                <div className="input-group">
-                    <label>E-mail</label>
-                    <input type="email" placeholder="email@email.com" required ref={inputEmail} />
+                <div className="auth-body">
+                    {mensagem && <p className={mensagem.tipo}>{mensagem.texto}</p>}
                 </div>
-                <div className="input-group">
-                    <label>Senha</label>
-                    <input type="password" placeholder="********" required ref={inputPassword} />
+
+                {/* Forms de Login */}
+                <form className="auth-form" onSubmit={checkUser}>
+                    <div className="input-group">
+                        <label>E-mail</label>
+                        <input type="email" placeholder="email@email.com" required ref={inputEmail} />
+                    </div>
+                    <div className="input-group">
+                        <label>Senha</label>
+                        <input type="password" placeholder="********" required ref={inputPassword} />
+                    </div>
+                    <input type="submit" className="btn-primary" value="Enviar" />
+                </form>
+
+                <div className="divider">
+                    <span>ou</span>
                 </div>
-                <input type="submit" className="btn-primary" value="Enviar" />
-            </form>
 
-            <div className="divider">
-                <span>ou</span>
-            </div>
-
-            <div className="auth-footer">
-                Novo por aqui? <a href="/signup">Crie uma conta</a>
+                <div className="auth-footer">
+                    Novo por aqui? <a href="/signup">Crie uma conta</a>
+                </div>
             </div>
         </div>
     );

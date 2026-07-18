@@ -1,27 +1,35 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import './styles.css';
-import api, {baseURL} from "../../../services/api.js";
+import api, { baseURL } from "../../../services/api.js";
 
 export default function Sidebar() {
     const location = useLocation();
+    const navigate = useNavigate();
     const [userData, setUserData] = useState(null);
 
-    // Busca os dados do usuario para preencher na sidebar(imagem de perfil e username)
     useEffect(() => {
+        const token = localStorage.getItem('token');
+
         async function fetchUserData() {
             try {
                 const response = await api.get('/users/me');
                 setUserData(response.data);
             } catch (error) {
                 console.error(error);
+                // Define como anônimo se a requisição falhar (ex: token inválido/expirado)
+                setUserData({ nome: 'Anônimo', usuario: 'visitante', avatar: null, isAnonymous: true });
             }
         }
 
-        fetchUserData();
+        if (token) {
+            fetchUserData();
+        } else {
+            // Define como anônimo imediatamente se não houver token salvo
+            setUserData({ nome: 'Anônimo', usuario: 'visitante', avatar: null, isAnonymous: true });
+        }
     }, []);
 
-    // Se por algum motivo estiver não estiver conseguido carregar ou apresentar algum erro ira ficar carregando
     if (!userData) {
         return <nav className="sidebar-container">Carregando...</nav>;
     }
@@ -42,23 +50,26 @@ export default function Sidebar() {
                 </li>
             </ul>
 
-            <button className="btn-publish">+ Publicar</button>
+            {/* Altera o botão principal se o usuário for anônimo */}
+            {!userData.isAnonymous ? (
+                <button className="btn-publish">+ Publicar</button>
+            ) : (
+                <button className="btn-publish" onClick={() => navigate('/signin')}>Fazer Login</button>
+            )}
 
             <div className="sidebar-user-footer">
-                <div className="user-avatar-small">
-                    {userData.avatar ? (
-                        <img
-                            src={`${baseURL}/uploads/${userData.avatar}`}
-                            alt={`Foto de perfil de ${userData.nome}`}
-                            className="profile-avatar-small"
-                        />
-                    ) : (
-                        <div className="profile-avatar-small"></div>
-                    )}
-                </div>
+                {userData.avatar ? (
+                    <img
+                        src={`${baseURL}/uploads/${userData.avatar}`}
+                        alt={`Foto de perfil de ${userData.nome}`}
+                        className="user-avatar-small"
+                    />
+                ) : (
+                    <div className="user-avatar-small"></div>
+                )}
                 <div className="user-info">
                     <span className="user-name">{userData.nome}</span>
-                    <span className="user-handle">@{userData.usuario}</span>
+                    <span className="user-handle">{userData.usuario}</span>
                 </div>
                 <button className="btn-options">...</button>
             </div>
