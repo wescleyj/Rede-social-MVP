@@ -1,38 +1,27 @@
-import React, { useState } from 'react';
+import React, {useRef } from 'react';
+import api from '../../../services/api'
 import './styles.css';
 
 export default function SignUp() {
-  const [formData, setFormData] = useState({
-    name: '',
-    username: '',
-    email: '',
-    password: ''
-  });
+  const inputEmail = useRef();
+  const inputNome = useRef();
+  const inputUsuario = useRef();
+  const inputSenha = useRef();
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = async (e) => {
+  async function createUser(e) {
     e.preventDefault();
-    // Exemplo de integração com Django REST
-    /*
     try {
-        const response = await fetch('/api/register/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
-        });
-        const data = await response.json();
-        // Redirecionar para o login
+      await api.post('/users', {
+        nome: inputNome.current.value,
+        usuario: inputUsuario.current.value,
+        email: inputEmail.current.value,
+        password: inputSenha.current.value
+      })
+      // Criar logica de avisar sucesso a credencial
     } catch (error) {
-        console.error(error);
+      console.error(error)
     }
-    */
-  };
+  }
 
   return (
       <div className="auth-container">
@@ -45,61 +34,29 @@ export default function SignUp() {
           <p>Leva menos de um minuto e é grátis.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
+        <form className="auth-form" onSubmit={createUser}>
           <div className="input-group">
-            <label>NOME</label>
-            <input
-                type="text"
-                name="name"
-                placeholder="Como você quer ser chamado"
-                value={formData.name}
-                onChange={handleChange}
-                required
-            />
+            <label>Nome</label>
+            <input type="text" placeholder="Como você quer ser chamado" required ref={inputNome} />
           </div>
 
           <div className="input-group">
-            <label>USUÁRIO</label>
-            <div className="input-with-prefix">
-              <span className="prefix">@</span>
-              <input
-                  type="text"
-                  name="username"
-                  placeholder="usuario"
-                  value={formData.username}
-                  onChange={handleChange}
-                  required
-              />
-            </div>
+            <label>Usuário</label>
+            <input type="text" placeholder="usuario" required ref={inputUsuario} />
           </div>
 
           <div className="input-group">
-            <label>EMAIL</label>
-            <input
-                type="email"
-                name="email"
-                placeholder="voce@email.com"
-                value={formData.email}
-                onChange={handleChange}
-                required
-            />
+            <label>Email</label>
+            <input type="email" placeholder="voce@email.com" required ref={inputEmail} />
           </div>
 
           <div className="input-group">
-            <label>SENHA</label>
-            <input
-                type="password"
-                name="password"
-                placeholder="••••••••••"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                minLength="8"
-            />
+            <label>Senha</label>
+            <input type="password" placeholder="••••••••••" required minLength="8" ref={inputSenha} />
+          </div>
             <span className="input-hint">Mínimo 8 caracteres</span>
-          </div>
 
-          <button type="submit" className="btn-primary">Criar conta</button>
+          <button type="submit" className="btn-primary" >Criar conta</button>
         </form>
 
         <div className="divider">

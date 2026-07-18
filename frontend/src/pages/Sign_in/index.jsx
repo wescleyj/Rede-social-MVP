@@ -1,36 +1,23 @@
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
+import api from '../../../services/api'
 import './styles.css';
 
 export default function SignIn() {
-    const [formData, setFormData] = useState({
-        identifier: '',
-        password: ''
-    });
+    const inputEmail = useRef();
+    const inputPassword = useRef();
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
-
-    const handleSubmit = async (e) => {
+    async function checkUser(e) {
         e.preventDefault();
-        // Exemplo de integração com Django REST
-        /*
         try {
-            const response = await fetch('/api/login/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+            await api.post('/users', {
+                email: inputEmail.current.value,
+                password: inputPassword.current.value
             });
-            const data = await response.json();
-            // Processar autenticação/token
+            // Criar logica de salvar a credencial
         } catch (error) {
-            console.error(error);
+            console.error(error)
         }
-        */
-    };
+    }
 
     return (
         <div className="auth-container">
@@ -43,32 +30,16 @@ export default function SignIn() {
                 <p>Entre para continuar a conversa.</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="auth-form">
+            <form className="auth-form" onSubmit={checkUser}>
                 <div className="input-group">
-                    <label>EMAIL OU @USUÁRIO</label>
-                    <input
-                        type="text"
-                        name="identifier"
-                        placeholder="E-mail ou usuario"
-                        value={formData.identifier}
-                        onChange={handleChange}
-                        required
-                    />
+                    <label>E-mail</label>
+                    <input type="email" placeholder="email@email.com" required ref={inputEmail} />
                 </div>
-
                 <div className="input-group">
-                    <label>SENHA</label>
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="••••••••••"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                    />
+                    <label>Senha</label>
+                    <input type="password" placeholder="********" required ref={inputPassword} />
                 </div>
-
-                <button type="submit" className="btn-primary">Entrar</button>
+                <input type="submit" className="btn-primary" value="Enviar" />
             </form>
 
             <div className="divider">
