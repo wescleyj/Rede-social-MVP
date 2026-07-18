@@ -1,21 +1,36 @@
-import React, { useRef } from 'react';
+import React, {useRef, useState} from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../../services/api'
 import './styles.css';
 
 export default function SignIn() {
+    // Salva os dados do forms para enviar para a API
     const inputEmail = useRef();
     const inputPassword = useRef();
+    const [mensagem, setMensagem] = useState();
+    const navigate = useNavigate();
 
+    // Verifica se existe um usuario com essa senha
     async function checkUser(e) {
         e.preventDefault();
         try {
-            await api.post('/users', {
+            const response = await api.post('/users', {
                 email: inputEmail.current.value,
                 password: inputPassword.current.value
             });
-            // Criar logica de salvar a credencial
+            localStorage.setItem('token', response.data.token); // Salva as credenciais de login no localStorage
+            navigate('/home');
         } catch (error) {
             console.error(error)
+
+            // Ajustar com base no retorno do backend
+            if (error.response?.status === 409) {
+                setMensagem({tipo: 'erro', texto: 'Email ou senha incorretos'});
+            } else if (error.response?.data?.message) {
+                setMensagem({tipo: 'erro', texto: error.response.data.message});
+            } else {
+                setMensagem({tipo: 'erro', texto: 'Erro desconhecido ao criar usuário.'});
+            }
         }
     }
 
@@ -30,6 +45,11 @@ export default function SignIn() {
                 <p>Entre para continuar a conversa.</p>
             </div>
 
+            <div className="auth-body">
+                {mensagem && <p className={mensagem.tipo}>{mensagem.texto}</p>}
+            </div>
+
+            {/* Forms de Login */}
             <form className="auth-form" onSubmit={checkUser}>
                 <div className="input-group">
                     <label>E-mail</label>

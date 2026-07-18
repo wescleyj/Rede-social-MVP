@@ -1,15 +1,19 @@
-import React, {useRef } from 'react';
+import React, {useRef, useState} from 'react';
 import api from '../../../services/api'
 import './styles.css';
 
 export default function SignUp() {
+  // Salva as informações do formulario para passar para a api
   const inputEmail = useRef();
   const inputNome = useRef();
   const inputUsuario = useRef();
   const inputSenha = useRef();
+  const [mensagem, setMensagem] = useState(); // Usa State para conseguir atualizar informações na pagina sem ter que recarregar
 
   async function createUser(e) {
     e.preventDefault();
+
+    // Tenta criar o usuario e informa o usuario do sucesso ou fracasso
     try {
       await api.post('/users', {
         nome: inputNome.current.value,
@@ -17,9 +21,19 @@ export default function SignUp() {
         email: inputEmail.current.value,
         password: inputSenha.current.value
       })
-      // Criar logica de avisar sucesso a credencial
+      setMensagem({tipo: 'sucesso', texto: 'Sucesso na criação do usuário.'});
+      e.target.reset() // Limpa o forms
     } catch (error) {
       console.error(error)
+
+      // Ajustar com base no retorno do backend
+      if (error.response?.status === 409) {
+        setMensagem({tipo: 'erro', texto: 'Erro: email ou usuário já existente.'});
+      } else if (error.response?.data?.message) {
+        setMensagem({tipo: 'erro', texto: error.response.data.message});
+      } else {
+        setMensagem({tipo: 'erro', texto: 'Erro desconhecido ao criar usuário.'});
+      }
     }
   }
 
@@ -34,6 +48,11 @@ export default function SignUp() {
           <p>Leva menos de um minuto e é grátis.</p>
         </div>
 
+        <div className="auth-body">
+          {mensagem && <p className={mensagem.tipo}>{mensagem.texto}</p>}
+        </div>
+
+        {/* Forms de criação de usuario */}
         <form className="auth-form" onSubmit={createUser}>
           <div className="input-group">
             <label>Nome</label>
@@ -63,6 +82,7 @@ export default function SignUp() {
           <span>ou</span>
         </div>
 
+        {/* Leva o usuario para a pagina de login caso já tenha conta */}
         <div className="auth-footer">
           Já tem conta? <a href="/signin">Entrar</a>
         </div>

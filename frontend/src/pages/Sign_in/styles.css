@@ -138,3 +138,7 @@
     font-size: 14px;
     color: var(--text-muted);
 }
+
+.erro {
+    color: var(--danger);
+}

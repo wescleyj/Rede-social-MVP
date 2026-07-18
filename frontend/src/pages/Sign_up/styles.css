@@ -187,3 +187,7 @@
     color: var(--brand);
     text-decoration: none;
 }
+
+.erro {
+    color: var(--danger);
+}
