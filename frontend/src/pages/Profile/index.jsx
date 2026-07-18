@@ -1,7 +1,8 @@
-import Sidebar from "../../components/Sidebar/index.jsx";
+import LeftSidebar from "../../components/LeftSidebar/index.jsx";
 import React, { useState, useEffect } from "react";
 import api, { baseURL } from "../../../services/api.js";
 import "./styles.css";
+import RightSideBar from "../../components/RightSidebar/index.jsx";
 
 export default function Profile() {
     const [userData, setUserData] = useState(null);
@@ -30,7 +31,7 @@ export default function Profile() {
 
     return (
         <div className="layout-wrapper">
-            <Sidebar />
+            <LeftSidebar />
 
             <main className="profile-main-content">
                 <header className="profile-header">
@@ -125,15 +126,7 @@ export default function Profile() {
                 </section>
             </main>
 
-            <aside className="right-sidebar">
-                <div className="search-bar">
-                    <input type="text" placeholder="Buscar na rede" />
-                </div>
-
-                <div className="who-to-follow">
-                    <h3>Quem seguir</h3>
-                </div>
-            </aside>
+            <RightSideBar />
         </div>
     );
 }

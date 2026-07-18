@@ -1,0 +1,39 @@
+.right-sidebar {
+    width: 350px;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.trending-topics, .who-to-follow {
+    background-color: #16181c;
+    border-radius: 15px;
+    padding: 15px;
+}
+
+.trending-topics h3, .who-to-follow h3 {
+    margin: 0 0 15px 0;
+    font-size: 20px;
+}
+
+.search-bar-container {
+    width: 100%;
+}
+
+.search-bar-container input {
+    width: 100%;
+    background-color: #16181c;
+    border: 1px solid transparent;
+    border-radius: 20px;
+    padding: 12px 20px;
+    color: #ffffff;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.search-bar-container input:focus {
+    background-color: #000000;
+    border: 1px solid #00d2ff;
+    outline: none;
+}
