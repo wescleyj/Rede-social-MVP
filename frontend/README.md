@@ -1,47 +1,49 @@
 ## Esquema da API
 
-Abaixo estão os caminhos e as propriedades mapeadas com base na integração do frontend.
-
 ### Rotas Públicas
 
 **POST `/users`** (Cadastro)
-*   **Corpo da Requisição (JSON):**
-    *   `nome` (string)
-    *   `usuario` (string)
-    *   `email` (string)
-    *   `password` (string)
-*   **Retorno Esperado:** Confirmação de criação ou erro `409 Conflict` (E-mail ou usuário já existente).
+*	**Corpo da Requisição (JSON):**
+     *	`name` (string)
+     *	`username` (string)
+     *	`email` (string)
+     *	`password` (string)
+*	**Retorno Esperado:** `201 Created` ou erro `409 Conflict`.
 
-**POST `/users`** (Autenticação)
-*   **Corpo da Requisição (JSON):**
-    *   `email` (string)
-    *   `password` (string)
-*   **Retorno Esperado:**
-    *   `token` (string): JWT ou token de sessão gerado pelo backend.
+**POST `/auth/login`** (Autenticação)
+*	**Corpo da Requisição (JSON):**
+     *	`email` (string)
+     *	`password` (string)
+*	**Retorno Esperado:** `200 OK`
+     *	`token` (string)
 
 ---
 
 ### Rotas Privadas
 
-*Todas as rotas abaixo exigem o envio do token no cabeçalho HTTP: `Authorization: Bearer <token>`*
+*Todas as rotas exigem o cabeçalho: `Authorization: Bearer <token>`*
 
 **GET `/users/me`** (Dados do Perfil Logado)
-*   **Retorno Esperado (JSON):**
-    *   `nome` (string)
-    *   `usuario` (string)
-    *   `bio` (string)
-    *   `creation_year` (string/number)
-    *   `seguindo_count` (number)
-    *   `seguidores_count` (number)
-    *   `publicacoes_count` (number)
-    *   `avatar` (string): Nome do arquivo da imagem de perfil.
-    *   `banner` (string): Nome do arquivo da imagem de capa.
+*	**Retorno Esperado (JSON):**
+     *	`name` (string)
+     *	`username` (string)
+     *	`bio` (string)
+     *	`created_at` (string): Formato ISO 8601.
+     *	`following_count` (number)
+     *	`followers_count` (number)
+     *	`posts_count` (number)
+     *	`avatar_url` (string)
+     *	`banner_url` (string)
+
+**GET `/posts`** (Feed Global - Publicações Mais Recentes)
+*	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
+     *	`id` (string/number)
+     *	`content` (string)
+     *	`media_url` (string)
+     *	`comments_count` (number)
+     *	`reposts_count` (number)
+     *	`likes_count` (number)
+     *	`author` (object): Contém `name`, `username` e `avatar_url`.
 
 **GET `/users/me/posts`** (Publicações do Usuário Logado)
-*   **Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
-    *   `id` (string/number)
-    *   `texto` (string)
-    *   `imagem` (string): Nome do arquivo de mídia anexado (opcional).
-    *   `comentarios_count` (number)
-    *   `reposts_count` (number)
-    *   `curtidas_count` (number)
+*	**Retorno Esperado:** Array de objetos JSON idêntico ao da rota `/posts`.

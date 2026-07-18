@@ -14,7 +14,7 @@ export default function SignIn() {
     async function checkUser(e) {
         e.preventDefault();
         try {
-            const response = await api.post('/users', {
+            const response = await api.post('/auth/login', {
                 email: inputEmail.current.value,
                 password: inputPassword.current.value
             });

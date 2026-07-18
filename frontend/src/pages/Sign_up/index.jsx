@@ -6,7 +6,7 @@ export default function SignUp() {
   // Salva as informações do formulario para passar para a api
   const inputEmail = useRef();
   const inputNome = useRef();
-  const inputUsuario = useRef();
+  const inputUsername = useRef();
   const inputSenha = useRef();
   const [mensagem, setMensagem] = useState(); // Usa State para conseguir atualizar informações na pagina sem ter que recarregar
 
@@ -17,7 +17,7 @@ export default function SignUp() {
     try {
       await api.post('/users', {
         nome: inputNome.current.value,
-        usuario: inputUsuario.current.value,
+        username: inputUsername.current.value,
         email: inputEmail.current.value,
         password: inputSenha.current.value
       })
@@ -62,7 +62,7 @@ export default function SignUp() {
 
             <div className="input-group">
               <label>Usuário</label>
-              <input type="text" placeholder="usuario" required ref={inputUsuario} />
+              <input type="text" placeholder="usuario" required ref={inputUsername} />
             </div>
 
             <div className="input-group">

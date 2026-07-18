@@ -37,15 +37,15 @@ export default function Profile() {
                 <header className="profile-header">
                     <button className="btn-back">{"<"}</button>
                     <div className="header-info">
-                        <h2>{userData.nome}</h2>
-                        <span>{userData.publicacoes_count || 0} publicações</span>
+                        <h2>{userData.name}</h2>
+                        <span>{userData.posts_count || 0} publicações</span>
                     </div>
                 </header>
 
                 <section className="profile-banner">
-                    {userData.banner && (
+                    {userData.banner_url && (
                         <img
-                            src={`${baseURL}/uploads/${userData.banner}`}
+                            src={`${baseURL}/uploads/${userData.banner_url}`}
                             alt="Banner do perfil"
                             className="banner-image"
                         />
@@ -53,10 +53,10 @@ export default function Profile() {
                 </section>
 
                 <section className="profile-details">
-                    {userData.avatar ? (
+                    {userData.avatar_url ? (
                         <img
-                            src={`${baseURL}/uploads/${userData.avatar}`}
-                            alt={`Foto de perfil de ${userData.nome}`}
+                            src={`${baseURL}/uploads/${userData.avatar_url}`}
+                            alt={`Foto de perfil de ${userData.name}`}
                             className="profile-avatar-large"
                         />
                     ) : (
@@ -69,18 +69,18 @@ export default function Profile() {
                     </div>
 
                     <div className="profile-bio">
-                        <h1>{userData.nome}</h1>
-                        <span>@{userData.usuario}</span>
+                        <h1>{userData.name}</h1>
+                        <span>@{userData.username}</span>
                         <p>{userData.bio || "Sem biografia"}</p>
 
                         <div className="profile-meta">
-                            <span>{userData.usuario}</span>
-                            <span>{userData.creation_year}</span>
+                            <span>{userData.username}</span>
+                            <span>{userData.creation_created_at}</span>
                         </div>
 
                         <div className="profile-stats">
-                            <span><strong>{userData.seguindo_count || 0}</strong> Seguindo</span>
-                            <span><strong>{userData.seguidores_count || 0}</strong> Seguidores</span>
+                            <span><strong>{userData.following_count || 0}</strong> Seguindo</span>
+                            <span><strong>{userData.followers_count || 0}</strong> Seguidores</span>
                         </div>
                     </div>
                 </section>
@@ -97,26 +97,26 @@ export default function Profile() {
                         posts.map((post) => (
                             <article key={post.id} className="post-card">
                                 <div className="post-header">
-                                    {userData.avatar ? (
-                                        <img src={`${baseURL}/uploads/${userData.avatar}`} alt="" className="post-avatar-small" />
+                                    {userData.avatar_url ? (
+                                        <img src={`${baseURL}/uploads/${userData.avatar_url}`} alt="" className="post-avatar-small" />
                                     ) : (
                                         <div className="post-avatar-small"></div>
                                     )}
                                     <div className="post-meta">
-                                        <strong>{userData.nome}</strong> <span>@{userData.usuario}</span>
+                                        <strong>{userData.name}</strong> <span>@{userData.username}</span>
                                     </div>
                                 </div>
 
-                                <p className="post-content">{post.texto}</p>
+                                <p className="post-content">{post.content}</p>
 
-                                {post.imagem && (
-                                    <img src={`${baseURL}/uploads/${post.imagem}`} alt="Mídia da publicação" className="post-media" />
+                                {post.media_url && (
+                                    <img src={`${baseURL}/uploads/${post.media_url}`} alt="Mídia da publicação" className="post-media" />
                                 )}
 
                                 <div className="post-actions">
-                                    <button>💬 {post.comentarios_count || 0}</button>
+                                    <button>💬 {post.comments_count || 0}</button>
                                     <button>🔁 {post.reposts_count || 0}</button>
-                                    <button>❤️ {post.curtidas_count || 0}</button>
+                                    <button>❤️ {post.likes_count || 0}</button>
                                 </div>
                             </article>
                         ))

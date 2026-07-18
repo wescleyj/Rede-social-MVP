@@ -18,7 +18,7 @@ export default function Sidebar() {
             } catch (error) {
                 console.error(error);
                 // Define como anônimo se a requisição falhar (ex: token inválido/expirado)
-                setUserData({ nome: 'Anônimo', usuario: 'visitante', avatar: null, isAnonymous: true });
+                setUserData({ name: 'Anônimo', username: 'visitante', avatar_url: null, isAnonymous: true });
             }
         }
 
@@ -26,7 +26,7 @@ export default function Sidebar() {
             fetchUserData();
         } else {
             // Define como anônimo imediatamente se não houver token salvo
-            setUserData({ nome: 'Anônimo', usuario: 'visitante', avatar: null, isAnonymous: true });
+            setUserData({ name: 'Anônimo', username: 'visitante', avatar_url: null, isAnonymous: true });
         }
     }, []);
 
@@ -58,18 +58,18 @@ export default function Sidebar() {
             )}
 
             <div className="sidebar-user-footer">
-                {userData.avatar ? (
+                {userData.avatar_url ? (
                     <img
-                        src={`${baseURL}/uploads/${userData.avatar}`}
-                        alt={`Foto de perfil de ${userData.nome}`}
+                        src={`${baseURL}/uploads/${userData.avatar_url}`}
+                        alt={`Foto de perfil de ${userData.name}`}
                         className="user-avatar-small"
                     />
                 ) : (
                     <div className="user-avatar-small"></div>
                 )}
                 <div className="user-info">
-                    <span className="user-name">{userData.nome}</span>
-                    <span className="user-handle">{userData.usuario}</span>
+                    <span className="user-name">{userData.name}</span>
+                    <span className="user-handle">{userData.username}</span>
                 </div>
                 <button className="btn-options">...</button>
             </div>
