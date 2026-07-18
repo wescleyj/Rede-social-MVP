@@ -1,7 +1,9 @@
 import axios from 'axios'
 
+export const baseURL = 'http://localhost:3000';
+
 const api = axios.create({
-    baseURL: 'http://localhost:3000'
+    baseURL: baseURL,
 })
 
 // Intercepta as requisições para injetar o token
