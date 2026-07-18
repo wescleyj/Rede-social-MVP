@@ -1,0 +1,75 @@
+.post-card {
+    padding: 15px;
+    border-bottom: 1px solid #1e2732;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.post-avatar-small {
+    width: 40px;
+    height: 40px;
+    background-color: #3b82f6;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.post-meta {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.post-meta strong {
+    color: #ffffff;
+    font-size: 15px;
+}
+
+.post-meta span {
+    color: #71767b;
+    font-size: 15px;
+}
+
+.post-text {
+    color: #ffffff;
+    font-size: 15px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.post-media {
+    width: 100%;
+    border-radius: 15px;
+    margin-top: 10px;
+    object-fit: cover;
+    border: 1px solid #1e2732;
+}
+
+.post-actions {
+    display: flex;
+    justify-content: space-between;
+    max-width: 400px;
+    margin-top: 10px;
+}
+
+.btn-action {
+    background: none;
+    border: none;
+    color: #71767b;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s;
+}
+
+.btn-action:hover {
+    color: #38bdf8;
+}

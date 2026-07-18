@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import api, { baseURL } from "../../../services/api.js";
 import "./styles.css";
 import RightSideBar from "../../components/RightSidebar/index.jsx";
+import PostCard from "../../components/PostCard/index.jsx";
 
 export default function Profile() {
     const [userData, setUserData] = useState(null);
@@ -75,7 +76,7 @@ export default function Profile() {
 
                         <div className="profile-meta">
                             <span>{userData.username}</span>
-                            <span>{userData.creation_created_at}</span>
+                            <span>{userData.created_at}</span>
                         </div>
 
                         <div className="profile-stats">
@@ -95,30 +96,7 @@ export default function Profile() {
                 <section className="profile-feed">
                     {posts.length > 0 ? (
                         posts.map((post) => (
-                            <article key={post.id} className="post-card">
-                                <div className="post-header">
-                                    {userData.avatar_url ? (
-                                        <img src={`${baseURL}/uploads/${userData.avatar_url}`} alt="" className="post-avatar-small" />
-                                    ) : (
-                                        <div className="post-avatar-small"></div>
-                                    )}
-                                    <div className="post-meta">
-                                        <strong>{userData.name}</strong> <span>@{userData.username}</span>
-                                    </div>
-                                </div>
-
-                                <p className="post-content">{post.content}</p>
-
-                                {post.media_url && (
-                                    <img src={`${baseURL}/uploads/${post.media_url}`} alt="Mídia da publicação" className="post-media" />
-                                )}
-
-                                <div className="post-actions">
-                                    <button>💬 {post.comments_count || 0}</button>
-                                    <button>🔁 {post.reposts_count || 0}</button>
-                                    <button>❤️ {post.likes_count || 0}</button>
-                                </div>
-                            </article>
+                            <PostCard key={post.id} post={post} />
                         ))
                     ) : (
                         <p className="no-posts-message">Nenhuma publicação encontrada.</p>
