@@ -5,11 +5,12 @@ import "./styles.css";
 import RightSideBar from "../../components/RightSidebar/index.jsx";
 import PostCard from "../../components/PostCard/index.jsx";
 import {AuthContext} from "../../contexts/AuthContext";
+import {Link, useNavigate} from "react-router-dom";
 
 export default function Profile() {
     const { userData } = useContext(AuthContext);
     const [posts, setPosts] = useState([]);
-
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function fetchData() {
@@ -62,7 +63,7 @@ export default function Profile() {
 
             <main className="profile-main-content">
                 <header className="profile-header">
-                    <button className="btn-back">{"<"}</button>
+                <button className="btn-back"><Link  className="retornar" to="/">{"<"}</Link></button>
                     <div className="header-info">
                         <h2>{userData.name}</h2>
                         <span>{userData.posts_count || 0} publicações</span>

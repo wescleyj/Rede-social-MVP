@@ -7,8 +7,9 @@ export function AuthProvider({ children }) {
     const [userData, setUserData] = useState(null);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-
+        // const token = localStorage.getItem('token');
+        const token = "token-fake-de-teste";
+        
         async function fetchUserData() {
             try {
                 // MOCK DO USUÁRIO LOCAL:
