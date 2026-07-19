@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" class="heart-icon">
+  <style>
+    .heart-icon path {
+      fill: #a1a1aa; /* Cor inicial */
+      transition: fill 0.3s;
+    }
+  </style>
+  <path d="M16,28.26a1.06,1.06,0,0,1-.78-.34L4,16.63A8.49,8.49,0,0,1,4.06,4.06a8.49,8.49,0,0,1,11.88,0L16,4.09l.06,0A8.49,8.49,0,0,1,28,16.63L16.78,27.92A1.06,1.06,0,0,1,16,28.26Z"/>
+</svg>

@@ -18,15 +18,17 @@ export default function Home() {
                 // const response = await api.get('/posts');
                 // setPosts(response.data);
 
-                // MOCK DO FEED:
+// MOCK DO FEED:
                 setPosts([
                     {
                         id: 1,
-                        content: "Primeira publicação de teste no frontend!",
+                        content: "Primeira publicação de teste no frontend! Sem curtidas ou reposts meus.",
                         media_url: null,
-                        comments_count: 5,
-                        reposts_count: 2,
-                        likes_count: 10,
+                        totalComments: 5,
+                        totalReposts: 2,
+                        totalLikes: 10,
+                        isLiked: false,
+                        isReply: false,
                         author: {
                             name: "Usuário Teste",
                             username: "teste_front",
@@ -35,15 +37,36 @@ export default function Home() {
                     },
                     {
                         id: 2,
-                        content: "Testando a renderização de múltiplos cards na tela inicial.",
+                        content: "Testando a renderização de números grandes e botões ativos.",
                         media_url: null,
-                        comments_count: 0,
-                        reposts_count: 0,
-                        likes_count: 3,
+                        totalComments: 1500,
+                        totalReposts: 25000,
+                        totalLikes: 3000000,
+                        isLiked: true,
+                        isReply: true,
                         author: {
                             name: "Outra Pessoa",
                             username: "pessoa_2",
                             avatar_url: null
+                        }
+                    },
+                    {
+                        id: 3,
+                        content: "Este card foi repostado na sua timeline por outro usuário. Observe o cabeçalho!",
+                        media_url: null,
+                        totalComments: 42,
+                        totalReposts: 100,
+                        totalLikes: 850,
+                        isLiked: false,
+                        isReply: false,
+                        author: {
+                            name: "Criador Original",
+                            username: "original",
+                            avatar_url: null
+                        },
+                        repostedBy: {
+                            name: "Maria Silva",
+                            username: "maria_silva"
                         }
                     }
                 ]);

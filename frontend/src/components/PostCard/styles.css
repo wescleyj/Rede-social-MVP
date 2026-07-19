@@ -70,6 +70,47 @@
     transition: color 0.2s;
 }
 
-.btn-action:hover {
+/* Reduz o tamanho das imagens */
+.btn-action svg {
+    width:21px;
+    height: 21px;
+}
+
+.btn-repost svg {
+    width: 26px;
+    height: 26px;
+}
+
+/* Evita que elementos internos do botão conflitem com o hover do pai */
+.btn-action > * {
+    pointer-events: none;
+}
+
+/* Balão de mensagem */
+.btn-message:hover {
     color: #38bdf8;
 }
+.btn-message:hover svg path {
+    stroke: #38bdf8;
+}
+
+/* Setas */
+.btn-repost:hover,
+.btn-repost.reposted {
+    color: #22c55e;
+}
+.btn-repost:hover svg line,
+.btn-repost.reposted svg line {
+    stroke: #22c55e;
+}
+
+/* Coração */
+.btn-like:hover,
+.btn-like.liked {
+    color: #f43f5e;
+}
+.btn-like:hover svg path,
+.btn-like.liked svg path {
+    fill: #f43f5e;
+}
+

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" class="message-icon">
+	<style>
+		.message-icon path {
+			stroke: #a1a1aa;
+			stroke-width: 2;
+			fill: none;
+			stroke-linejoin: round;
+			transition: stroke 0.3s;
+		}
+	</style>
+	<path d="M 6 6 C 4.895 6 4 6.895 4 8 L 4 28 L 10 22 L 26 22 C 27.105 22 28 21.105 28 20 L 28 8 C 28 6.895 27.105 6 26 6 L 6 6 Z" />
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 6 20 20" width="32" height="32" class="arrows-icon">
+	<style>
+		.arrows-icon line {
+			stroke: #a1a1aa;
+			transition: stroke 0.3s;
+		}
+	</style>
+	<line x1="10" y1="14" x2="22" y2="14" stroke-width="2" stroke-linecap="round"/>
+	<line x1="22" y1="14" x2="19" y2="11" stroke-width="2" stroke-linecap="round"/>
+	<line x1="10" y1="18" x2="22" y2="18" stroke-width="2" stroke-linecap="round"/>
+	<line x1="10" y1="18" x2="13" y2="21" stroke-width="2" stroke-linecap="round"/>
+</svg>

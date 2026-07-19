@@ -5,24 +5,40 @@ import "./styles.css";
 import RightSideBar from "../../components/RightSidebar/index.jsx";
 import PostCard from "../../components/PostCard/index.jsx";
 import {AuthContext} from "../../contexts/AuthContext";
-import {Link, useNavigate} from "react-router-dom";
+import {Link} from "react-router-dom";
 
 export default function Profile() {
     const { userData } = useContext(AuthContext);
     const [posts, setPosts] = useState([]);
-    const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState("publicacoes");
+    const filteredPosts = posts.filter(post => {
+        if (activeTab === "publicacoes") {
+            return !post.isReply;
+        }
+        if (activeTab === "curtidas") {
+            return post.isLiked;
+        }
+        if (activeTab === "midia") {
+            return post.media_url;
+        }
+        return false;
+    });
+
 
     useEffect(() => {
         async function fetchData() {
             try {
+                // MOCK DO FEED:
                 setPosts([
                     {
                         id: 1,
-                        content: "Primeira publicação de teste no frontend!",
+                        content: "Primeira publicação de teste no frontend! Sem curtidas ou reposts meus.",
                         media_url: null,
-                        comments_count: 5,
-                        reposts_count: 2,
-                        likes_count: 10,
+                        totalComments: 5,
+                        totalReposts: 2,
+                        totalLikes: 10,
+                        isLiked: false,
+                        isReply: false,
                         author: {
                             name: "Usuário Teste",
                             username: "teste_front",
@@ -31,15 +47,36 @@ export default function Profile() {
                     },
                     {
                         id: 2,
-                        content: "Testando a renderização de múltiplos cards na tela inicial.",
+                        content: "Testando a renderização de números grandes e botões ativos.",
                         media_url: null,
-                        comments_count: 0,
-                        reposts_count: 0,
-                        likes_count: 3,
+                        totalComments: 1500,
+                        totalReposts: 25000,
+                        totalLikes: 3000000,
+                        isLiked: true,
+                        isReply: true,
                         author: {
                             name: "Outra Pessoa",
                             username: "pessoa_2",
                             avatar_url: null
+                        }
+                    },
+                    {
+                        id: 3,
+                        content: "Este card foi repostado na sua timeline por outro usuário. Observe o cabeçalho!",
+                        media_url: null,
+                        totalComments: 42,
+                        totalReposts: 100,
+                        totalLikes: 850,
+                        isLiked: false,
+                        isReply: false,
+                        author: {
+                            name: "Criador Original",
+                            username: "original",
+                            avatar_url: null
+                        },
+                        repostedBy: {
+                            name: "Maria Silva",
+                            username: "maria_silva"
                         }
                     }
                 ]);
@@ -111,15 +148,37 @@ export default function Profile() {
                 </section>
 
                 <nav className="profile-tabs">
-                    <button className="active">Publicações</button>
-                    <button>Respostas</button>
-                    <button>Mídia</button>
-                    <button>Curtidas</button>
+                    <nav className="profile-tabs">
+                        <button
+                            className={activeTab === "publicacoes" ? "active" : ""}
+                            onClick={() => setActiveTab("publicacoes")}
+                        >
+                            Publicações
+                        </button>
+                        <button
+                            className={activeTab === "respostas" ? "active" : ""}
+                            onClick={() => setActiveTab("respostas")}
+                        >
+                            Respostas
+                        </button>
+                        <button
+                            className={activeTab === "midia" ? "active" : ""}
+                            onClick={() => setActiveTab("midia")}
+                        >
+                            Mídia
+                        </button>
+                        <button
+                            className={activeTab === "curtidas" ? "active" : ""}
+                            onClick={() => setActiveTab("curtidas")}
+                        >
+                            Curtidas
+                        </button>
+                    </nav>
                 </nav>
 
                 <section className="profile-feed">
-                    {posts.length > 0 ? (
-                        posts.map((post) => (
+                    {filteredPosts.length > 0 ? (
+                        filteredPosts.map((post) => (
                             <PostCard key={post.id} post={post} />
                         ))
                     ) : (
