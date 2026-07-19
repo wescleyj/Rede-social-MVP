@@ -1,34 +1,13 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import './styles.css';
 import api, { baseURL } from "../../../services/api.js";
+import {AuthContext} from "../../contexts/AuthContext.jsx";
 
 export default function Sidebar() {
     const location = useLocation();
     const navigate = useNavigate();
-    const [userData, setUserData] = useState(null);
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-
-        async function fetchUserData() {
-            try {
-                const response = await api.get('/users/me');
-                setUserData(response.data);
-            } catch (error) {
-                console.error(error);
-                // Define como anônimo se a requisição falhar (ex: token inválido/expirado)
-                setUserData({ name: 'Anônimo', username: 'visitante', avatar_url: null, isAnonymous: true });
-            }
-        }
-
-        if (token) {
-            fetchUserData();
-        } else {
-            // Define como anônimo imediatamente se não houver token salvo
-            setUserData({ name: 'Anônimo', username: 'visitante', avatar_url: null, isAnonymous: true });
-        }
-    }, []);
+    const { userData } = useContext(AuthContext);
 
     if (!userData) {
         return <nav className="sidebar-container">Carregando...</nav>;

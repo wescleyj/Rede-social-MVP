@@ -1,23 +1,49 @@
 import LeftSidebar from "../../components/LeftSidebar/index.jsx";
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect, useContext} from "react";
 import api, { baseURL } from "../../../services/api.js";
 import "./styles.css";
 import RightSideBar from "../../components/RightSidebar/index.jsx";
 import PostCard from "../../components/PostCard/index.jsx";
+import {AuthContext} from "../../contexts/AuthContext";
 
 export default function Profile() {
-    const [userData, setUserData] = useState(null);
+    const { userData } = useContext(AuthContext);
     const [posts, setPosts] = useState([]);
+
 
     useEffect(() => {
         async function fetchData() {
             try {
-                const userResponse = await api.get('/users/me');
-                setUserData(userResponse.data);
-
-                // Ajuste esta rota para o endpoint real do seu backend que retorna as publicações
-                const postsResponse = await api.get('/users/me/posts');
-                setPosts(postsResponse.data);
+                setPosts([
+                    {
+                        id: 1,
+                        content: "Primeira publicação de teste no frontend!",
+                        media_url: null,
+                        comments_count: 5,
+                        reposts_count: 2,
+                        likes_count: 10,
+                        author: {
+                            name: "Usuário Teste",
+                            username: "teste_front",
+                            avatar_url: null
+                        }
+                    },
+                    {
+                        id: 2,
+                        content: "Testando a renderização de múltiplos cards na tela inicial.",
+                        media_url: null,
+                        comments_count: 0,
+                        reposts_count: 0,
+                        likes_count: 3,
+                        author: {
+                            name: "Outra Pessoa",
+                            username: "pessoa_2",
+                            avatar_url: null
+                        }
+                    }
+                ]);
+                // const postsResponse = await api.get('/users/me/posts');
+                // setPosts(postsResponse.data);
             } catch (error) {
                 console.error(error);
             }
@@ -64,9 +90,7 @@ export default function Profile() {
                         <div className="profile-avatar-large"></div>
                     )}
                     <div className="profile-actions">
-                        <button className="btn-icon">...</button>
-                        <button className="btn-icon">✉</button>
-                        <button className="btn-follow">Seguir</button>
+                        <button className="btn-secondary">Editar Perfil</button>
                     </div>
 
                     <div className="profile-bio">
@@ -75,8 +99,7 @@ export default function Profile() {
                         <p>{userData.bio || "Sem biografia"}</p>
 
                         <div className="profile-meta">
-                            <span>{userData.username}</span>
-                            <span>{userData.created_at}</span>
+                            <span>📅 Entrou em {new Date(userData.created_at).getFullYear()}</span>
                         </div>
 
                         <div className="profile-stats">
