@@ -1,8 +1,7 @@
 from django.test import TestCase
 from .serializers import RegisterSerializer, PostSerializer
-from .models import User
-
-## FAZER USUARIO DAR LIKE E TESTAR
+from .models import User, Post, Comment
+from django.db.models import Count
 
 class SerializerTestCase(TestCase): #testa o serializer criado pra usuario
     def test_serializer_valid_data(self):
@@ -55,3 +54,12 @@ class PostSerializerTestCase(TestCase): #testa o serializer do post - incompleto
         post = serializer.save(author=self.user)
         self.assertEqual(post.content, "Hello world! This is my first post.")
         self.assertEqual(post.author, self.user)
+
+        post.likes.add(self.user)
+        self.assertEqual(post.likes_count, 1)
+        self.assertIn(self.user, list(post.likes.all()))
+
+        Comment.objects.create(post=post, author=self.user, content="Nice post!")
+
+        self.assertEqual(post.comments_count,1)
+        self.assertTrue(post.comments.filter(author=self.user).exists())
