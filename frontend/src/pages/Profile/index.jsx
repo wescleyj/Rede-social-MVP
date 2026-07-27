@@ -11,9 +11,14 @@ export default function Profile() {
     const { userData } = useContext(AuthContext);
     const [posts, setPosts] = useState([]);
     const [activeTab, setActiveTab] = useState("publicacoes");
+    const [editPerfil, setEditPerfil] = useState(false);
+    const [nameUpdate, setNameUpdate] = useState(userData.name);
+    const [bioUpdate, setbioUpdate] = useState(userData.bio);
+    const [avatarFile, setAvatarFile] = useState(null);
+    const [bannerFile, setBannerFile] = useState(null);
     const filteredPosts = posts.filter(post => {
         if (activeTab === "publicacoes") {
-            return !post.isReply;
+            return post;
         }
         if (activeTab === "curtidas") {
             return post.isLiked;
@@ -24,6 +29,36 @@ export default function Profile() {
         return false;
     });
 
+    const alternar= () => {
+        setEditPerfil(!editPerfil);
+    };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        formData.append("name", nameUpdate);
+        formData.append("bio", bioUpdate);
+
+        if (avatarFile) {
+            formData.append("avatar", avatarFile);
+        }
+        if (bannerFile) {
+            formData.append("banner", bannerFile);
+        }
+
+        try {
+            await api.put("/users/me/edit", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            });
+
+            alternar();
+        } catch (error) {
+            alert("Erro ao atualizar");
+        }
+    };
 
     useEffect(() => {
         async function fetchData() {
@@ -32,8 +67,8 @@ export default function Profile() {
                 setPosts([
                     {
                         id: 1,
-                        content: "Primeira publicação de teste no frontend! Sem curtidas ou reposts meus.",
-                        media_url: null,
+                        content: "Primeira publicação de teste no frontend! Sem curtidas ou reposts meus, com midia.",
+                        media_url: "a",
                         totalComments: 5,
                         totalReposts: 2,
                         totalLikes: 10,
@@ -128,8 +163,59 @@ export default function Profile() {
                         <div className="profile-avatar-large"></div>
                     )}
                     <div className="profile-actions">
-                        <button className="btn-secondary">Editar Perfil</button>
+                        <button className="btn-secondary" onClick={alternar}>Editar Perfil</button>
                     </div>
+
+                    {editPerfil && (
+                        <div className="modal-overlay">
+                            <div className="modal-content">
+                                <h2>Editar Perfil</h2>
+                                <form onSubmit={handleEditSubmit}>
+                                    <div className="form-group">
+                                        <label>Nome:</label>
+                                        <input
+                                            type="text"
+                                            value={nameUpdate}
+                                            onChange={(e) => setNameUpdate(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Biografia:</label>
+                                        <textarea
+                                            value={bioUpdate}
+                                            onChange={(e) => setbioUpdate(e.target.value)}
+                                            rows="3"
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Foto de Perfil:</label>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => setAvatarFile(e.target.files[0])}
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Foto de Capa (Banner):</label>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => setBannerFile(e.target.files[0])}
+                                        />
+                                    </div>
+
+                                    <div className="modal-actions">
+                                        <button type="button" onClick={alternar}>Cancelar</button>
+                                        <button type="submit">Salvar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="profile-bio">
                         <h1>{userData.name}</h1>
@@ -148,32 +234,15 @@ export default function Profile() {
                 </section>
 
                 <nav className="profile-tabs">
-                    <nav className="profile-tabs">
-                        <button
-                            className={activeTab === "publicacoes" ? "active" : ""}
-                            onClick={() => setActiveTab("publicacoes")}
-                        >
-                            Publicações
-                        </button>
-                        <button
-                            className={activeTab === "respostas" ? "active" : ""}
-                            onClick={() => setActiveTab("respostas")}
-                        >
-                            Respostas
-                        </button>
-                        <button
-                            className={activeTab === "midia" ? "active" : ""}
-                            onClick={() => setActiveTab("midia")}
-                        >
-                            Mídia
-                        </button>
-                        <button
-                            className={activeTab === "curtidas" ? "active" : ""}
-                            onClick={() => setActiveTab("curtidas")}
-                        >
-                            Curtidas
-                        </button>
-                    </nav>
+                    <button className={activeTab === "publicacoes" ? "active" : ""} onClick={() => setActiveTab("publicacoes")}>
+                        Publicações
+                    </button>
+                    <button className={activeTab === "midia" ? "active" : ""} onClick={() => setActiveTab("midia")}>
+                        Mídia
+                    </button>
+                    <button className={activeTab === "curtidas" ? "active" : ""} onClick={() => setActiveTab("curtidas")}>
+                        Curtidas
+                    </button>
                 </nav>
 
                 <section className="profile-feed">

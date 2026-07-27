@@ -18,12 +18,12 @@ export default function Home() {
                 // const response = await api.get('/posts');
                 // setPosts(response.data);
 
-// MOCK DO FEED:
+                // MOCK DO FEED:
                 setPosts([
                     {
                         id: 1,
-                        content: "Primeira publicação de teste no frontend! Sem curtidas ou reposts meus.",
-                        media_url: null,
+                        content: "Primeira publicação de teste no frontend! Sem curtidas ou reposts meus, com midia.",
+                        media_url: "a",
                         totalComments: 5,
                         totalReposts: 2,
                         totalLikes: 10,

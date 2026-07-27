@@ -161,6 +161,51 @@
     width: 100%;
 }
 
+/* Fundo escuro que cobre a tela toda */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7); /* Preto com 70% de transparência */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Garante que fique por cima do resto do site */
+}
+
+/* A caixa do formulário em si */
+.modal-content {
+    background-color: var(--bg, #1e2732); /* Ajuste para a cor do seu tema */
+    padding: 24px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 500px; /* Não deixa o modal ficar largo demais em telas grandes */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--text, #ffffff);
+}
+
+/* Botões do modal */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.modal-actions button {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
 .profile-tabs button {
     flex: 1;
     background: transparent;
@@ -191,4 +236,39 @@
 .retornar {
     text-decoration: none;
     color: inherit;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group textarea,
+.form-group input[type="file"] {
+    background-color: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    font-family: inherit;
+}
+
+.form-group textarea {
+    resize: vertical; /* Permite redimensionar apenas para baixo */
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+    border-color: var(--brand); /* Destaca a borda ao clicar no campo */
 }
