@@ -4,7 +4,6 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(unique=True, max_length=20)
-    # password = models.CharField(max_length=255) #talvez tirar isso
     name = models.CharField(max_length=255)
     bio = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -34,16 +33,16 @@ class Post(models.Model):
     media_url = models.URLField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
 
-    likes_count = models.ManyToManyField(User, related_name='liked_posts', blank=True)
-    reposts_count = models.ManyToManyField(User, related_name='reposted_posts', blank=True)
+    likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
+    reposts = models.ManyToManyField(User, related_name='reposted_posts', blank=True)
 
     @property
     def likes_count(self):
-        return self.likes_count.count()
+        return self.likes.count()
 
     @property
     def reposted_count(self):
-        return self.reposts_count.count()
+        return self.reposts.count()
 
     @property
     def comments_count(self):
