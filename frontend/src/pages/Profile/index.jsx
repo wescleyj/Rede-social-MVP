@@ -5,17 +5,24 @@ import "./styles.css";
 import RightSideBar from "../../components/RightSidebar/index.jsx";
 import PostCard from "../../components/PostCard/index.jsx";
 import {AuthContext} from "../../contexts/AuthContext";
-import {Link} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 
 export default function Profile() {
     const { userData } = useContext(AuthContext);
+    const { username } = useParams();
     const [posts, setPosts] = useState([]);
     const [activeTab, setActiveTab] = useState("publicacoes");
     const [editPerfil, setEditPerfil] = useState(false);
-    const [nameUpdate, setNameUpdate] = useState(userData.name);
-    const [bioUpdate, setbioUpdate] = useState(userData.bio);
+    const [nameUpdate, setNameUpdate] = useState(userData?.name);
+    const [bioUpdate, setbioUpdate] = useState(userData?.bio);
     const [avatarFile, setAvatarFile] = useState(null);
     const [bannerFile, setBannerFile] = useState(null);
+
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [followIsLoading, setFollowIsLoading] = useState(false);
+
+    const isOwnProfile = !username || (userData && username === userData.username);
+
     const filteredPosts = posts.filter(post => {
         if (activeTab === "publicacoes") {
             return post;
@@ -59,6 +66,23 @@ export default function Profile() {
             alert("Erro ao atualizar");
         }
     };
+
+    async function handleFollow() {
+        setFollowIsLoading(true);
+
+        try {
+            const response = await api.post('/users/follow', {
+                username: username,
+            });
+
+            setIsFollowing(response.data.isFollowing);
+        } catch (error) {
+            console.error(error);
+            alert('Erro desconhecido');
+        } finally {
+            setFollowIsLoading(false);
+        }
+    }
 
     useEffect(() => {
         async function fetchData() {
@@ -135,7 +159,7 @@ export default function Profile() {
 
             <main className="profile-main-content">
                 <header className="profile-header">
-                <button className="btn-back"><Link  className="retornar" to="/">{"<"}</Link></button>
+                    <button className="btn-back"><Link className="retornar" to="/">{"<"}</Link></button>
                     <div className="header-info">
                         <h2>{userData.name}</h2>
                         <span>{userData.posts_count || 0} publicações</span>
@@ -162,8 +186,19 @@ export default function Profile() {
                     ) : (
                         <div className="profile-avatar-large"></div>
                     )}
+
                     <div className="profile-actions">
-                        <button className="btn-secondary" onClick={alternar}>Editar Perfil</button>
+                        {isOwnProfile ? (
+                            <button className="btn-secondary" onClick={alternar}>Editar Perfil</button>
+                        ) : (
+                            <button
+                                className={`btn-primary ${isFollowing ? 'following' : ''}`}
+                                disabled={followIsLoading}
+                                onClick={handleFollow}
+                            >
+                                {isFollowing ? 'Seguindo' : 'Seguir'}
+                            </button>
+                        )}
                     </div>
 
                     {editPerfil && (
