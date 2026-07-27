@@ -1,7 +1,7 @@
 import React, {useRef, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../services/api'
-import './styles.css';
+import '../../styles/auth.css';
 
 export default function SignIn() {
     // Salva os dados do forms para enviar para a API

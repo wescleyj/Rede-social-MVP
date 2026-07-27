@@ -1,21 +1,35 @@
 .post-card {
-    padding: 15px;
-    border-bottom: 1px solid #1e2732;
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+    transition: background-color 0.2s;
+}
+
+.post-card:hover {
+    background-color: rgba(255, 255, 255, 0.015);
+}
+
+.post-reposted-by {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
 }
 
 .post-header {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .post-avatar-small {
-    width: 40px;
-    height: 40px;
-    background-color: #3b82f6;
+    width: 42px;
+    height: 42px;
+    background-color: var(--border-light);
     border-radius: 50%;
     object-fit: cover;
 }
@@ -23,94 +37,109 @@
 .post-meta {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
 }
 
 .post-meta strong {
-    color: #ffffff;
+    color: var(--text);
     font-size: 15px;
+    font-weight: 700;
 }
 
 .post-meta span {
-    color: #71767b;
-    font-size: 15px;
+    color: var(--text-muted);
+    font-size: 14px;
 }
 
 .post-text {
-    color: #ffffff;
+    color: var(--text);
     font-size: 15px;
     margin: 0;
     line-height: 1.5;
+    word-break: break-word;
 }
 
 .post-media {
     width: 100%;
-    border-radius: 15px;
-    margin-top: 10px;
+    max-height: 450px;
+    border-radius: 16px;
+    margin-top: 6px;
     object-fit: cover;
-    border: 1px solid #1e2732;
+    border: 1px solid var(--border);
 }
 
 .post-actions {
     display: flex;
     justify-content: space-between;
-    max-width: 400px;
-    margin-top: 10px;
+    max-width: 420px;
+    margin-top: 6px;
 }
 
 .btn-action {
     background: none;
     border: none;
-    color: #71767b;
+    color: var(--text-muted);
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
+    font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 5px;
-    transition: color 0.2s;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    transition: color 0.2s, background-color 0.2s;
 }
 
-/* Reduz o tamanho das imagens */
+.btn-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .btn-action svg {
-    width:21px;
-    height: 21px;
+    width: 20px;
+    height: 20px;
 }
 
 .btn-repost svg {
-    width: 26px;
-    height: 26px;
+    width: 22px;
+    height: 22px;
 }
 
-/* Evita que elementos internos do botão conflitem com o hover do pai */
 .btn-action > * {
     pointer-events: none;
 }
 
-/* Balão de mensagem */
+/* Balão de mensagem / Comentários */
 .btn-message:hover {
-    color: #38bdf8;
+    color: var(--brand);
+    background-color: rgba(56, 189, 248, 0.1);
 }
 .btn-message:hover svg path {
-    stroke: #38bdf8;
+    stroke: var(--brand);
 }
 
-/* Setas */
+/* Repost */
 .btn-repost:hover,
 .btn-repost.reposted {
-    color: #22c55e;
+    color: var(--success);
+}
+.btn-repost:hover {
+    background-color: rgba(34, 197, 94, 0.1);
 }
 .btn-repost:hover svg line,
 .btn-repost.reposted svg line {
-    stroke: #22c55e;
+    stroke: var(--success);
 }
 
-/* Coração */
+/* Curtidas */
 .btn-like:hover,
 .btn-like.liked {
-    color: #f43f5e;
+    color: var(--danger);
+}
+.btn-like:hover {
+    background-color: rgba(244, 63, 94, 0.1);
 }
 .btn-like:hover svg path,
 .btn-like.liked svg path {
-    fill: #f43f5e;
+    fill: var(--danger);
 }
-

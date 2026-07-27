@@ -1,6 +1,6 @@
 import React, {useRef, useState} from 'react';
-import api from '../../../services/api'
-import './styles.css';
+import api from '../../../services/api';
+import '../../styles/auth.css';
 
 export default function SignUp() {
   // Salva as informações do formulario para passar para a api
