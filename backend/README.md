@@ -2,7 +2,7 @@
 
 ### Rotas Públicas
 
-**POST `/users`** (Cadastro)
+**POST `api/auth/register`** (Cadastro)
 *	**Corpo da Requisição (JSON):**
      *	`name` (string)
      *	`username` (string)
@@ -10,7 +10,7 @@
      *	`password` (string)
 *	**Retorno Esperado:** `201 Created` ou erro `409 Conflict`.
 
-**POST `/auth/login`** (Autenticação)
+**POST `api/auth/login`** (Autenticação)
 *	**Corpo da Requisição (JSON):**
      *	`email` (string)
      *	`password` (string)
@@ -23,7 +23,7 @@
 
 *Todas as rotas exigem o cabeçalho: `Authorization: Bearer <token>`*
 
-**GET `/users/me`** (Dados do Perfil Logado)
+**GET `api/users/me`** (Dados do Perfil Logado)
 *	**Retorno Esperado (JSON):**
      *	`name` (string)
      *	`username` (string)
@@ -35,7 +35,7 @@
      *	`avatar_url` (string)
      *	`banner_url` (string)
 
-**GET `/posts`** (Feed Global - Publicações Mais Recentes)
+**GET `api/posts`** (Feed Global - Publicações Mais Recentes)
 *	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
      *	`id` (string/number)
      *	`content` (string)
@@ -45,5 +45,5 @@
      *	`likes_count` (number)
      *	`author` (object): Contém `name`, `username` e `avatar_url`.
 
-**GET `/users/me/posts`** (Publicações do Usuário Logado)
+**GET `api/users/me/posts`** (Publicações do Usuário Logado)
 *	**Retorno Esperado:** Array de objetos JSON idêntico ao da rota `/posts`.

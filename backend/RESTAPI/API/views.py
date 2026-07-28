@@ -1,3 +1,90 @@
-from django.shortcuts import render
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
 
-# Create your views here.
+from .models import User, Post, Comment
+from .serializers import (
+    RegisterSerializer,
+    UserProfileSerializer,
+    PostSerializer,
+)
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
+    permission_classes = [permissions.AllowAny]
+
+class UserProfileDetailView(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserProfileSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    lookup_field = 'username'
+
+
+class FollowToggleView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, username):
+        target_user = get_object_or_404(User, username=username)
+        if target_user == request.user:
+            return Response(
+                {"detail": "You cannot follow yourself."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if request.user.following.filter(id=target_user.id).exists():
+            request.user.following.remove(target_user)
+            return Response({"detail": f"Unfollowed @{target_user.username}."}, status=status.HTTP_200_OK)
+        else:
+            request.user.following.add(target_user)
+            return Response({"detail": f"Followed @{target_user.username}."}, status=status.HTTP_200_OK)
+
+class PostListCreateView(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_update(self, serializer):
+        if self.get_object().author != self.request.user:
+            self.permission_denied(self.request, message="You are not authorized to edit this post.")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if instance.author != self.request.user:
+            self.permission_denied(self.request, message="You are not authorized to delete this post.")
+        instance.delete()
+
+class LikeToggleView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        if post.likes.filter(id=request.user.id).exists():
+            post.likes.remove(request.user)
+            return Response({"detail": "Unliked post."}, status=status.HTTP_200_OK)
+        else:
+            post.likes.add(request.user)
+            return Response({"detail": "Liked post."}, status=status.HTTP_200_OK)
+
+
+class RepostToggleView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        if post.reposts.filter(id=request.user.id).exists():
+            post.reposts.remove(request.user)
+            return Response({"detail": "Removed repost."}, status=status.HTTP_200_OK)
+        else:
+            post.reposts.add(request.user)
+            return Response({"detail": "Reposted successfully."}, status=status.HTTP_200_OK)

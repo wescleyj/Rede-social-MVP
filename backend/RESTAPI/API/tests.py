@@ -1,7 +1,9 @@
 from django.test import TestCase
 from .serializers import RegisterSerializer, PostSerializer
 from .models import User, Post, Comment
-from django.db.models import Count
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
 
 class SerializerTestCase(TestCase): #testa o serializer criado pra usuario
     def test_serializer_valid_data(self):
@@ -63,3 +65,114 @@ class PostSerializerTestCase(TestCase): #testa o serializer do post - incompleto
 
         self.assertEqual(post.comments_count,1)
         self.assertTrue(post.comments.filter(author=self.user).exists())
+
+class SocialAppAPITests(APITestCase): #testa rotas
+
+    def setUp(self):
+        self.user1 = User.objects.create_user(
+            username='userone',
+            email='user1@example.com',
+            password='Password123!',
+            name='User One'
+        )
+        self.user2 = User.objects.create_user(
+            username='usertwo',
+            email='user2@example.com',
+            password='Password123!',
+            name='User Two'
+        )
+        self.post = Post.objects.create(
+            author=self.user1,
+            content="Hello world from user 1"
+        )
+
+    def test_user_registration(self):
+        url = reverse('register')
+        data = {
+            'username': 'newuser',
+            'email': 'newuser@example.com',
+            'password': 'StrongPassword123!',
+            'name': 'New User',
+            'bio': 'Welcome to my profile'
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(User.objects.filter(username='newuser').exists())
+
+    def test_get_user_profile(self):
+        url = reverse('user-profile', kwargs={'username': self.user1.username})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['email'], self.user1.email)
+
+    def test_follow_and_unfollow_user(self):
+        self.client.force_authenticate(user=self.user1)
+        url = reverse('follow-toggle', kwargs={'username': self.user2.username})
+
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(self.user1.following.filter(id=self.user2.id).exists())
+
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(self.user1.following.filter(id=self.user2.id).exists())
+
+    def test_cannot_follow_self(self):
+        self.client.force_authenticate(user=self.user1)
+        url = reverse('follow-toggle', kwargs={'username': self.user1.username})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_post(self):
+        self.client.force_authenticate(user=self.user1)
+        url = reverse('post-list-create')
+        data = {'content': 'Another great post!'}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Post.objects.count(), 2)
+
+    def test_list_posts(self):
+        url = reverse('post-list-create')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 1)
+
+
+    def test_update_post_author(self):
+        self.client.force_authenticate(user=self.user1)
+        url = reverse('post-detail', kwargs={'pk': self.post.pk})
+        data = {'content': 'Updated post content'}
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.content, 'Updated post content')
+
+    def test_delete_post_unauthorized(self):
+        self.client.force_authenticate(user=self.user2)
+        url = reverse('post-detail', kwargs={'pk': self.post.pk})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_like_toggle(self):
+        self.client.force_authenticate(user=self.user2)
+        url = reverse('post-like', kwargs={'pk': self.post.pk})
+
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(self.post.likes.filter(id=self.user2.id).exists())
+
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(self.post.likes.filter(id=self.user2.id).exists())
+
+    def test_repost_toggle(self):
+        self.client.force_authenticate(user=self.user2)
+        url = reverse('post-repost', kwargs={'pk': self.post.pk})
+
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(self.post.reposts.filter(id=self.user2.id).exists())
+
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(self.post.reposts.filter(id=self.user2.id).exists())
