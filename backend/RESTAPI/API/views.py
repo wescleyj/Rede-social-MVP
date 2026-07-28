@@ -2,6 +2,7 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User, Post, Comment
 from .serializers import (
@@ -14,6 +15,25 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        if User.objects.filter(username=self.request.data['username']).exists() or User.objects.filter(email=self.request.data['email']).exists():
+            return Response({"detail": "User with email and/or username already exists."}, status=status.HTTP_409_CONFLICT)
+
+        return super().create(request, *args, **kwargs)
+
+class LogoutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class UserProfileDetailView(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()

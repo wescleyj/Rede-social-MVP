@@ -2,26 +2,44 @@
 
 ### Rotas Públicas
 
-**POST `api/auth/register`** (Cadastro)
+**POST `api/auth/register/`** (Cadastro)
 *	**Corpo da Requisição (JSON):**
      *	`name` (string)
      *	`username` (string)
      *	`email` (string)
      *	`password` (string)
+     *  `bio` (string, optional)
+     *  `avatar_url` (string, optional)
+     *  `banner_url` (string, optional)
 *	**Retorno Esperado:** `201 Created` ou erro `409 Conflict`.
 
-**POST `api/auth/login`** (Autenticação)
+**POST `api/auth/login/`** (Autenticação)
 *	**Corpo da Requisição (JSON):**
-     *	`email` (string)
+     *	`username` (string)
      *	`password` (string)
-*	**Retorno Esperado:** `200 OK`
-     *	`token` (string)
-
+*	**Retorno Esperado:** `200 OK` ou erro `401 Unauthorized`.
+     *	`refresh: token` (string)
+     *  `access: token` (string)
+     > O access token dura 30 minutos, e o refresh token dura 2 dias.
 ---
 
 ### Rotas Privadas
 
 *Todas as rotas exigem o cabeçalho: `Authorization: Bearer <token>`*
+
+**POST `api/auth/refresh/`** (Atualiza o token de acesso)
+*    **Corpo da Requisição(JSON):**
+     *   `Refresh` (string)
+*    **Retorno Esperado:** `200 OK` or `401 Unauthorized`.
+     *	`refresh: token` (string)
+     *  `access: token` (string)
+
+**POST `api/logout/`** (Invalida o token de Refresh)
+*    **Corpo da Requisição(JSON):**
+     *   `Refresh` (string)
+*    **Retorno Esperado:** `205 Reset Content` or `400 Bad Request`.
+     *	`refresh: token` (string)
+     *  `access: token` (string)
 
 **GET `api/users/me`** (Dados do Perfil Logado)
 *	**Retorno Esperado (JSON):**
