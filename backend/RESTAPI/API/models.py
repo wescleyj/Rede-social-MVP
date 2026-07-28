@@ -41,7 +41,7 @@ class Post(models.Model):
         return self.likes.count()
 
     @property
-    def reposted_count(self):
+    def reposts_count(self):
         return self.reposts.count()
 
     @property

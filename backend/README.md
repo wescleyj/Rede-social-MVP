@@ -41,6 +41,20 @@
      *	`refresh: token` (string)
      *  `access: token` (string)
 
+**POST `api/posts/create/`** (Cria um post novo)
+*    **Corpo da Requisição(JSON):**
+     * `content` (string)
+     * `media_url` (string, optional)
+*    **Retorno Esperado:** `201 Created`.
+     *	`id` (string/number)
+     *	`author` (object): Contém: `name`, `username` e `avatar_url`
+     *	`content` (string)
+     *	`media_url` (string)
+     *	`created_at` (string): Formato ISO 8601.
+     *	`likes_count` (string/number)
+     *	`reposts_count` (string/number)
+     *	`comments_count` (string/number)
+
 **GET `api/users/me`** (Dados do Perfil Logado)
 *	**Retorno Esperado (JSON):**
      *	`name` (string)
