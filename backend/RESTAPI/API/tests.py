@@ -1,6 +1,6 @@
 from django.test import TestCase
-from .serializers import RegisterSerializer, PostSerializer
-from .models import User, Post, Comment
+from .serializers import *
+from .models import *
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase

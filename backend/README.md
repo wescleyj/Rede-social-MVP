@@ -59,6 +59,19 @@
      *	`id` (string)
      *  `username` (string)
 
+**GET `api/users/me`** (Dados do Perfil Logado)
+*	**Retorno Esperado (JSON):**
+     *	`email` (string)
+     *	`username` (string)
+     *	`name` (string)
+     *	`bio` (string)
+     *	`created_at` (string): Formato ISO 8601.
+     *	`following_count` (number)
+     *	`followers_count` (number)
+     *	`posts_count` (number)
+     *	`avatar_url` (string)
+     *	`banner_url` (string)
+
 **POST `api/posts/create/`** (Cria um post novo)
 *    **Corpo da Requisição(JSON):**
      * `content` (string)
@@ -72,18 +85,6 @@
      *	`likes_count` (string/number)
      *	`reposts_count` (string/number)
      *	`comments_count` (string/number)
-
-**GET `api/users/me`** (Dados do Perfil Logado)
-*	**Retorno Esperado (JSON):**
-     *	`name` (string)
-     *	`username` (string)
-     *	`bio` (string)
-     *	`created_at` (string): Formato ISO 8601.
-     *	`following_count` (number)
-     *	`followers_count` (number)
-     *	`posts_count` (number)
-     *	`avatar_url` (string)
-     *	`banner_url` (string)
 
 **GET `api/posts`** (Feed Global - Publicações Mais Recentes)
 *	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:

@@ -1,12 +1,10 @@
-from json import JSONEncoder
+from urllib import request
 
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
-
-from .models import User, Post, Comment
 from .serializers import *
 
 class RegisterView(generics.CreateAPIView):
@@ -39,6 +37,14 @@ class UserProfileDetailView(generics.RetrieveUpdateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     lookup_field = 'username'
 
+class MyProfileDetailView(generics.RetrieveUpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        queryset = User.objects.get(pk=self.request.user.id)
+        serializer_class = UserProfileSerializer
+        return Response(serializer_class(queryset).data, status=status.HTTP_200_OK)
+
 class UserProfileUpdateView(generics.UpdateAPIView):
     serializer_class = UserUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -47,7 +53,7 @@ class UserProfileUpdateView(generics.UpdateAPIView):
     def update(self, request, *args, **kwargs):
         if "id" in request.data or "password" in request.data:
             return Response(
-                {"detail": "Fields USERNAME, ID and PASSWORD not allowed in request."},
+                {"detail": "Fields ID and PASSWORD not allowed in request."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
