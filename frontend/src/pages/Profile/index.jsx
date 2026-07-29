@@ -92,23 +92,24 @@ export default function Profile() {
 
     // Carregar os dados do perfil visualizado
     useEffect(() => {
-        if (isOwnProfile) {
-            setProfileUser(userData);
-        } else {
-            // Mock para quando acessa o perfil de outra pessoa sem backend
-            setProfileUser({
-                name: "Usuário: " + username,
-                username: username,
-                bio: "Esta é a biografia de @" + username,
-                posts_count: 12,
-                followers_count: 350,
-                following_count: 120,
-                created_at: "2024-01-01T10:00:00Z",
-                avatar_url: null,
-                banner_url: null
-            });
+        async function fetchProfile() {
+            if (!username && userData) {
+                // Meu próprio perfil acessado via /profile
+                setProfileUser(userData);
+                return;
+            }
+
+            try {
+                const response = await api.get(`/api/users/info/${username}/`);
+                setProfileUser(response.data);
+            } catch (error) {
+                console.error("Erro ao carregar perfil:", error);
+                setProfileUser(null);
+            }
         }
-    }, [username, userData, isOwnProfile]);
+        
+        fetchProfile();
+    }, [username, userData]);
 
     // Sincronizar estados do modal com userData
     useEffect(() => {
@@ -132,28 +133,25 @@ export default function Profile() {
     const handleEditSubmit = async (e) => {
         e.preventDefault();
 
-        const formData = new FormData();
-        formData.append("name", nameUpdate);
-        formData.append("bio", bioUpdate);
-
-        if (avatarFile) {
-            formData.append("avatar", avatarFile);
-        }
-        if (bannerFile) {
-            formData.append("banner", bannerFile);
-        }
+        // O backend atual exige username, email, bio, avatar_url e banner_url no UserUpdateSerializer
+        const payload = {
+            username: userData.username,
+            email: userData.email,
+            bio: bioUpdate,
+            avatar_url: userData.avatar_url || "",
+            banner_url: userData.banner_url || ""
+            // name não é alterável pelo serializer atual, mas podemos mandar
+        };
 
         try {
-            await api.put("/users/me/edit", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data"
-                }
-            });
-
-            alternar();
+            const response = await api.put("/api/users/me/", payload);
+            
+            // Atualizar o contexto global de auth com os novos dados
+            // Opcionalmente podemos forçar um recarregamento da página para simplicidade
+            window.location.reload(); 
         } catch (error) {
             console.error(error);
-            alert("Erro ao atualizar");
+            alert("Erro ao atualizar o perfil. Verifique os campos.");
         }
     };
 
@@ -161,13 +159,11 @@ export default function Profile() {
         setFollowIsLoading(true);
 
         try {
-            const response = await api.post('/users/follow', {
-                username: username,
-            });
-
-            setIsFollowing(response.data.isFollowing);
+            await api.post(`/api/users/follow/${username}/`);
+            setIsFollowing(!isFollowing); // Alternar o estado de seguir baseando-se no clique
         } catch (error) {
             console.error(error);
+            alert("Erro ao tentar seguir o usuário.");
         } finally {
             setFollowIsLoading(false);
         }

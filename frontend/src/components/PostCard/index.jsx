@@ -42,15 +42,17 @@ export default function PostCard({ post }) {
         setLikeIsLoading(true);
 
         try {
-            const response = await api.post('/post/like', {
-                id: post.id,
-            });
+            await api.post(`/api/posts/like/${post.id}/`);
+
+            const wasLiked = postUpd.isLiked;
+            const currentLikes = postUpd.likes_count ?? postUpd.totalLikes ?? 0;
+            const newLikes = wasLiked ? currentLikes - 1 : currentLikes + 1;
 
             setPost({
                 ...postUpd,
-                likes_count: response.data.likes_count,
-                totalLikes: response.data.likes_count,
-                isLiked: response.data.isLiked
+                likes_count: newLikes,
+                totalLikes: newLikes,
+                isLiked: !wasLiked
             });
         } catch (error) {
             console.error(error);
@@ -63,15 +65,17 @@ export default function PostCard({ post }) {
         setRepostIsLoading(true);
 
         try {
-            const response = await api.post('/post/repost', {
-                id: post.id,
-            });
+            await api.post(`/api/posts/repost/${post.id}/`);
+
+            const wasReposted = postUpd.isReply;
+            const currentReposts = postUpd.reposts_count ?? postUpd.totalReposts ?? 0;
+            const newReposts = wasReposted ? currentReposts - 1 : currentReposts + 1;
 
             setPost({
                 ...postUpd,
-                reposts_count: response.data.reposts_count,
-                totalReposts: response.data.reposts_count,
-                isReply: response.data.isReply
+                reposts_count: newReposts,
+                totalReposts: newReposts,
+                isReply: !wasReposted
             });
         } catch (error) {
             console.error(error);

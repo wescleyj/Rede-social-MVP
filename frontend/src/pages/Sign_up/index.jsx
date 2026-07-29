@@ -16,7 +16,7 @@ export default function SignUp() {
 
     // Tenta criar o usuario e informa o usuario do sucesso ou fracasso
     try {
-      await api.post('/users', {
+      await api.post('/api/auth/register/', {
         name: inputNome.current.value,
         username: inputUsername.current.value,
         email: inputEmail.current.value,

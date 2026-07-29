@@ -1,9 +1,11 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../../services/api';
+import { AuthContext } from '../../contexts/AuthContext';
 import '../../styles/auth.css';
 
 export default function SignIn() {
+    const { login } = React.useContext(AuthContext);
     const inputUsername = useRef();
     const inputPassword = useRef();
     const [mensagem, setMensagem] = useState(null);
@@ -14,17 +16,12 @@ export default function SignIn() {
         setMensagem(null);
 
         try {
-            const response = await api.post('/api/token/', {
-                username: inputUsername.current.value,
-                password: inputPassword.current.value
-            });
+            const success = await login(
+                inputUsername.current.value,
+                inputPassword.current.value
+            );
 
-            const token = response.data.access;
-            if (token) {
-                localStorage.setItem('token', token);
-                if (response.data.refresh) {
-                    localStorage.setItem('refreshToken', response.data.refresh);
-                }
+            if (success) {
                 navigate('/');
             } else {
                 setMensagem({ tipo: 'erro', texto: 'Resposta inesperada do servidor.' });

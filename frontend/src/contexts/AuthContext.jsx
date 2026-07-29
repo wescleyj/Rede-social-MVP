@@ -3,42 +3,35 @@ import api from '../../services/api';
 
 export const AuthContext = createContext({});
 
-// Dados de fallback para desenvolvimento sem backend
-const MOCK_USER = {
-    name: "Usuário Teste",
-    username: "teste_front",
-    bio: "Testando a interface sem backend.",
-    created_at: "2024-01-01T12:00:00Z",
-    following_count: 15,
-    followers_count: 32,
-    posts_count: 2,
-    avatar_url: null,
-    banner_url: null,
-    isAnonymous: false,
-    is_staff: false,
-    is_private: false
-};
-
-const MOCK_ADMIN = {
-    name: "Administrador Supremo",
-    username: "admin_vortice",
-    bio: "Responsável por manter a ordem.",
-    created_at: "2023-01-01T12:00:00Z",
-    following_count: 0,
-    followers_count: 999,
-    posts_count: 1,
-    avatar_url: null,
-    banner_url: null,
-    isAnonymous: false,
-    is_staff: true
-};
-
 const VISITOR_USER = { name: 'Visitante', username: 'visitante', avatar_url: null, isAnonymous: true };
 
 export function AuthProvider({ children }) {
     const [userData, setUserData] = useState(null);
 
+    const login = async (username, password) => {
+        const response = await api.post('/api/auth/login/', { username, password });
+        
+        if (response.data.access) {
+            localStorage.setItem('token', response.data.access);
+            if (response.data.refresh) {
+                localStorage.setItem('refreshToken', response.data.refresh);
+            }
+            
+            // Buscar os dados após o login bem sucedido
+            // O interceptor já vai injetar o token no header
+            const userResponse = await api.get('/api/users/me/');
+            setUserData({ ...userResponse.data, isAnonymous: false });
+            return true;
+        }
+        return false;
+    };
+
     const logout = () => {
+        // Tentar deslogar no backend (invalidar refresh token)
+        const refresh = localStorage.getItem('refreshToken');
+        if (refresh) {
+            api.post('/api/logout/', { refresh }).catch(err => console.error("Erro no logout remoto", err));
+        }
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
         setUserData(VISITOR_USER);
@@ -58,18 +51,16 @@ export function AuthProvider({ children }) {
 
         async function fetchUserData() {
             try {
-                const response = await api.get('/users/me');
+                const response = await api.get('/api/users/me/');
                 setUserData({
                     ...response.data,
                     isAnonymous: false
                 });
             } catch (error) {
-                console.warn('Backend indisponível, usando dados de teste:', error.message);
-                if (token === 'admin-token') {
-                    setUserData(MOCK_ADMIN);
-                } else {
-                    setUserData(MOCK_USER);
-                }
+                console.error('Erro ao buscar dados do usuário. Sessão expirou?', error.message);
+                localStorage.removeItem('token');
+                localStorage.removeItem('refreshToken');
+                setUserData(VISITOR_USER);
             }
         }
 
@@ -81,7 +72,7 @@ export function AuthProvider({ children }) {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ userData, setUserData, logout, togglePrivacy }}>
+        <AuthContext.Provider value={{ userData, setUserData, login, logout, togglePrivacy }}>
             {children}
         </AuthContext.Provider>
     );
