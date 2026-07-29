@@ -36,19 +36,21 @@
 
 .post-meta {
     display: flex;
-    align-items: center;
-    gap: 6px;
+    flex-direction: column;
 }
 
-.post-meta strong {
-    color: var(--text);
+.post-author-name {
     font-size: 15px;
-    font-weight: 700;
+    color: var(--text);
 }
 
-.post-meta span {
-    color: var(--text-muted);
+.post-meta:hover .post-author-name {
+    text-decoration: underline;
+}
+
+.post-author-handle {
     font-size: 14px;
+    color: var(--text-muted);
 }
 
 .post-text {
@@ -71,8 +73,19 @@
 .post-actions {
     display: flex;
     justify-content: space-between;
-    max-width: 420px;
+    align-items: center;
+    width: 100%;
     margin-top: 6px;
+}
+
+.post-interactions {
+    display: flex;
+    gap: 15px;
+}
+
+.post-interactions .btn-action {
+    min-width: 80px;
+    justify-content: flex-start;
 }
 
 .btn-action {
@@ -142,4 +155,155 @@
 .btn-like:hover svg path,
 .btn-like.liked svg path {
     fill: var(--danger);
+}
+
+/* Denunciar */
+.btn-report {
+    padding: 6px;
+    font-size: 13px; /* Menor como pedido */
+    opacity: 0.6;
+    transition: opacity 0.2s, background-color 0.2s;
+}
+
+.btn-report:hover {
+    opacity: 1;
+    background-color: rgba(244, 63, 94, 0.1);
+}
+
+/* Modal de Denúncia */
+.report-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 15px 0;
+    text-align: left;
+}
+
+.report-options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.report-textarea {
+    width: 100%;
+    min-height: 80px;
+    background-color: var(--surface-hover);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
+    resize: none;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+.report-textarea:focus {
+    outline: 1px solid var(--brand);
+}
+
+.btn-submit-report {
+    background-color: var(--danger, #ef4444);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-submit-report:hover {
+    background-color: #dc2626;
+}
+
+/* Data do Post */
+.post-date {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* Seção de Comentários */
+.comments-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+}
+
+.comment-item {
+    background-color: var(--surface-hover);
+    padding: 10px 14px;
+    border-radius: 12px;
+}
+
+.comment-item strong {
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 4px;
+    display: block;
+}
+
+.comment-item p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.no-comments {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+    padding: 10px 0;
+}
+
+.comment-input-area {
+    display: flex;
+    gap: 10px;
+}
+
+.comment-input-area input {
+    flex: 1;
+    background-color: var(--surface-hover);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+.comment-input-area input:focus {
+    outline: 1px solid var(--brand);
+}
+
+.comment-input-area button {
+    background-color: var(--brand);
+    color: white;
+    border: none;
+    padding: 0 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.comment-input-area button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.comment-input-area button:hover:not(:disabled) {
+    background-color: #0284c7;
 }

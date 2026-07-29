@@ -85,3 +85,64 @@
     color: var(--text-muted);
     font-size: 15px;
 }
+.compose-actions {
+    justify-content: space-between;
+}
+
+.compose-tools {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-attach {
+    background: none;
+    border: none;
+    color: var(--brand);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.btn-attach:hover {
+    background-color: rgba(56, 189, 248, 0.1);
+}
+
+.media-preview {
+    margin-top: 10px;
+    position: relative;
+    display: inline-block;
+}
+
+.media-preview img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+}
+
+.btn-remove-media {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: rgba(0,0,0,0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+}
+.btn-remove-media:hover {
+    background-color: rgba(0,0,0,0.9);
+}
