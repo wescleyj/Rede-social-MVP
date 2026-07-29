@@ -21,7 +21,7 @@ class User(AbstractUser):
 
     @property
     def posts_count(self):
-        return self.posts.count()
+        return (self.posts.count() + self.reposted_posts.count())
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'name']
