@@ -54,7 +54,7 @@ para rodar: `python manage.py runserver`
      *	`refresh: token` (string)
      *  `access: token` (string)
 
-**PUT or PATCH `api/users/me/update/`** (Atualizer informações do usuário)
+**PUT or PATCH `api/users/me/`** (Atualizer informações do usuário)
 *	**Corpo da Requisição (JSON):**
      *	`name` (string)
      *  `username` (string)
@@ -84,6 +84,9 @@ para rodar: `python manage.py runserver`
      *	`posts_count` (string/number)
      *	`avatar_url` (string/URL)
      *	`banner_url` (string/URL)
+
+**DELETE `api/users/me/delete/`** (Deleta o usuário logado)
+*	**Retorno Esperado:** `204 No Content` or `403 Forbidden`
 
 **GET `api/users/info/<str:username>`** (Dados do perfil especificado)
 *	**Retorno Esperado (JSON):**

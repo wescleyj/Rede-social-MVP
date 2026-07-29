@@ -37,7 +37,7 @@ class FollowTest(TestCase): #testa um usuario seguindo outro
         self.assertEqual(user1.following_count, 1)
         self.assertEqual(user2.followers_count, 1)
 
-class PostSerializerTestCase(TestCase): #testa o serializer do post - incompleto
+class PostSerializerTestCase(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username="janedoe",

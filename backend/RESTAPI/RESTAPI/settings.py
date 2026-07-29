@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-j=tm^ko+&wzey92guu7kf#p4rm5_bj9ui3*1=5gs^!hfs15g2&
 DEBUG = True
 
 # ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['*'] #updated so i can use through ssh
+ALLOWED_HOSTS = ['*'] #updated so I can use through ssh
 
 
 # Application definition

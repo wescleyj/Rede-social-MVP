@@ -1,5 +1,3 @@
-from urllib import request
-
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -31,7 +29,7 @@ class LogoutView(APIView):
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-class UserProfileDetailView(generics.RetrieveUpdateAPIView):
+class UserProfileDetailView(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -45,11 +43,8 @@ class MyProfileDetailView(generics.RetrieveUpdateAPIView):
         serializer_class = UserProfileSerializer
         return Response(serializer_class(queryset).data, status=status.HTTP_200_OK)
 
-class UserProfileUpdateView(generics.UpdateAPIView):
     serializer_class = UserUpdateSerializer
-    permission_classes = [permissions.IsAuthenticated]
     model = User
-
     def update(self, request, *args, **kwargs):
         if "id" in request.data or "password" in request.data:
             return Response(
@@ -62,6 +57,23 @@ class UserProfileUpdateView(generics.UpdateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class MyProfileDeleteView(generics.DestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserProfileSerializer
+    queryset = User.objects.all()
+
+    def get_object(self, *args, **kwargs):
+        user_to_delete = self.request.user
+        if not user_to_delete.is_authenticated:
+            return Response({'error': 'User is not authenticated'}, status=401)
+
+        return user_to_delete
+
+    def perfrom_destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+
 
 class UserPasswordUpdateView(generics.UpdateAPIView):
     serializer_class = PasswordUpdateSerializer
@@ -107,10 +119,10 @@ class FollowToggleView(APIView):
             request.user.following.add(target_user)
             return Response({"Success": f"Followed @{target_user.username}."}, status=status.HTTP_200_OK)
 
-class PostCreateView(APIView):
+class PostCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         serializer= PostSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(author=self.request.user)
