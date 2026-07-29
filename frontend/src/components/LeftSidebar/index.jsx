@@ -1,17 +1,22 @@
+import React, { useContext, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import React, {useState, useEffect, useContext} from 'react';
+import { AuthContext } from "../../contexts/AuthContext.jsx";
+import { buildImageUrl } from "../../utils/buildImageUrl.js";
 import './styles.css';
-import api, { baseURL } from "../../../services/api.js";
-import {AuthContext} from "../../contexts/AuthContext.jsx";
+
+
 
 export default function Sidebar() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { userData } = useContext(AuthContext);
+    const { userData, logout, togglePrivacy } = useContext(AuthContext);
+    const [showMenu, setShowMenu] = useState(false);
 
     if (!userData) {
         return <nav className="sidebar-container">Carregando...</nav>;
     }
+
+    const avatarSrc = buildImageUrl(userData.avatar_url);
 
     return (
         <nav className="sidebar-container">
@@ -24,22 +29,35 @@ export default function Sidebar() {
                 <li className={location.pathname === '/' ? 'active' : ''}>
                     <Link to="/">Início</Link>
                 </li>
-                <li className={location.pathname === '/profile' ? 'active' : ''}>
-                    <Link to="/profile">Perfil</Link>
+                <li className={location.pathname.startsWith('/messages') ? 'active' : ''}>
+                    <Link to="/messages">Mensagens</Link>
                 </li>
+                <li>
+                    <Link to="/profile" className={`menu-item ${location.pathname === '/profile' ? 'active' : ''}`}>
+                        Perfil
+                    </Link>
+                </li>
+                
+                {userData.is_staff && (
+                    <li>
+                        <Link to="/admin" className={`menu-item ${location.pathname === '/admin' ? 'active' : ''}`}>
+                            Painel Admin
+                        </Link>
+                    </li>
+                )}
             </ul>
 
             {/* Altera o botão principal se o usuário for anônimo */}
             {!userData.isAnonymous ? (
-                <button className="btn-publish">+ Publicar</button>
+                <button className="btn-publish" onClick={() => { navigate('/'); window.scrollTo(0, 0); }}>+ Publicar</button>
             ) : (
                 <button className="btn-publish" onClick={() => navigate('/signin')}>Fazer Login</button>
             )}
 
-            <div className="sidebar-user-footer">
-                {userData.avatar_url ? (
+            <div className="sidebar-user-footer" onClick={() => setShowMenu(!showMenu)}>
+                {avatarSrc ? (
                     <img
-                        src={`${baseURL}/uploads/${userData.avatar_url}`}
+                        src={avatarSrc}
                         alt={`Foto de perfil de ${userData.name}`}
                         className="user-avatar-small"
                     />
@@ -48,9 +66,24 @@ export default function Sidebar() {
                 )}
                 <div className="user-info">
                     <span className="user-name">{userData.name}</span>
-                    <span className="user-handle">{userData.username}</span>
+                    <span className="user-handle">@{userData.username}</span>
                 </div>
                 <button className="btn-options">...</button>
+
+                {showMenu && !userData.isAnonymous && (
+                    <div className="sidebar-dropdown-menu">
+                        <button className="dropdown-item" onClick={(e) => {
+                            e.stopPropagation();
+                            togglePrivacy();
+                        }}>
+                            Conta Privada: {userData.is_private ? 'ON' : 'OFF'}
+                        </button>
+                        <button className="dropdown-item logout" onClick={(e) => {
+                            e.stopPropagation();
+                            logout();
+                        }}>Sair de @{userData.username}</button>
+                    </div>
+                )}
             </div>
         </nav>
     );

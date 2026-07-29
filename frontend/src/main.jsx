@@ -6,7 +6,10 @@ import SignUp from './pages/Sign_up';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
-import {RotaPublica, RotaPrivada} from "../services/routes.jsx";
+import Search from './pages/Search';
+import Messages from './pages/Messages';
+import AdminDashboard from './pages/AdminDashboard';
+import { RotaPublica, RotaPrivada, RotaAdmin } from "../services/routes.jsx";
 import { AuthProvider } from './contexts/AuthContext';
 import './index.css';
 
@@ -15,10 +18,24 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <AuthProvider>
             <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<RotaPublica><Home /></RotaPublica>} />
+                    {/* Feed e Pesquisa - acessível por todos (visitantes e logados) */}
+                    <Route path="/" element={<Home />} />
+                    <Route path="/pesquisa" element={<Search />} />
+
+                    {/* Autenticação - só acessível se NÃO estiver logado */}
                     <Route path="/signin" element={<RotaPublica><SignIn /></RotaPublica>} />
                     <Route path="/signup" element={<RotaPublica><SignUp /></RotaPublica>} />
-                    <Route path="/profile" element={<RotaPublica><Profile /></RotaPublica>} />
+
+                    {/* Perfil - acessível apenas para quem está logado */}
+                    <Route path="/profile" element={<RotaPrivada><Profile /></RotaPrivada>} />
+                    <Route path="/profile/:username" element={<RotaPrivada><Profile /></RotaPrivada>} />
+
+                    {/* Mensagens (DMs) - acessível apenas para quem está logado */}
+                    <Route path="/messages" element={<RotaPrivada><Messages /></RotaPrivada>} />
+                    <Route path="/messages/:username" element={<RotaPrivada><Messages /></RotaPrivada>} />
+
+                    {/* Admin Dashboard - acessível apenas para is_staff === true */}
+                    <Route path="/admin" element={<RotaAdmin><AdminDashboard /></RotaAdmin>} />
 
                     {/* Rota curinga para capturar qualquer caminho não listado acima */}
                     <Route path="*" element={<NotFound />} />

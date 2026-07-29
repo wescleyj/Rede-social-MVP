@@ -1,0 +1,112 @@
+.search-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+}
+
+.search-tab {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 16px;
+    font-weight: bold;
+    padding: 16px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.search-tab:hover {
+    color: var(--text);
+    background-color: var(--surface-hover);
+}
+
+.search-tab.active {
+    color: var(--brand);
+    border-bottom-color: var(--brand);
+}
+
+.search-results {
+    padding: 0; /* Reset for full width items if needed, or keep padding */
+}
+
+.search-loading, .no-results {
+    padding: 24px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 16px;
+}
+
+.search-user-card {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.search-user-card:hover {
+    background-color: var(--surface-hover);
+}
+
+.user-info-search {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.user-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.user-names {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-names strong {
+    color: var(--text);
+    font-size: 15px;
+}
+
+.user-names span {
+    color: var(--text-muted);
+    font-size: 15px;
+}
+
+.user-info-search p {
+    margin: 8px 0 0 0;
+    color: var(--text);
+    font-size: 14px;
+}
+
+.btn-follow {
+    background-color: var(--text);
+    color: var(--surface);
+    border: none;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-follow:hover {
+    opacity: 0.8;
+}
+
+.btn-follow.following {
+    background-color: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.btn-follow.following:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+    /* No real site isso mudaria o texto pra "Deixar de Seguir", mas para MVP visual basta vermelho */
+}

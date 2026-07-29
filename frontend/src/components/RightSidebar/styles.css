@@ -1,20 +1,9 @@
 .right-sidebar {
     width: 350px;
-    padding: 10px 20px;
+    padding: 16px 20px;
     display: flex;
     flex-direction: column;
     gap: 20px;
-}
-
-.trending-topics, .who-to-follow {
-    background-color: #16181c;
-    border-radius: 15px;
-    padding: 15px;
-}
-
-.trending-topics h3, .who-to-follow h3 {
-    margin: 0 0 15px 0;
-    font-size: 20px;
 }
 
 .search-bar-container {
@@ -23,17 +12,37 @@
 
 .search-bar-container input {
     width: 100%;
-    background-color: #16181c;
-    border: 1px solid transparent;
-    border-radius: 20px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
     padding: 12px 20px;
-    color: #ffffff;
-    font-size: 15px;
+    color: var(--text);
+    font-size: 14px;
     box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.search-bar-container input::placeholder {
+    color: var(--text-muted);
 }
 
 .search-bar-container input:focus {
-    background-color: #000000;
-    border: 1px solid #00d2ff;
-    outline: none;
+    background-color: var(--bg);
+    border-color: var(--brand);
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+.who-to-follow {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+}
+
+.who-to-follow h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
 }

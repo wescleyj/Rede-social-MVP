@@ -12,11 +12,11 @@
     display: flex;
     align-items: center;
     gap: 20px;
-    padding: 0 15px;
+    padding: 0 16px;
     height: 53px;
     position: sticky;
     top: 0;
-    background-color: rgba(2, 6, 23, 0.85);
+    background-color: rgba(3, 7, 18, 0.85);
     backdrop-filter: blur(12px);
     z-index: 10;
     border-bottom: 1px solid var(--border);
@@ -26,7 +26,8 @@
     background: transparent;
     border: none;
     color: var(--text);
-    font-size: 20px;
+    font-size: 18px;
+    font-weight: bold;
     cursor: pointer;
     width: 36px;
     height: 36px;
@@ -38,7 +39,7 @@
 }
 
 .btn-back:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--surface-hover);
 }
 
 .header-info {
@@ -48,8 +49,10 @@
 
 .header-info h2 {
     margin: 0;
-    font-size: 20px;
+    font-size: 18px;
+    font-weight: 700;
     color: var(--text);
+    font-family: var(--font-display);
 }
 
 .header-info span {
@@ -61,6 +64,8 @@
     height: 200px;
     background-color: var(--surface);
     width: 100%;
+    position: relative;
+    overflow: hidden;
 }
 
 .banner-image {
@@ -71,7 +76,7 @@
 
 .profile-details {
     position: relative;
-    padding: 15px;
+    padding: 16px;
 }
 
 .profile-avatar-large {
@@ -82,52 +87,73 @@
     border-radius: 50%;
     position: absolute;
     top: -65px;
-    left: 15px;
+    left: 16px;
     object-fit: cover;
 }
 
 .profile-actions {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     height: 40px;
-    margin-bottom: 15px;
+    margin-bottom: 16px;
 }
 
-.profile-actions .btn-secondary {
+.profile-actions .btn-secondary,
+.profile-actions .btn-primary {
     background-color: transparent;
     color: var(--text);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-light);
     border-radius: 20px;
-    padding: 8px 16px;
-    font-weight: bold;
+    padding: 8px 20px;
+    font-weight: 700;
+    font-size: 14px;
     cursor: pointer;
-    transition: background-color 0.2s;
-    width: 75%;
+    transition: background-color 0.2s, border-color 0.2s;
 }
 
 .profile-actions .btn-secondary:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--surface-hover);
+    border-color: var(--text-muted);
+}
+
+.profile-actions .btn-primary {
+    background-color: var(--brand);
+    color: #020617;
+    border: none;
+}
+
+.profile-actions .btn-primary:hover {
+    background-color: var(--brand-hover);
+}
+
+.profile-actions .btn-primary.following {
+    background-color: transparent;
+    color: var(--text);
+    border: 1px solid var(--border-light);
 }
 
 .profile-bio {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
 }
 
 .profile-bio h1 {
     margin: 0;
     font-size: 20px;
+    font-weight: 700;
     color: var(--text);
+    font-family: var(--font-display);
 }
 
 .profile-bio > span {
     color: var(--text-muted);
-    font-size: 15px;
+    font-size: 14px;
 }
 
 .profile-bio p {
-    margin: 10px 0;
+    margin: 8px 0;
     font-size: 15px;
     line-height: 1.5;
     color: var(--text);
@@ -137,14 +163,14 @@
     display: flex;
     gap: 15px;
     color: var(--text-muted);
-    font-size: 15px;
-    margin-bottom: 10px;
+    font-size: 14px;
+    margin-bottom: 8px;
 }
 
 .profile-stats {
     display: flex;
     gap: 20px;
-    font-size: 15px;
+    font-size: 14px;
 }
 
 .profile-stats span {
@@ -161,81 +187,119 @@
     width: 100%;
 }
 
-/* Fundo escuro que cobre a tela toda */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.7); /* Preto com 70% de transparência */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* Garante que fique por cima do resto do site */
-}
-
-/* A caixa do formulário em si */
-.modal-content {
-    background-color: var(--bg, #1e2732); /* Ajuste para a cor do seu tema */
-    padding: 24px;
-    border-radius: 16px;
-    width: 100%;
-    max-width: 500px; /* Não deixa o modal ficar largo demais em telas grandes */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-}
-
-.modal-content h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    color: var(--text, #ffffff);
-}
-
-/* Botões do modal */
-.modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 24px;
-}
-
-.modal-actions button {
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
 .profile-tabs button {
     flex: 1;
     background: transparent;
     border: none;
     color: var(--text-muted);
     font-size: 15px;
-    font-weight: bold;
-    padding: 15px 0;
+    font-weight: 700;
+    padding: 14px 0;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, color 0.2s;
+    border-bottom: 3px solid transparent;
 }
 
 .profile-tabs button:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.03);
+    color: var(--text);
 }
 
 .profile-tabs button.active {
     color: var(--text);
-    border-bottom: 4px solid var(--brand);
+    border-bottom-color: var(--brand);
 }
 
 .no-posts-message {
-    padding: 20px;
     text-align: center;
     color: var(--text-muted);
+    padding: 24px;
 }
 
-.retornar {
-    text-decoration: none;
-    color: inherit;
+.btn-report {
+    background-color: transparent;
+    color: var(--danger);
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+}
+
+.btn-report:hover {
+    background-color: rgba(244, 63, 94, 0.1); /* var(--danger) com opacidade */
+    border-color: var(--danger);
+}
+
+/* Reusing some modal styles from PostCard for Profile */
+.report-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.report-custom-text {
+    background-color: var(--surface-hover);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px;
+    border-radius: 8px;
+    resize: vertical;
+    font-family: inherit;
+    min-height: 80px;
+}
+
+.btn-submit-report {
+    background-color: var(--danger);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-submit-report:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-submit-report:hover:not(:disabled) {
+    background-color: #dc2626;
+}
+
+/* Modal de Edição de Perfil */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-content {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    font-family: var(--font-display);
 }
 
 .form-group {
@@ -247,28 +311,64 @@
 .form-group label {
     margin-bottom: 8px;
     color: var(--text-muted);
-    font-size: 14px;
-    font-weight: bold;
+    font-size: 13px;
+    font-weight: 600;
 }
 
 .form-group input[type="text"],
 .form-group textarea,
 .form-group input[type="file"] {
-    background-color: transparent;
+    background-color: var(--bg);
     border: 1px solid var(--border);
     color: var(--text);
     padding: 12px;
-    border-radius: 8px;
-    font-size: 15px;
+    border-radius: 10px;
+    font-size: 14px;
     outline: none;
     font-family: inherit;
+    transition: border-color 0.2s;
 }
 
 .form-group textarea {
-    resize: vertical; /* Permite redimensionar apenas para baixo */
+    resize: vertical;
 }
 
 .form-group input[type="text"]:focus,
 .form-group textarea:focus {
-    border-color: var(--brand); /* Destaca a borda ao clicar no campo */
+    border-color: var(--brand);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.modal-actions button {
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+}
+
+.modal-actions button[type="button"] {
+    background-color: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.modal-actions button[type="button"]:hover {
+    background-color: var(--surface-hover);
+}
+
+.modal-actions button[type="submit"] {
+    background-color: var(--brand);
+    color: #020617;
+}
+
+.modal-actions button[type="submit"]:hover {
+    background-color: var(--brand-hover);
 }

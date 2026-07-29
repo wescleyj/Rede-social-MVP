@@ -3,7 +3,7 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background-color: #0b0f19;
+    background-color: var(--bg);
     padding: 20px;
     box-sizing: border-box;
 }
@@ -14,52 +14,56 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    border: 1px solid #1e2732;
-    border-radius: 20px;
-    padding: 80px 20px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 60px 24px;
     width: 100%;
-    max-width: 900px;
+    max-width: 600px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
 .notfound-title {
-    font-size: 130px;
-    font-weight: bold;
-    color: #38bdf8;
+    font-size: 100px;
+    font-weight: 800;
+    color: var(--brand);
     margin: 0 0 10px 0;
     line-height: 1;
     letter-spacing: -2px;
+    font-family: var(--font-display);
 }
 
 .notfound-subtitle {
-    font-size: 24px;
-    color: #ffffff;
-    margin: 0 0 15px 0;
+    font-size: 22px;
+    color: var(--text);
+    font-weight: 700;
+    margin: 0 0 12px 0;
 }
 
 .notfound-text {
     font-size: 15px;
-    color: #71767b;
-    margin: 0 0 40px 0;
-    line-height: 1.5;
+    color: var(--text-muted);
+    margin: 0 0 32px 0;
+    line-height: 1.6;
 }
 
 .btn-primary-glow {
-    background-color: #38bdf8;
-    color: #000000;
+    background-color: var(--brand);
+    color: #020617;
     text-decoration: none;
-    padding: 14px 32px;
+    padding: 12px 28px;
     border-radius: 30px;
-    font-weight: bold;
+    font-weight: 700;
     font-size: 15px;
-    transition: box-shadow 0.2s, opacity 0.2s;
-    box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+    transition: box-shadow 0.2s, background-color 0.2s, transform 0.1s;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
 }
 
 .btn-primary-glow:hover {
-    opacity: 0.9;
-    box-shadow: 0 0 35px rgba(56, 189, 248, 0.6);
+    background-color: var(--brand-hover);
+    box-shadow: 0 0 30px rgba(56, 189, 248, 0.55);
 }
 
-#root {
-    background-color: #0b0f19;
+.btn-primary-glow:active {
+    transform: scale(0.98);
 }

@@ -1,6 +1,7 @@
 import React, {useRef, useState} from 'react';
-import api from '../../../services/api'
-import './styles.css';
+import { Link } from 'react-router-dom';
+import api from '../../../services/api';
+import '../../styles/auth.css';
 
 export default function SignUp() {
   // Salva as informações do formulario para passar para a api
@@ -16,7 +17,7 @@ export default function SignUp() {
     // Tenta criar o usuario e informa o usuario do sucesso ou fracasso
     try {
       await api.post('/users', {
-        nome: inputNome.current.value,
+        name: inputNome.current.value,
         username: inputUsername.current.value,
         email: inputEmail.current.value,
         password: inputSenha.current.value
@@ -85,7 +86,7 @@ export default function SignUp() {
 
           {/* Leva o usuario para a pagina de login caso já tenha conta */}
           <div className="auth-footer">
-            Já tem conta? <a href="/signin">Entrar</a>
+            Já tem conta? <Link to="/signin">Entrar</Link>
           </div>
         </div>
       </div>

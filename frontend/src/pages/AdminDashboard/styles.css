@@ -1,0 +1,200 @@
+.admin-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+}
+
+.admin-tab {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 16px;
+    font-weight: bold;
+    padding: 16px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.admin-tab:hover {
+    color: var(--text);
+    background-color: var(--surface-hover);
+}
+
+.admin-tab.active {
+    color: var(--brand);
+    border-bottom-color: var(--brand);
+}
+
+.admin-content {
+    padding: 0 16px;
+}
+
+/* Reports Section */
+.report-card {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.report-reason {
+    color: var(--danger);
+}
+
+.report-date {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.report-custom-reason {
+    margin-bottom: 10px;
+    padding: 8px;
+    background-color: rgba(244, 63, 94, 0.1);
+    border-left: 4px solid var(--danger);
+    color: var(--text);
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+.report-post-preview {
+    background-color: var(--surface-hover);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.report-post-preview strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text);
+}
+
+.report-post-preview p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.report-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-dismiss {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-dismiss:hover {
+    background-color: var(--surface-hover);
+}
+
+.btn-delete-post {
+    background-color: var(--danger);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-delete-post:hover {
+    background-color: #dc2626;
+}
+
+.btn-ban-user {
+    background-color: #7f1d1d; /* Vermelho escuro para banimento */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-ban-user:hover {
+    background-color: #991b1b;
+}
+
+/* Create Admin Form */
+.create-admin-section h3 {
+    margin-top: 0;
+    color: var(--text);
+}
+
+.admin-help-text {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 400px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text);
+}
+
+.form-group input {
+    background-color: var(--surface-hover);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.form-group input:focus {
+    outline: 1px solid var(--brand);
+}
+
+.btn-submit-admin {
+    background-color: var(--brand);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 24px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 10px;
+}
+
+.btn-submit-admin:hover {
+    background-color: #0284c7;
+}
