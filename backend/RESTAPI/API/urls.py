@@ -1,14 +1,5 @@
 from django.urls import path
-from .views import (
-    RegisterView,
-    LogoutView,
-    UserProfileDetailView,
-    FollowToggleView,
-    PostListCreateView,
-    PostDetailView,
-    LikeToggleView,
-    RepostToggleView,
-)
+from .views import *
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -19,6 +10,8 @@ urlpatterns = [
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('logout/', LogoutView.as_view(), name='auth_logout'),
     path('auth/register/', RegisterView.as_view(), name='register'),
+    path('users/me/update/', UserProfileUpdateView.as_view(), name='update-profile'),
+    path('users/me/update_passwd/', UserPasswordUpdateView.as_view(), name='update-password'),
     path('users/<str:username>/', UserProfileDetailView.as_view(), name='user-profile'),
     path('users/<str:username>/follow/', FollowToggleView.as_view(), name='follow-toggle'),
     path('posts/create/', PostListCreateView.as_view(), name='post-list-create'),

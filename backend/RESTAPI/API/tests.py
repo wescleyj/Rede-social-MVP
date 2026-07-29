@@ -9,6 +9,7 @@ class SerializerTestCase(TestCase): #testa o serializer criado pra usuario
     def test_serializer_valid_data(self):
         data = {
             "username": "janedoe",
+            "name": "jane doe",
             "email": "jane@example.com",
             "password": "securepassword123"
         }

@@ -1,3 +1,5 @@
+from json import JSONEncoder
+
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -5,11 +7,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User, Post, Comment
-from .serializers import (
-    RegisterSerializer,
-    UserProfileSerializer,
-    PostSerializer,
-)
+from .serializers import *
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -41,6 +39,51 @@ class UserProfileDetailView(generics.RetrieveUpdateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     lookup_field = 'username'
 
+class UserProfileUpdateView(generics.UpdateAPIView):
+    serializer_class = UserUpdateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    model = User
+
+    def update(self, request, *args, **kwargs):
+        if "id" in request.data or "password" in request.data:
+            return Response(
+                {"detail": "Fields USERNAME, ID and PASSWORD not allowed in request."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        instance = self.request.user
+        serializer = self.serializer_class(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+class UserPasswordUpdateView(generics.UpdateAPIView):
+    serializer_class = PasswordUpdateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    model = User
+
+    def update(self, request, *args, **kwargs):
+        instance = self.request.user
+        serializer = self.serializer_class(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+
+        if serializer.is_valid():
+            if current_password and not instance.check_password(current_password):
+                return Response(
+                    {"detail": "Current password does not match."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            instance.set_password(new_password)
+
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class FollowToggleView(APIView):
     permission_classes = [permissions.IsAuthenticated]

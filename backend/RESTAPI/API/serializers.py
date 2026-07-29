@@ -6,7 +6,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'email', 'bio', 'followers_count', 'following_count', 'created_at', 'avatar_url', 'banner_url', 'posts_count']
+        fields = ['id', 'username', 'password', 'name', 'email', 'bio', 'followers_count', 'following_count', 'created_at', 'avatar_url', 'banner_url', 'posts_count']
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
@@ -19,7 +19,27 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'bio', 'followers_count', 'following_count', 'created_at', 'avatar_url', 'banner_url', 'posts_count']
+        fields = ['id', 'email', 'username', 'name', 'bio', 'followers_count', 'following_count', 'created_at', 'avatar_url', 'banner_url', 'posts_count']
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(read_only=True)
+    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+    bio = serializers.CharField(required=True, allow_blank=True)
+    avatar_url = serializers.URLField(required=True, allow_blank=True)
+    banner_url = serializers.URLField(required=True, allow_blank=True)
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'name', 'email', 'bio', 'avatar_url', 'banner_url']
+
+class PasswordUpdateSerializer(serializers.ModelSerializer):
+    current_password = serializers.CharField(required=True, write_only=True)
+    new_password = serializers.CharField(required=True, write_only=True)
+    username= serializers.CharField(required=False, read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'current_password', 'new_password']
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:

@@ -41,6 +41,24 @@
      *	`refresh: token` (string)
      *  `access: token` (string)
 
+**PUT or PATCH `api/users/me/update/`** (Atualizer informações do usuário)
+*	**Corpo da Requisição (JSON):**
+     *	`name` (string)
+     *  `username` (string)
+     *	`email` (string)
+     *  `bio` (string)
+     *  `avatar_url` (string)
+     *  `banner_url` (string)
+*	**Retorno Esperado:** `200 OK` or `400 Bad Request`.
+
+**PUT or PATCH `api/users/me/update_passwd/`** (Atualizer senha do usuário)
+*	**Corpo da Requisição (JSON):**
+     *	`current_password` (string)
+     *	`new_password` (string)
+*	**Retorno Esperado:** `200 OK` or `400 Bad Request`.
+     *	`id` (string)
+     *  `username` (string)
+
 **POST `api/posts/create/`** (Cria um post novo)
 *    **Corpo da Requisição(JSON):**
      * `content` (string)
