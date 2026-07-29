@@ -63,8 +63,6 @@ class UserProfileUpdateView(generics.UpdateAPIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-
 class UserPasswordUpdateView(generics.UpdateAPIView):
     serializer_class = PasswordUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -81,7 +79,7 @@ class UserPasswordUpdateView(generics.UpdateAPIView):
             if current_password and not instance.check_password(current_password):
                 return Response(
                     {"detail": "Current password does not match."},
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_403_FORBIDDEN
                 )
 
             instance.set_password(new_password)
@@ -98,16 +96,16 @@ class FollowToggleView(APIView):
         target_user = get_object_or_404(User, username=username)
         if target_user == request.user:
             return Response(
-                {"detail": "You cannot follow yourself."},
+                {"Error": "You cannot follow yourself."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         if request.user.following.filter(id=target_user.id).exists():
             request.user.following.remove(target_user)
-            return Response({"detail": f"Unfollowed @{target_user.username}."}, status=status.HTTP_200_OK)
+            return Response({"Success": f"Unfollowed @{target_user.username}."}, status=status.HTTP_200_OK)
         else:
             request.user.following.add(target_user)
-            return Response({"detail": f"Followed @{target_user.username}."}, status=status.HTTP_200_OK)
+            return Response({"Success": f"Followed @{target_user.username}."}, status=status.HTTP_200_OK)
 
 class PostListCreateView(generics.ListCreateAPIView):
     queryset = Post.objects.all()

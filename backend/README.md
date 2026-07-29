@@ -1,3 +1,8 @@
+Projeto desenvolvido em `Python 3.14`
+
+para instalar as dependencias: `pip install Django djangorestframework djangorestframework_simplejwt`
+
+para rodar: `python manage.py runserver`
 ## Esquema da API
 
 ### Rotas Públicas
@@ -12,6 +17,14 @@
      *  `avatar_url` (string, optional)
      *  `banner_url` (string, optional)
 *	**Retorno Esperado:** `201 Created` ou erro `409 Conflict`.
+     *  `id` (string)
+     *	`username` (string)
+     *	`name` (string)
+     *	`email` (string)
+     *	`bio` (string)
+     *	`created_at` (string): Formato ISO 8601.
+     *	`avatar_url` (string)
+     *	`banner_url` (string)
 
 **POST `api/auth/login/`** (Autenticação)
 *	**Corpo da Requisição (JSON):**
@@ -37,7 +50,7 @@
 **POST `api/logout/`** (Invalida o token de Refresh)
 *    **Corpo da Requisição(JSON):**
      *   `Refresh` (string)
-*    **Retorno Esperado:** `205 Reset Content` or `400 Bad Request`.
+*    **Retorno Esperado:** `205 Reset Content`.
      *	`refresh: token` (string)
      *  `access: token` (string)
 
@@ -55,7 +68,7 @@
 *	**Corpo da Requisição (JSON):**
      *	`current_password` (string)
      *	`new_password` (string)
-*	**Retorno Esperado:** `200 OK` or `400 Bad Request`.
+*	**Retorno Esperado:** `200 OK` or `403 Forbidden`.
      *	`id` (string)
      *  `username` (string)
 
@@ -66,18 +79,36 @@
      *	`name` (string)
      *	`bio` (string)
      *	`created_at` (string): Formato ISO 8601.
-     *	`following_count` (number)
-     *	`followers_count` (number)
-     *	`posts_count` (number)
-     *	`avatar_url` (string)
-     *	`banner_url` (string)
+     *	`following_count` (string/number)
+     *	`followers_count` (string/number)
+     *	`posts_count` (string/number)
+     *	`avatar_url` (string/URL)
+     *	`banner_url` (string/URL)
+
+**GET `api/users/info/<str:username>`** (Dados do perfil especificado)
+*	**Retorno Esperado (JSON):**
+     *	`email` (string)
+     *	`username` (string)
+     *	`name` (string)
+     *	`bio` (string)
+     *	`created_at` (string): Formato ISO 8601.
+     *	`following_count` (string/number)
+     *	`followers_count` (string/number)
+     *	`posts_count` (string/number)
+     *	`avatar_url` (string/URL)
+     *	`banner_url` (string/URL)
+
+**POST `api/users/follow/<str:username>/`** (Segue ou para de seguir o usuário)
+*    **Retorno Esperado:** `200 OK` or `404 Not Found`.
+     *	`Success: Followed @<str:username>` (string)
+     *  `Success: Unfollowed @<str:username>` (string)
 
 **POST `api/posts/create/`** (Cria um post novo)
 *    **Corpo da Requisição(JSON):**
      * `content` (string)
      * `media_url` (string, optional)
 *    **Retorno Esperado:** `201 Created`.
-     *	`id` (string/number)
+     *	`id` (string)
      *	`author` (object): Contém: `name`, `username` e `avatar_url`
      *	`content` (string)
      *	`media_url` (string)
@@ -86,9 +117,19 @@
      *	`reposts_count` (string/number)
      *	`comments_count` (string/number)
 
+**GET `api/posts/info/<int:id>`** (Informações sobre um post específico)
+*	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
+     *	`id` (string)
+     *	`author` (object): Contém `name`, `username` e `avatar_url`.
+     *	`content` (string)
+     *	`media_url` (string)
+     *	`likes_count` (number)
+     *	`reposts_count` (number)
+     *	`comments_count` (number)
+
 **GET `api/posts`** (Feed Global - Publicações Mais Recentes)
 *	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
-     *	`id` (string/number)
+     *	`id` (string)
      *	`content` (string)
      *	`media_url` (string)
      *	`comments_count` (number)
