@@ -107,29 +107,30 @@ class FollowToggleView(APIView):
             request.user.following.add(target_user)
             return Response({"Success": f"Followed @{target_user.username}."}, status=status.HTTP_200_OK)
 
-class PostListCreateView(generics.ListCreateAPIView):
+class PostCreateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer= PostSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(author=self.request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class PostDeleteView(generics.DestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-
-class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-    def perform_update(self, serializer):
-        if self.get_object().author != self.request.user:
-            self.permission_denied(self.request, message="You are not authorized to edit this post.")
-        serializer.save()
+    permission_classes = [permissions.IsAuthenticated]
 
     def perform_destroy(self, instance):
         if instance.author != self.request.user:
             self.permission_denied(self.request, message="You are not authorized to delete this post.")
         instance.delete()
+
+class PostDetailView(generics.RetrieveAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class LikeToggleView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -138,10 +139,10 @@ class LikeToggleView(APIView):
         post = get_object_or_404(Post, pk=pk)
         if post.likes.filter(id=request.user.id).exists():
             post.likes.remove(request.user)
-            return Response({"detail": "Unliked post."}, status=status.HTTP_200_OK)
+            return Response({"Success": "Unliked post."}, status=status.HTTP_200_OK)
         else:
             post.likes.add(request.user)
-            return Response({"detail": "Liked post."}, status=status.HTTP_200_OK)
+            return Response({"Success": "Liked post."}, status=status.HTTP_200_OK)
 
 
 class RepostToggleView(APIView):
@@ -151,7 +152,7 @@ class RepostToggleView(APIView):
         post = get_object_or_404(Post, pk=pk)
         if post.reposts.filter(id=request.user.id).exists():
             post.reposts.remove(request.user)
-            return Response({"detail": "Removed repost."}, status=status.HTTP_200_OK)
+            return Response({"Success": "Removed repost."}, status=status.HTTP_200_OK)
         else:
             post.reposts.add(request.user)
-            return Response({"detail": "Reposted successfully."}, status=status.HTTP_200_OK)
+            return Response({"Success": "Reposted successfully."}, status=status.HTTP_200_OK)

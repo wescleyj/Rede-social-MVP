@@ -127,6 +127,19 @@ para rodar: `python manage.py runserver`
      *	`reposts_count` (number)
      *	`comments_count` (number)
 
+**POST `api/posts/like/<int:id>/`** (Curte um post específico)
+*	**Retorno Esperado:** `200 OK` or `404 Not Found`
+     * `Success: Unliked post.` (string)
+     * `Success: Liked post.` (string)
+
+**POST `api/posts/repost/<int:id>/`** (Reposta um post específico)
+*	**Retorno Esperado:** `200 OK` or `404 Not Found`
+     * `Success: Removed post.` (string)
+     * `Success: Reposted successfully.` (string)
+
+**DELETE `api/posts/delete/<int:id>/`** (remove um post específico)
+*	**Retorno Esperado:** `204 No Content` or `403 Forbidden`
+
 **GET `api/posts`** (Feed Global - Publicações Mais Recentes)
 *	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
      *	`id` (string)
