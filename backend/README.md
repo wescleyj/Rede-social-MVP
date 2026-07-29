@@ -1,6 +1,6 @@
 Projeto desenvolvido em `Python 3.14`
 
-para instalar as dependencias: `pip install Django djangorestframework djangorestframework_simplejwt`
+para instalar as dependencias: `pip install Django djangorestframework djangorestframework_simplejwt django-cors-headers`
 
 para rodar: `python manage.py runserver`
 ## Esquema da API
