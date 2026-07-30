@@ -11,6 +11,8 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
 
     def create(self, request, *args, **kwargs):
+        if 'username' not in request.data or 'email' not in request.data or 'password' not in request.data:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         if User.objects.filter(username=self.request.data['username']).exists() or User.objects.filter(email=self.request.data['email']).exists():
             return Response({"detail": "User with email and/or username already exists."}, status=status.HTTP_409_CONFLICT)
 
@@ -150,27 +152,40 @@ class CommentCreateView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer= CommentSerializer(data=request.data)
         if serializer.is_valid():
-            try:
-                post_id = request.data.get('post_id')
-                post_instance = Post.objects.get(id=post_id)
-                serializer.save(author=self.request.user, post=post_instance)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            except Post.DoesNotExist:
-                return Response({
-                    "error": "Post not found"
-                }, status=status.HTTP_404_NOT_FOUND)
+            post_id = request.data.get('post_id')
+            post_instance = get_object_or_404(Post, pk=post_id)
+            serializer.save(author=self.request.user, post=post_instance)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CommentDeleteView(generics.DestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_destroy(self, instance):
+        if instance.author != self.request.user:
+            self.permission_denied(self.request, message="You are not authorized to delete this post.")
+        instance.delete()
+
+class CommentDetailView(generics.RetrieveAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class LikeToggleView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
     def post(self, request, pk):
-        post = get_object_or_404(Post, pk=pk)
-        if post.likes.filter(id=request.user.id).exists():
-            post.likes.remove(request.user)
+        path = request.get_full_path()
+        if '/posts/like/' in path:
+            obj = get_object_or_404(Post, pk=pk)
+        elif '/comments/like/' in path:
+            obj = get_object_or_404(Comment, pk=pk)
+        if obj.likes.filter(id=request.user.id).exists():
+            obj.likes.remove(request.user)
             return Response({"Success": "Unliked post."}, status=status.HTTP_200_OK)
         else:
-            post.likes.add(request.user)
+            obj.likes.add(request.user)
             return Response({"Success": "Liked post."}, status=status.HTTP_200_OK)
 
 

@@ -125,6 +125,7 @@ para rodar: `python manage.py runserver`
      *	`author` (object): Contém `name`, `username` e `avatar_url`.
      *	`content` (string)
      *	`media_url` (string)
+     *	`created_at` (string): Formato ISO 8601.
      *	`likes_count` (number)
      *	`reposts_count` (number)
      *	`comments_count` (number)
@@ -142,16 +143,6 @@ para rodar: `python manage.py runserver`
 **DELETE `api/posts/delete/<int:id>/`** (remove um post específico)
 *	**Retorno Esperado:** `204 No Content` or `403 Forbidden`
 
-**GET `api/posts`** (Feed Global - Publicações Mais Recentes)
-*	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
-     *	`id` (string)
-     *	`content` (string)
-     *	`media_url` (string)
-     *	`comments_count` (number)
-     *	`reposts_count` (number)
-     *	`likes_count` (number)
-     *	`author` (object): Contém `name`, `username` e `avatar_url`.
-
 **POST `api/comments/create/`** (Cria um comentario novo)
 *    **Corpo da Requisição(JSON):**
      * `post_id` (string)
@@ -167,5 +158,34 @@ para rodar: `python manage.py runserver`
      *	`reposts_count` (string/number)
      *	`comments_count` (string/number)
 
+**GET `api/comments/info/<int:id>`** (Informações sobre um comentario específico)
+*	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
+     *	`id` (string)
+     *	`author` (object): Contém: `name`, `username` e `avatar_url`
+     *	`content` (string)
+     *	`media_url` (string)
+     *	`created_at` (string): Formato ISO 8601.
+     *	`likes_count` (string/number)
+     *	`reposts_count` (string/number)
+     *	`comments_count` (string/number)
+
+**POST `api/comments/like/<int:id>/`** (Curte um comentario específico)
+*	**Retorno Esperado:** `200 OK` or `404 Not Found`
+     * `Success: Unliked post.` (string)
+     * `Success: Liked post.` (string)
+
+**DELETE `api/comments/delete/<int:id>/`** (remove um comentario específico)
+*	**Retorno Esperado:** `204 No Content` or `403 Forbidden`
+
 **GET `api/users/me/posts`** (Publicações do Usuário Logado)
 *	**Retorno Esperado:** Array de objetos JSON idêntico ao da rota `/posts`.
+
+**GET `api/posts`** (Feed Global - Publicações Mais Recentes)
+*	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
+     *	`id` (string)
+     *	`content` (string)
+     *	`media_url` (string)
+     *	`comments_count` (number)
+     *	`reposts_count` (number)
+     *	`likes_count` (number)
+     *	`author` (object): Contém `name`, `username` e `avatar_url`.

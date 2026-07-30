@@ -21,4 +21,7 @@ urlpatterns = [
     path('posts/repost/<int:pk>/', RepostToggleView.as_view(), name='post-repost'),
     path('posts/delete/<int:pk>/', PostDeleteView.as_view(), name='post-delete'),
     path('comments/create/', CommentCreateView.as_view(), name='comment-create'),
+    path('comments/info/<int:pk>/', CommentDetailView.as_view(), name='comment-detail'),
+    path('comments/like/<int:pk>/', LikeToggleView.as_view(), name='comment-like'),
+    path('comments/delete/<int:pk>/', CommentDeleteView.as_view(), name='comment-delete'),
 ]
