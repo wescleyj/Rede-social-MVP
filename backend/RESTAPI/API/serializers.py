@@ -22,7 +22,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ['email', 'username', 'name', 'bio', 'created_at', 'following_count', 'followers_count', 'posts_count', 'avatar_url', 'banner_url']
 
 class UserUpdateSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(read_only=True)
+    name = serializers.CharField(required=True)
     username = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
     bio = serializers.CharField(required=True, allow_blank=True)
