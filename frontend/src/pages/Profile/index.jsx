@@ -133,14 +133,14 @@ export default function Profile() {
     const handleEditSubmit = async (e) => {
         e.preventDefault();
 
-        // O backend atual exige username, email, bio, avatar_url e banner_url no UserUpdateSerializer
+        // O backend atual exige name, username, email, bio, avatar_url e banner_url no UserUpdateSerializer
         const payload = {
+            name: nameUpdate,
             username: userData.username,
             email: userData.email,
             bio: bioUpdate,
             avatar_url: userData.avatar_url || "",
             banner_url: userData.banner_url || ""
-            // name não é alterável pelo serializer atual, mas podemos mandar
         };
 
         try {
