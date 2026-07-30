@@ -56,3 +56,13 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ['id', 'author', 'content', 'media_url', 'created_at', 'likes_count', 'reposts_count', 'comments_count']
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(read_only=True)
+    post = PostSerializer(read_only=True)
+
+    likes_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'post', 'author', 'content', 'media_url', 'created_at', 'likes_count']

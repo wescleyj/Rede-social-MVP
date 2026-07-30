@@ -112,13 +112,12 @@ para rodar: `python manage.py runserver`
      * `media_url` (string, optional)
 *    **Retorno Esperado:** `201 Created`.
      *	`id` (string)
+     *  `post` (object): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count` e `coments_count`
      *	`author` (object): Contém: `name`, `username` e `avatar_url`
      *	`content` (string)
      *	`media_url` (string)
      *	`created_at` (string): Formato ISO 8601.
      *	`likes_count` (string/number)
-     *	`reposts_count` (string/number)
-     *	`comments_count` (string/number)
 
 **GET `api/posts/info/<int:id>`** (Informações sobre um post específico)
 *	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
@@ -152,6 +151,21 @@ para rodar: `python manage.py runserver`
      *	`reposts_count` (number)
      *	`likes_count` (number)
      *	`author` (object): Contém `name`, `username` e `avatar_url`.
+
+**POST `api/comments/create/`** (Cria um comentario novo)
+*    **Corpo da Requisição(JSON):**
+     * `post_id` (string)
+     * `content` (string)
+     * `media_url` (string, optional)
+*    **Retorno Esperado:** `201 Created` or `404 Not Found`.
+     *	`id` (string)
+     *	`author` (object): Contém: `name`, `username` e `avatar_url`
+     *	`content` (string)
+     *	`media_url` (string)
+     *	`created_at` (string): Formato ISO 8601.
+     *	`likes_count` (string/number)
+     *	`reposts_count` (string/number)
+     *	`comments_count` (string/number)
 
 **GET `api/users/me/posts`** (Publicações do Usuário Logado)
 *	**Retorno Esperado:** Array de objetos JSON idêntico ao da rota `/posts`.

@@ -55,4 +55,10 @@ class Comment (models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     content = models.TextField()
+    media_url = models.URLField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
+    likes = models.ManyToManyField(User, related_name='liked_comments', blank=True)
+
+    @property
+    def likes_count(self):
+        return self.likes.count()

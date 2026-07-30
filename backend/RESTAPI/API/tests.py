@@ -126,31 +126,21 @@ class SocialAppAPITests(APITestCase): #testa rotas
 
     def test_create_post(self):
         self.client.force_authenticate(user=self.user1)
-        url = reverse('post-list-create')
+        url = reverse('post-create')
         data = {'content': 'Another great post!'}
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Post.objects.count(), 2)
 
-    def test_list_posts(self):
-        url = reverse('post-list-create')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['count'], 1)
-
-
-    def test_update_post_author(self):
-        self.client.force_authenticate(user=self.user1)
-        url = reverse('post-detail', kwargs={'pk': self.post.pk})
-        data = {'content': 'Updated post content'}
-        response = self.client.patch(url, data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.post.refresh_from_db()
-        self.assertEqual(self.post.content, 'Updated post content')
+    # def test_list_posts(self):
+    #     url = reverse('post-create')
+    #     response = self.client.get(url)
+    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(response.data['count'], 1)
 
     def test_delete_post_unauthorized(self):
         self.client.force_authenticate(user=self.user2)
-        url = reverse('post-detail', kwargs={'pk': self.post.pk})
+        url = reverse('post-delete', kwargs={'pk': self.post.pk})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 

@@ -144,6 +144,23 @@ class PostDetailView(generics.RetrieveAPIView):
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+class CommentCreateView(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer= CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                post_id = request.data.get('post_id')
+                post_instance = Post.objects.get(id=post_id)
+                serializer.save(author=self.request.user, post=post_instance)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except Post.DoesNotExist:
+                return Response({
+                    "error": "Post not found"
+                }, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class LikeToggleView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 

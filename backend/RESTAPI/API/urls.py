@@ -15,9 +15,10 @@ urlpatterns = [
     path('users/me/delete/', MyProfileDeleteView.as_view(), name='delete-user'),
     path('users/info/<str:username>/', UserProfileDetailView.as_view(), name='user-profile'),
     path('users/follow/<str:username>/', FollowToggleView.as_view(), name='follow-toggle'),
-    path('posts/create/', PostCreateView.as_view(), name='post-list-create'),
+    path('posts/create/', PostCreateView.as_view(), name='post-create'),
     path('posts/info/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
     path('posts/like/<int:pk>/', LikeToggleView.as_view(), name='post-like'),
     path('posts/repost/<int:pk>/', RepostToggleView.as_view(), name='post-repost'),
     path('posts/delete/<int:pk>/', PostDeleteView.as_view(), name='post-delete'),
+    path('comments/create/', CommentCreateView.as_view(), name='comment-create'),
 ]
