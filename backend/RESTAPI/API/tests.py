@@ -132,11 +132,12 @@ class SocialAppAPITests(APITestCase): #testa rotas
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Post.objects.count(), 2)
 
-    # def test_list_posts(self):
-    #     url = reverse('post-create')
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(response.data['count'], 1)
+    def test_list_posts(self):
+        self.client.force_authenticate(user=self.user1)
+        url = reverse('my-post-list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 1)
 
     def test_delete_post_unauthorized(self):
         self.client.force_authenticate(user=self.user2)
