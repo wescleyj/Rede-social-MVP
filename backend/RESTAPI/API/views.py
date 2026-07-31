@@ -1,6 +1,7 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import *
@@ -43,7 +44,11 @@ class MyProfileDetailView(generics.RetrieveUpdateAPIView):
     def get(self, request, *args, **kwargs):
         queryset = User.objects.get(pk=self.request.user.id)
         serializer_class = UserProfileSerializer
-        return Response(serializer_class(queryset).data, status=status.HTTP_200_OK)
+        response_data = {
+            'id': self.request.user.id,
+            **serializer_class(queryset).data
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
 
     serializer_class = UserUpdateSerializer
     model = User
@@ -200,3 +205,34 @@ class RepostToggleView(APIView):
         else:
             post.reposts.add(request.user)
             return Response({"Success": "Reposted successfully."}, status=status.HTTP_200_OK)
+
+class UserPostListView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    pagination_class = PageNumberPagination
+    page_size = 10
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self, *args, **kwargs):
+        url_name = self.request.resolver_match.url_name
+        if url_name == 'user-post-list':
+            username = self.kwargs.get('username')
+        elif url_name == 'my-post-list':
+            username = self.request.user.username
+        if not username:
+            raise serializers.ValidationError({'error': 'Username is required.'})
+
+        user = get_object_or_404(User, username=username)
+        posts = Post.objects.filter(author=user).order_by('-created_at')
+        return posts
+
+class FeedPostListView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    pagination_class = PageNumberPagination
+    page_size = 10
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self, *args, **kwargs):
+        me = self.request.user
+        following_users = me.following.all()
+        posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
+        return posts

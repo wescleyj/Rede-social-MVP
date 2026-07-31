@@ -54,7 +54,21 @@ para rodar: `python manage.py runserver`
      *	`refresh: token` (string)
      *  `access: token` (string)
 
-**PUT or PATCH `api/users/me/`** (Atualizer informações do usuário)
+**GET `api/users/me`** (Dados do Perfil Logado)
+*	**Retorno Esperado (JSON):**
+     *  `id` (string)
+     *	`email` (string)
+     *	`username` (string)
+     *	`name` (string)
+     *	`bio` (string)
+     *	`created_at` (string): Formato ISO 8601.
+     *	`following_count` (string)
+     *	`followers_count` (string)
+     *	`posts_count` (string)
+     *	`avatar_url` (string/URL)
+     *	`banner_url` (string/URL)
+
+**PUT or PATCH `api/users/me/`** (Atualizer informações do usuário logado)
 *	**Corpo da Requisição (JSON):**
      *	`name` (string)
      *  `username` (string)
@@ -62,7 +76,14 @@ para rodar: `python manage.py runserver`
      *  `bio` (string)
      *  `avatar_url` (string)
      *  `banner_url` (string)
-*	**Retorno Esperado:** `200 OK` or `400 Bad Request`.
+*	**Retorno Esperado:** `201 Created` ou erro `409 Conflict`.
+     *  `id` (string)
+     *	`username` (string)
+     *	`name` (string)
+     *	`email` (string)
+     *	`bio` (string)
+     *	`avatar_url` (string)
+     *	`banner_url` (string)
 
 **PUT or PATCH `api/users/me/update_passwd/`** (Atualizer senha do usuário)
 *	**Corpo da Requisição (JSON):**
@@ -71,19 +92,6 @@ para rodar: `python manage.py runserver`
 *	**Retorno Esperado:** `200 OK` or `403 Forbidden`.
      *	`id` (string)
      *  `username` (string)
-
-**GET `api/users/me`** (Dados do Perfil Logado)
-*	**Retorno Esperado (JSON):**
-     *	`email` (string)
-     *	`username` (string)
-     *	`name` (string)
-     *	`bio` (string)
-     *	`created_at` (string): Formato ISO 8601.
-     *	`following_count` (string/number)
-     *	`followers_count` (string/number)
-     *	`posts_count` (string/number)
-     *	`avatar_url` (string/URL)
-     *	`banner_url` (string/URL)
 
 **DELETE `api/users/me/delete/`** (Deleta o usuário logado)
 *	**Retorno Esperado:** `204 No Content` or `403 Forbidden`
@@ -95,9 +103,9 @@ para rodar: `python manage.py runserver`
      *	`name` (string)
      *	`bio` (string)
      *	`created_at` (string): Formato ISO 8601.
-     *	`following_count` (string/number)
-     *	`followers_count` (string/number)
-     *	`posts_count` (string/number)
+     *	`following_count` (string)
+     *	`followers_count` (string)
+     *	`posts_count` (string)
      *	`avatar_url` (string/URL)
      *	`banner_url` (string/URL)
 
@@ -117,7 +125,7 @@ para rodar: `python manage.py runserver`
      *	`content` (string)
      *	`media_url` (string)
      *	`created_at` (string): Formato ISO 8601.
-     *	`likes_count` (string/number)
+     *	`likes_count` (string)
 
 **GET `api/posts/info/<int:id>`** (Informações sobre um post específico)
 *	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
@@ -147,12 +155,12 @@ para rodar: `python manage.py runserver`
 *    **Corpo da Requisição(JSON):**
      * `post_id` (string)
      * `content` (string)
-     * `media_url` (string, optional)
+     * `media_url` (string/url, optional)
 *    **Retorno Esperado:** `201 Created` or `404 Not Found`.
      *	`id` (string)
      *	`author` (object): Contém: `name`, `username` e `avatar_url`
      *	`content` (string)
-     *	`media_url` (string)
+     *	`media_url` (string/url)
      *	`created_at` (string): Formato ISO 8601.
      *	`likes_count` (string/number)
      *	`reposts_count` (string/number)
@@ -163,7 +171,7 @@ para rodar: `python manage.py runserver`
      *	`id` (string)
      *	`author` (object): Contém: `name`, `username` e `avatar_url`
      *	`content` (string)
-     *	`media_url` (string)
+     *	`media_url` (string/url)
      *	`created_at` (string): Formato ISO 8601.
      *	`likes_count` (string/number)
      *	`reposts_count` (string/number)
@@ -178,14 +186,25 @@ para rodar: `python manage.py runserver`
 *	**Retorno Esperado:** `204 No Content` or `403 Forbidden`
 
 **GET `api/users/me/posts`** (Publicações do Usuário Logado)
-*	**Retorno Esperado:** Array de objetos JSON idêntico ao da rota `/posts`.
+*	**Retorno Esperado:** `200 OK`.
+     *  `count` (string)
+     *  `next` (string/url)
+     *  `previous` (string/url)
+     *  `results` (array de `post`): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count` e `coments_count`
+     > paginação definida para 10 posts, alterar caso necessário
+
+**GET `api/posts/users/<str:username>`** (Posts usuario - Publicações Mais Recentes do usuario especificado)
+*	**Retorno Esperado:** `200 OK` or `404 Not Found`.
+     *  `count` (string)
+     *  `next` (string/url)
+     *  `previous` (string/url)
+     *  `results` (array de `post`): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count` e `coments_count`
+     > paginação definida para 10 posts, alterar caso necessário
 
 **GET `api/posts`** (Feed Global - Publicações Mais Recentes)
-*	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
-     *	`id` (string)
-     *	`content` (string)
-     *	`media_url` (string)
-     *	`comments_count` (number)
-     *	`reposts_count` (number)
-     *	`likes_count` (number)
-     *	`author` (object): Contém `name`, `username` e `avatar_url`.
+*	**Retorno Esperado:** `200 OK`.
+     *  `count` (string)
+     *  `next` (string/url)
+     *  `previous` (string/url)
+     *  `results` (array de `post`): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count` e `coments_count`
+     > paginação definida para 10 posts, alterar caso necessário
