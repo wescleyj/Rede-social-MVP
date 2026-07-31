@@ -71,6 +71,7 @@ export default function Home() {
                         value={postContent}
                         onChange={(e) => setPostContent(e.target.value)}
                         disabled={isPublishing}
+                        maxLength={280}
                     />
                     
                     <div className="compose-actions">
@@ -83,6 +84,7 @@ export default function Home() {
                                         value={mediaUrl}
                                         onChange={(e) => setMediaUrl(e.target.value)}
                                         style={{ background: 'var(--bg-secondary)', border: 'none', color: '#fff', padding: '10px', borderRadius: '15px', width: '250px' }}
+                                        maxLength={200}
                                     />
                                 </div>
                                 <button 

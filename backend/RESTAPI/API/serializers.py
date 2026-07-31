@@ -62,10 +62,11 @@ class PostSerializer(serializers.ModelSerializer):
 
     is_liked = serializers.SerializerMethodField()
     is_reposted = serializers.SerializerMethodField()
+    repostedBy = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ['id', 'author', 'content', 'media_url', 'created_at', 'likes_count', 'reposts_count', 'comments_count', 'is_liked', 'is_reposted']
+        fields = ['id', 'author', 'content', 'media_url', 'created_at', 'likes_count', 'reposts_count', 'comments_count', 'is_liked', 'is_reposted', 'repostedBy']
 
     def get_is_liked(self, obj):
         request = self.context.get('request')
@@ -78,6 +79,32 @@ class PostSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.reposts.filter(id=request.user.id).exists()
         return False
+
+    def get_repostedBy(self, obj):
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return None
+            
+        url_name = getattr(request.resolver_match, 'url_name', None)
+        
+        if url_name == 'user-post-list':
+            username = request.resolver_match.kwargs.get('username')
+            if username and obj.author.username != username and obj.reposts.filter(username=username).exists():
+                user = User.objects.get(username=username)
+                return {'name': user.name, 'username': user.username}
+                
+        elif url_name == 'my-post-list':
+            if obj.author != request.user and obj.reposts.filter(id=request.user.id).exists():
+                return {'name': request.user.name, 'username': request.user.username}
+                
+        elif url_name == 'feed-post-list':
+            following_users = request.user.following.all()
+            if obj.author not in following_users:
+                reposter = obj.reposts.filter(id__in=following_users).first()
+                if reposter:
+                    return {'name': reposter.name, 'username': reposter.username}
+                    
+        return None
 
 class CommentSerializer(serializers.ModelSerializer):
     author = AuthorSerializer(read_only=True)

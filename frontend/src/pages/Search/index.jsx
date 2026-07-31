@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import LeftSidebar from '../../components/LeftSidebar';
 import RightSidebar from '../../components/RightSidebar';
 import PostCard from '../../components/PostCard';
 import './styles.css';
 
+import { AuthContext } from '../../contexts/AuthContext';
 import api from '../../../services/api.js';
 import { buildImageUrl } from '../../utils/buildImageUrl.js';
 
@@ -12,6 +13,7 @@ export default function Search() {
     const [searchParams] = useSearchParams();
     const query = searchParams.get("q") || "";
     const navigate = useNavigate();
+    const { userData } = useContext(AuthContext);
     
     const [activeTab, setActiveTab] = useState("usuarios"); // 'usuarios' | 'publicacoes'
     const [users, setUsers] = useState([]);
@@ -106,15 +108,17 @@ export default function Search() {
                                                             <strong>{user.name}</strong>
                                                             <span>@{user.username}</span>
                                                         </div>
-                                                        <button 
-                                                            className={`btn-follow ${user.is_following ? 'following' : ''}`}
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleFollowToggle(user);
-                                                            }}
-                                                        >
-                                                            {user.is_following ? 'Seguindo' : 'Seguir'}
-                                                        </button>
+                                                        {(!userData || userData.username !== user.username) && (
+                                                            <button 
+                                                                className={`btn-follow ${user.is_following ? 'following' : ''}`}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleFollowToggle(user);
+                                                                }}
+                                                            >
+                                                                {user.is_following ? 'Seguindo' : 'Seguir'}
+                                                            </button>
+                                                        )}
                                                     </div>
                                                     <p>{user.bio}</p>
                                                 </div>

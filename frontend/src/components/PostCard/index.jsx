@@ -18,6 +18,9 @@ export default function PostCard({ post }) {
     const [postUpd, setPost] = useState(post);
     const [likeIsLoading, setLikeIsLoading] = useState(false);
     const [repostIsLoading, setRepostIsLoading] = useState(false);
+    const [isDeleted, setIsDeleted] = useState(false);
+
+    const isAuthor = userData && userData.username === postUpd.author?.username;
     
     // Estados do Modal de Denúncia
     const [isReporting, setIsReporting] = useState(false);
@@ -129,6 +132,20 @@ export default function PostCard({ post }) {
         }
     }
 
+    async function handleDelete() {
+        if (!window.confirm("Tem certeza que deseja excluir esta publicação? Essa ação não pode ser desfeita.")) return;
+        
+        try {
+            await api.delete(`/api/posts/delete/${post.id}/`);
+            setIsDeleted(true);
+        } catch (err) {
+            console.error("Erro ao deletar post", err);
+            alert("Erro ao excluir. Tente novamente.");
+        }
+    }
+
+    if (isDeleted) return null;
+
     const avatarSrc = buildImageUrl(postUpd.author?.avatar_url);
     const mediaSrc = buildImageUrl(postUpd.media_url);
     
@@ -178,7 +195,12 @@ export default function PostCard({ post }) {
                     <button className="btn-action btn-message" onClick={requireAuth(toggleComments)}>
                         <SpeechBubble /> {formatNumber(commentsCount)}
                     </button>
-                    <button className={`btn-action btn-repost ${(postUpd.isReply || postUpd.is_reposted) ? 'reposted' : ''}`} disabled={repostIsLoading} onClick={requireAuth(repost)}>
+                    <button 
+                        className={`btn-action btn-repost ${(postUpd.isReply || postUpd.is_reposted) ? 'reposted' : ''}`} 
+                        disabled={repostIsLoading || isAuthor} 
+                        onClick={requireAuth(repost)}
+                        title={isAuthor ? "Você não pode repostar sua própria publicação" : "Repostar"}
+                    >
                         <Arrow /> {formatNumber(repostsCount)}
                     </button>
                     <button className={`btn-action btn-like ${(postUpd.isLiked || postUpd.is_liked) ? 'liked' : ''}`} disabled={likeIsLoading} onClick={requireAuth(like)}>
@@ -186,13 +208,25 @@ export default function PostCard({ post }) {
                     </button>
                 </div>
                 
-                <button 
-                    className="btn-action btn-report" 
-                    onClick={requireAuth(() => setIsReporting(true))} 
-                    title="Denunciar publicação"
-                >
-                    🚩
-                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    {isAuthor && (
+                        <button 
+                            className="btn-action btn-delete" 
+                            onClick={requireAuth(handleDelete)} 
+                            title="Excluir publicação"
+                            style={{ filter: 'grayscale(100%) brightness(2)' }}
+                        >
+                            🗑️
+                        </button>
+                    )}
+                    <button 
+                        className="btn-action btn-report" 
+                        onClick={requireAuth(() => setIsReporting(true))} 
+                        title="Denunciar publicação"
+                    >
+                        🚩
+                    </button>
+                </div>
             </div>
 
             {showComments && (
@@ -214,6 +248,7 @@ export default function PostCard({ post }) {
                             placeholder="Escreva um comentário..."
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
+                            maxLength={280}
                         />
                         <button type="submit" disabled={!newComment.trim()}>Enviar</button>
                     </form>

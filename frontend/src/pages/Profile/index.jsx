@@ -67,7 +67,6 @@ export default function Profile() {
 
     const filteredPosts = posts.filter(post => {
         if (activeTab === "publicacoes") return true;
-        if (activeTab === "curtidas") return post.isLiked;
         if (activeTab === "midia") return Boolean(post.media_url);
         return false;
     });
@@ -227,6 +226,7 @@ export default function Profile() {
                                             value={nameUpdate}
                                             onChange={(e) => setNameUpdate(e.target.value)}
                                             required
+                                            maxLength={25}
                                         />
                                     </div>
 
@@ -236,6 +236,7 @@ export default function Profile() {
                                             value={bioUpdate}
                                             onChange={(e) => setBioUpdate(e.target.value)}
                                             rows="3"
+                                            maxLength={160}
                                         />
                                     </div>
 
@@ -246,6 +247,7 @@ export default function Profile() {
                                             placeholder="https://i.imgur.com/foto.jpg"
                                             value={avatarUrl}
                                             onChange={(e) => setAvatarUrl(e.target.value)}
+                                            maxLength={200}
                                         />
                                     </div>
 
@@ -256,6 +258,7 @@ export default function Profile() {
                                             placeholder="https://i.imgur.com/capa.jpg"
                                             value={bannerUrl}
                                             onChange={(e) => setBannerUrl(e.target.value)}
+                                            maxLength={200}
                                         />
                                     </div>
 
@@ -290,9 +293,6 @@ export default function Profile() {
                     </button>
                     <button className={activeTab === "midia" ? "active" : ""} onClick={() => setActiveTab("midia")}>
                         Mídia
-                    </button>
-                    <button className={activeTab === "curtidas" ? "active" : ""} onClick={() => setActiveTab("curtidas")}>
-                        Curtidas
                     </button>
                 </nav>
 

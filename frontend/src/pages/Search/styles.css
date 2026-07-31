@@ -46,6 +46,15 @@
     transition: background-color 0.2s;
 }
 
+.user-avatar-large {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--surface-hover);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
 .search-user-card:hover {
     background-color: var(--surface-hover);
 }

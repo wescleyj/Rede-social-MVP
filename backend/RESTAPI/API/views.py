@@ -200,6 +200,9 @@ class RepostToggleView(APIView):
 
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
+        if post.author == request.user:
+            return Response({"Error": "You cannot repost your own post."}, status=status.HTTP_400_BAD_REQUEST)
+            
         if post.reposts.filter(id=request.user.id).exists():
             post.reposts.remove(request.user)
             return Response({"Success": "Removed repost."}, status=status.HTTP_200_OK)
@@ -223,7 +226,7 @@ class UserPostListView(generics.ListAPIView):
             raise serializers.ValidationError({'error': 'Username is required.'})
 
         user = get_object_or_404(User, username=username)
-        posts = Post.objects.filter(author=user).order_by('-created_at')
+        posts = Post.objects.filter(Q(author=user) | Q(reposts=user)).order_by('-created_at').distinct()
         return posts
 
 class FeedPostListView(generics.ListAPIView):
@@ -235,7 +238,7 @@ class FeedPostListView(generics.ListAPIView):
     def get_queryset(self, *args, **kwargs):
         me = self.request.user
         following_users = me.following.all()
-        posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
+        posts = Post.objects.filter(Q(author__in=following_users) | Q(reposts__in=following_users)).order_by('-created_at').distinct()
         return posts
 
 class PostCommentsView(generics.ListAPIView):

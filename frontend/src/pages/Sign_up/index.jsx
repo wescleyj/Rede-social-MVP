@@ -58,12 +58,12 @@ export default function SignUp() {
           <form className="auth-form" onSubmit={createUser}>
             <div className="input-group">
               <label>Nome</label>
-              <input type="text" placeholder="Como você quer ser chamado" required ref={inputNome} />
+              <input type="text" placeholder="Como você quer ser chamado" required maxLength="25" ref={inputNome} />
             </div>
 
             <div className="input-group">
               <label>Usuário</label>
-              <input type="text" placeholder="usuario" required ref={inputUsername} />
+              <input type="text" placeholder="usuario" required maxLength="20" ref={inputUsername} />
             </div>
 
             <div className="input-group">
