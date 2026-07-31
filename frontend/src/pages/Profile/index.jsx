@@ -8,62 +8,6 @@ import { AuthContext } from "../../contexts/AuthContext";
 import "./styles.css";
 import { buildImageUrl } from "../../utils/buildImageUrl.js";
 
-// Dados de fallback para posts do perfil durante desenvolvimento
-const MOCK_PROFILE_POSTS = [
-    {
-        id: 1,
-        content: "Primeira publicação de teste no frontend! Sem curtidas ou reposts meus, com midia.",
-        media_url: null,
-        comments_count: 5,
-        reposts_count: 2,
-        likes_count: 10,
-        isLiked: false,
-        isReply: false,
-        author: {
-            name: "Usuário Teste",
-            username: "teste_front",
-            avatar_url: null
-        },
-        created_at: "2026-07-27T10:00:00Z"
-    },
-    {
-        id: 2,
-        content: "Testando a renderização de números grandes e botões ativos.",
-        media_url: null,
-        comments_count: 1500,
-        reposts_count: 25000,
-        likes_count: 3000000,
-        isLiked: true,
-        isReply: true,
-        author: {
-            name: "Outra Pessoa",
-            username: "pessoa_2",
-            avatar_url: null
-        },
-        created_at: "2026-07-26T15:30:00Z"
-    },
-    {
-        id: 3,
-        content: "Este card foi repostado na sua timeline por outro usuário. Observe o cabeçalho!",
-        media_url: null,
-        comments_count: 42,
-        reposts_count: 100,
-        likes_count: 850,
-        isLiked: false,
-        isReply: false,
-        author: {
-            name: "Criador Original",
-            username: "original",
-            avatar_url: null
-        },
-        repostedBy: {
-            name: "Maria Silva",
-            username: "maria_silva"
-        },
-        created_at: "2026-07-25T08:15:00Z"
-    }
-];
-
 export default function Profile() {
     const { userData } = useContext(AuthContext);
     const { username } = useParams();
@@ -74,8 +18,8 @@ export default function Profile() {
     const [editPerfil, setEditPerfil] = useState(false);
     const [nameUpdate, setNameUpdate] = useState("");
     const [bioUpdate, setBioUpdate] = useState("");
-    const [avatarFile, setAvatarFile] = useState(null);
-    const [bannerFile, setBannerFile] = useState(null);
+    const [avatarUrl, setAvatarUrl] = useState("");
+    const [bannerUrl, setBannerUrl] = useState("");
 
     const [isFollowing, setIsFollowing] = useState(false);
     const [followIsLoading, setFollowIsLoading] = useState(false);
@@ -116,6 +60,8 @@ export default function Profile() {
         if (userData && isOwnProfile) {
             setNameUpdate(userData.name || "");
             setBioUpdate(userData.bio || "");
+            setAvatarUrl(userData.avatar_url || "");
+            setBannerUrl(userData.banner_url || "");
         }
     }, [userData, isOwnProfile]);
 
@@ -139,8 +85,8 @@ export default function Profile() {
             username: userData.username,
             email: userData.email,
             bio: bioUpdate,
-            avatar_url: userData.avatar_url || "",
-            banner_url: userData.banner_url || ""
+            avatar_url: avatarUrl,
+            banner_url: bannerUrl
         };
 
         try {
@@ -178,19 +124,26 @@ export default function Profile() {
         setReportCustom('');
     }
 
+    // Carregar Feed do Perfil
     useEffect(() => {
-        async function fetchData() {
+        async function fetchProfilePosts() {
+            if (!username && !userData?.username) return;
+            
             try {
-                const postsResponse = await api.get('/users/me/posts');
-                setPosts(postsResponse.data);
+                // Usa a rota do usuário logado se for o próprio perfil, caso contrário, usa a rota pública
+                const route = isOwnProfile 
+                    ? '/api/users/me/posts' 
+                    : `/api/posts/users/${username}`;
+                
+                const response = await api.get(route);
+                setPosts(response.data.results || response.data);
             } catch (error) {
-                console.warn('Backend indisponível, usando posts de teste:', error.message);
-                setPosts(MOCK_PROFILE_POSTS);
+                console.error('Erro ao carregar os posts do perfil:', error.message);
             }
         }
-
-        fetchData();
-    }, []);
+        
+        fetchProfilePosts();
+    }, [username, isOwnProfile, userData]);
 
     if (!userData || !profileUser) {
         return <div className="layout-wrapper">Carregando...</div>;
@@ -287,20 +240,22 @@ export default function Profile() {
                                     </div>
 
                                     <div className="form-group">
-                                        <label>Foto de Perfil:</label>
+                                        <label>Link da Foto de Perfil (ex: Imgur):</label>
                                         <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => setAvatarFile(e.target.files[0])}
+                                            type="url"
+                                            placeholder="https://i.imgur.com/foto.jpg"
+                                            value={avatarUrl}
+                                            onChange={(e) => setAvatarUrl(e.target.value)}
                                         />
                                     </div>
 
                                     <div className="form-group">
-                                        <label>Foto de Capa (Banner):</label>
+                                        <label>Link da Foto de Capa (Banner):</label>
                                         <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => setBannerFile(e.target.files[0])}
+                                            type="url"
+                                            placeholder="https://i.imgur.com/capa.jpg"
+                                            value={bannerUrl}
+                                            onChange={(e) => setBannerUrl(e.target.value)}
                                         />
                                     </div>
 

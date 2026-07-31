@@ -7,108 +7,34 @@ import PostCard from '../../components/PostCard';
 import api from "../../../services/api.js";
 import { AuthContext } from '../../contexts/AuthContext';
 
-// Dados de fallback para desenvolvimento sem backend
-const MOCK_FEED = [
-    {
-        id: 1,
-        content: "Primeira publicação de teste no frontend! Sem curtidas ou reposts meus, com midia.",
-        media_url: null,
-        comments_count: 5,
-        reposts_count: 2,
-        likes_count: 10,
-        isLiked: false,
-        isReply: false,
-        author: {
-            name: "Usuário Teste",
-            username: "teste_front",
-            avatar_url: null
-        },
-        created_at: "2026-07-27T10:00:00Z"
-    },
-    {
-        id: 2,
-        content: "Testando a renderização de números grandes e botões ativos.",
-        media_url: null,
-        comments_count: 1500,
-        reposts_count: 25000,
-        likes_count: 3000000,
-        isLiked: true,
-        isReply: true,
-        author: {
-            name: "Outra Pessoa",
-            username: "pessoa_2",
-            avatar_url: null
-        },
-        created_at: "2026-07-26T15:30:00Z"
-    },
-    {
-        id: 3,
-        content: "Este card foi repostado na sua timeline por outro usuário. Observe o cabeçalho!",
-        media_url: null,
-        comments_count: 42,
-        reposts_count: 100,
-        likes_count: 850,
-        isLiked: false,
-        isReply: false,
-        author: {
-            name: "Criador Original",
-            username: "original",
-            avatar_url: null
-        },
-        repostedBy: {
-            name: "Maria Silva",
-            username: "maria_silva"
-        },
-        created_at: "2026-07-25T08:15:00Z"
-    }
-];
+// Mocks removidos, a página agora depende exclusivamente da API real
 
 export default function Home() {
     const { userData } = useContext(AuthContext);
     const [posts, setPosts] = useState([]);
     const [postContent, setPostContent] = useState('');
-    const [mediaFile, setMediaFile] = useState(null);
+    const [mediaUrl, setMediaUrl] = useState('');
     const [isPublishing, setIsPublishing] = useState(false);
-    const fileInputRef = useRef(null);
 
     const navigate = useNavigate();
 
     const handlePublish = async () => {
-        if (!postContent.trim() && !mediaFile) return;
+        if (!postContent.trim() && !mediaUrl) return;
         setIsPublishing(true);
         
         try {
-            const formData = new FormData();
-            formData.append('content', postContent);
-            if (mediaFile) formData.append('media', mediaFile);
+            const payload = {
+                content: postContent,
+                media_url: mediaUrl
+            };
             
-            const response = await api.post('/posts', formData, {
-                headers: { "Content-Type": "multipart/form-data" }
-            });
+            const response = await api.post('/api/posts/create/', payload);
             setPosts([response.data, ...posts]);
             setPostContent('');
-            setMediaFile(null);
+            setMediaUrl('');
         } catch (error) {
-            console.warn('Backend indisponível para postar. Mockando localmente...', error.message);
-            const newPost = {
-                id: Date.now(),
-                content: postContent,
-                media_url: mediaFile ? URL.createObjectURL(mediaFile) : null,
-                comments_count: 0,
-                reposts_count: 0,
-                likes_count: 0,
-                isLiked: false,
-                isReply: false,
-                author: {
-                    name: userData.name,
-                    username: userData.username,
-                    avatar_url: userData.avatar_url
-                },
-                created_at: new Date().toISOString()
-            };
-            setPosts([newPost, ...posts]);
-            setPostContent('');
-            setMediaFile(null);
+            console.error('Erro ao postar:', error.message);
+            alert("Erro ao publicar. Verifique sua conexão e tente novamente.");
         } finally {
             setIsPublishing(false);
         }
@@ -117,15 +43,18 @@ export default function Home() {
     useEffect(() => {
         async function fetchFeed() {
             try {
-                const response = await api.get('/posts');
-                setPosts(response.data);
+                // Fetch Global/Following Feed
+                const response = await api.get('/api/posts/');
+                // O Django Rest Framework retorna { count, next, previous, results } para paginação
+                setPosts(response.data.results || response.data);
             } catch (error) {
-                console.warn('Backend indisponível, usando feed de teste:', error.message);
-                setPosts(MOCK_FEED);
+                console.error('Erro ao carregar o feed:', error.message);
             }
         }
-        fetchFeed();
-    }, []);
+        if (!userData?.isAnonymous) {
+            fetchFeed();
+        }
+    }, [userData]);
 
     return (
         <div className="layout-wrapper">
@@ -144,36 +73,22 @@ export default function Home() {
                         disabled={isPublishing}
                     />
                     
-                    {mediaFile && (
-                        <div className="media-preview">
-                            <img src={URL.createObjectURL(mediaFile)} alt="Preview da mídia" />
-                            <button className="btn-remove-media" onClick={() => setMediaFile(null)}>X</button>
-                        </div>
-                    )}
-
                     <div className="compose-actions">
                         {!userData?.isAnonymous ? (
                             <>
                                 <div className="compose-tools">
-                                    <button 
-                                        className="btn-attach" 
-                                        onClick={() => fileInputRef.current?.click()}
-                                        title="Adicionar mídia"
-                                    >
-                                        📷
-                                    </button>
                                     <input 
-                                        type="file" 
-                                        accept="image/*" 
-                                        ref={fileInputRef} 
-                                        style={{ display: 'none' }} 
-                                        onChange={(e) => setMediaFile(e.target.files[0])}
+                                        type="url"
+                                        placeholder="Link de imagem ou GIF..."
+                                        value={mediaUrl}
+                                        onChange={(e) => setMediaUrl(e.target.value)}
+                                        style={{ background: 'var(--bg-secondary)', border: 'none', color: '#fff', padding: '10px', borderRadius: '15px', width: '250px' }}
                                     />
                                 </div>
                                 <button 
                                     className="btn-publish" 
                                     onClick={handlePublish} 
-                                    disabled={isPublishing || (!postContent.trim() && !mediaFile)}
+                                    disabled={isPublishing || (!postContent.trim() && !mediaUrl)}
                                 >
                                     {isPublishing ? 'Enviando...' : 'Publicar'}
                                 </button>

@@ -44,7 +44,7 @@ export default function PostCard({ post }) {
         try {
             await api.post(`/api/posts/like/${post.id}/`);
 
-            const wasLiked = postUpd.isLiked;
+            const wasLiked = postUpd.isLiked || postUpd.is_liked;
             const currentLikes = postUpd.likes_count ?? postUpd.totalLikes ?? 0;
             const newLikes = wasLiked ? currentLikes - 1 : currentLikes + 1;
 
@@ -52,7 +52,8 @@ export default function PostCard({ post }) {
                 ...postUpd,
                 likes_count: newLikes,
                 totalLikes: newLikes,
-                isLiked: !wasLiked
+                isLiked: !wasLiked,
+                is_liked: !wasLiked
             });
         } catch (error) {
             console.error(error);
@@ -67,7 +68,7 @@ export default function PostCard({ post }) {
         try {
             await api.post(`/api/posts/repost/${post.id}/`);
 
-            const wasReposted = postUpd.isReply;
+            const wasReposted = postUpd.isReply || postUpd.is_reposted;
             const currentReposts = postUpd.reposts_count ?? postUpd.totalReposts ?? 0;
             const newReposts = wasReposted ? currentReposts - 1 : currentReposts + 1;
 
@@ -75,7 +76,8 @@ export default function PostCard({ post }) {
                 ...postUpd,
                 reposts_count: newReposts,
                 totalReposts: newReposts,
-                isReply: !wasReposted
+                isReply: !wasReposted,
+                is_reposted: !wasReposted
             });
         } catch (error) {
             console.error(error);
@@ -168,10 +170,10 @@ export default function PostCard({ post }) {
                     <button className="btn-action btn-message" onClick={requireAuth(toggleComments)}>
                         <SpeechBubble /> {formatNumber(commentsCount)}
                     </button>
-                    <button className={`btn-action btn-repost ${postUpd.isReply ? 'reposted' : ''}`} disabled={repostIsLoading} onClick={requireAuth(repost)}>
+                    <button className={`btn-action btn-repost ${(postUpd.isReply || postUpd.is_reposted) ? 'reposted' : ''}`} disabled={repostIsLoading} onClick={requireAuth(repost)}>
                         <Arrow /> {formatNumber(repostsCount)}
                     </button>
-                    <button className={`btn-action btn-like ${postUpd.isLiked ? 'liked' : ''}`} disabled={likeIsLoading} onClick={requireAuth(like)}>
+                    <button className={`btn-action btn-like ${(postUpd.isLiked || postUpd.is_liked) ? 'liked' : ''}`} disabled={likeIsLoading} onClick={requireAuth(like)}>
                         <Heart /> {formatNumber(likesCount)}
                     </button>
                 </div>
