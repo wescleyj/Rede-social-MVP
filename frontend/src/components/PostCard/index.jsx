@@ -99,26 +99,34 @@ export default function PostCard({ post }) {
         setReportCustom('');
     }
 
-    function toggleComments() {
-        if (!showComments && commentsList.length === 0 && commentsCount > 0) {
-            // Mock de carregamento inicial
-            setCommentsList([{ id: 'm1', author: 'outra_pessoa', text: 'Excelente post!' }]);
+    async function toggleComments() {
+        if (!showComments) {
+            try {
+                const res = await api.get(`/api/posts/info/${post.id}/comments/`);
+                setCommentsList(res.data.results || res.data);
+            } catch (err) {
+                console.error("Erro ao carregar comentários", err);
+            }
         }
         setShowComments(!showComments);
     }
 
-    function handleSendComment(e) {
+    async function handleSendComment(e) {
         e.preventDefault();
         if (!newComment.trim()) return;
         
-        const added = {
-            id: Date.now(),
-            author: userData.username,
-            text: newComment
-        };
-        setCommentsList([...commentsList, added]);
-        setPost({ ...postUpd, comments_count: commentsCount + 1, totalComments: commentsCount + 1 });
-        setNewComment('');
+        try {
+            const res = await api.post('/api/comments/create/', {
+                post_id: post.id,
+                content: newComment
+            });
+            setCommentsList([...commentsList, res.data]);
+            setPost({ ...postUpd, comments_count: commentsCount + 1, totalComments: commentsCount + 1 });
+            setNewComment('');
+        } catch (err) {
+            console.error("Erro ao enviar comentário", err);
+            alert("Erro ao enviar comentário.");
+        }
     }
 
     const avatarSrc = buildImageUrl(postUpd.author?.avatar_url);
@@ -192,8 +200,8 @@ export default function PostCard({ post }) {
                     <div className="comments-list">
                         {commentsList.map(c => (
                             <div key={c.id} className="comment-item">
-                                <strong>@{c.author}</strong>
-                                <p>{c.text}</p>
+                                <strong>@{c.author?.username || c.author}</strong>
+                                <p>{c.content || c.text}</p>
                             </div>
                         ))}
                         {commentsCount === 0 && commentsList.length === 0 && (

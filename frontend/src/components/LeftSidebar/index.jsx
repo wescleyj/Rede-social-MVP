@@ -29,9 +29,7 @@ export default function Sidebar() {
                 <li className={location.pathname === '/' ? 'active' : ''}>
                     <Link to="/">Início</Link>
                 </li>
-                <li className={location.pathname.startsWith('/messages') ? 'active' : ''}>
-                    <Link to="/messages">Mensagens</Link>
-                </li>
+
                 <li>
                     <Link to="/profile" className={`menu-item ${location.pathname === '/profile' ? 'active' : ''}`}>
                         Perfil
