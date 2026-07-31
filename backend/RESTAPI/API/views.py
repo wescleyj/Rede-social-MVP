@@ -236,3 +236,15 @@ class FeedPostListView(generics.ListAPIView):
         following_users = me.following.all()
         posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
         return posts
+
+class PostCommentsView(generics.ListAPIView):
+    serializer_class = CommentSerializer
+    pagination_class = PageNumberPagination
+    page_size = 10
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self, *args, **kwargs):
+        post_id = self.kwargs['pk']
+        post = get_object_or_404(Post, pk=post_id)
+        comments = Comment.objects.filter(post=post).order_by('-created_at')
+        return comments

@@ -18,6 +18,7 @@ urlpatterns = [
     path('users/follow/<str:username>/', FollowToggleView.as_view(), name='follow-toggle'),
     path('posts/create/', PostCreateView.as_view(), name='post-create'),
     path('posts/info/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
+    path('posts/info/<int:pk>/comments/', PostCommentsView.as_view(), name='post-comments'),
     path('posts/like/<int:pk>/', LikeToggleView.as_view(), name='post-like'),
     path('posts/repost/<int:pk>/', RepostToggleView.as_view(), name='post-repost'),
     path('posts/delete/<int:pk>/', PostDeleteView.as_view(), name='post-delete'),

@@ -158,12 +158,11 @@ para rodar: `python manage.py runserver`
      * `media_url` (string/url, optional)
 *    **Retorno Esperado:** `201 Created` or `404 Not Found`.
      *	`id` (string)
+     *  `post` (object): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count` e `coments_count`
      *	`author` (object): Contém: `name`, `username` e `avatar_url`
      *	`content` (string)
      *	`media_url` (string/url)
      *	`created_at` (string): Formato ISO 8601.
-     *	`likes_count` (string/number)
-     *	`reposts_count` (string/number)
      *	`comments_count` (string/number)
 
 **GET `api/comments/info/<int:id>`** (Informações sobre um comentario específico)
@@ -174,8 +173,6 @@ para rodar: `python manage.py runserver`
      *	`media_url` (string/url)
      *	`created_at` (string): Formato ISO 8601.
      *	`likes_count` (string/number)
-     *	`reposts_count` (string/number)
-     *	`comments_count` (string/number)
 
 **POST `api/comments/like/<int:id>/`** (Curte um comentario específico)
 *	**Retorno Esperado:** `200 OK` or `404 Not Found`
@@ -207,4 +204,15 @@ para rodar: `python manage.py runserver`
      *  `next` (string/url)
      *  `previous` (string/url)
      *  `results` (array de `post`): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count` e `coments_count`
+     > paginação definida para 10 posts, alterar caso necessário
+
+**GET `api/posts/info/<int:pk>/comments`** (Comentários do post especificado)
+*	**Retorno Esperado:** `200 OK` or `404 Not Found`.
+     *	`id` (string)
+     *  `post` (object): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count` e `coments_count`
+     *	`author` (object): Contém: `name`, `username` e `avatar_url`
+     *	`content` (string)
+     *	`media_url` (string/url)
+     *	`created_at` (string): Formato ISO 8601.
+     *	`likes_count` (string/number)
      > paginação definida para 10 posts, alterar caso necessário
