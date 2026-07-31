@@ -16,7 +16,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     followers_count = serializers.IntegerField(read_only=True)
     following_count = serializers.IntegerField(read_only=True)
     posts_count = serializers.IntegerField(read_only=True)
-    is_following = serializers.SerializerMethodField()
+    is_following = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
@@ -49,9 +49,17 @@ class PasswordUpdateSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'current_password', 'new_password']
 
 class AuthorSerializer(serializers.ModelSerializer):
+    is_following = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['name', 'username', 'avatar_url']
+        fields = ['name', 'username', 'avatar_url', 'is_following']
+
+    def get_is_following(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return request.user.following.filter(id=obj.id).exists()
+        return False
 
 class PostSerializer(serializers.ModelSerializer):
     author = AuthorSerializer(read_only=True)
@@ -109,9 +117,15 @@ class PostSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     author = AuthorSerializer(read_only=True)
     post = PostSerializer(read_only=True)
-
     likes_count = serializers.IntegerField(read_only=True)
+    is_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ['id', 'post', 'author', 'content', 'media_url', 'created_at', 'likes_count']
+        fields = ['id', 'post', 'author', 'content', 'media_url', 'created_at', 'likes_count', 'is_liked']
+
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(id=request.user.id).exists()
+        return False

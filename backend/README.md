@@ -67,6 +67,7 @@ para rodar: `python manage.py runserver`
      *	`posts_count` (string)
      *	`avatar_url` (string/URL)
      *	`banner_url` (string/URL)
+     *  `is_following` (string)
 
 **PUT or PATCH `api/users/me/`** (Atualizer informações do usuário logado)
 *	**Corpo da Requisição (JSON):**
@@ -108,6 +109,7 @@ para rodar: `python manage.py runserver`
      *	`posts_count` (string)
      *	`avatar_url` (string/URL)
      *	`banner_url` (string/URL)
+     *  `is_following` (string)
 
 **POST `api/users/follow/<str:username>/`** (Segue ou para de seguir o usuário)
 *    **Retorno Esperado:** `200 OK` or `404 Not Found`.
@@ -120,23 +122,28 @@ para rodar: `python manage.py runserver`
      * `media_url` (string, optional)
 *    **Retorno Esperado:** `201 Created`.
      *	`id` (string)
-     *  `post` (object): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count` e `coments_count`
-     *	`author` (object): Contém: `name`, `username` e `avatar_url`
+     *	`author` (object): Contém: `name`, `username`, `avatar_url` e `is_following`
      *	`content` (string)
      *	`media_url` (string)
      *	`created_at` (string): Formato ISO 8601.
      *	`likes_count` (string)
+     *  `is_liked` (string)
+     *  `is_reposted` (string)
+     *  `repostedBy` (string)
 
 **GET `api/posts/info/<int:id>`** (Informações sobre um post específico)
 *	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
      *	`id` (string)
-     *	`author` (object): Contém `name`, `username` e `avatar_url`.
+     *	`author` (object): Contém: `name`, `username`, `avatar_url` e `is_following`
      *	`content` (string)
      *	`media_url` (string)
      *	`created_at` (string): Formato ISO 8601.
      *	`likes_count` (number)
      *	`reposts_count` (number)
      *	`comments_count` (number)
+     *  `is_liked` (string)
+     *  `is_reposted` (string)
+     *  `repostedBy` (string)
 
 **POST `api/posts/like/<int:id>/`** (Curte um post específico)
 *	**Retorno Esperado:** `200 OK` or `404 Not Found`
@@ -158,21 +165,23 @@ para rodar: `python manage.py runserver`
      * `media_url` (string/url, optional)
 *    **Retorno Esperado:** `201 Created` or `404 Not Found`.
      *	`id` (string)
-     *  `post` (object): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count` e `coments_count`
-     *	`author` (object): Contém: `name`, `username` e `avatar_url`
-     *	`content` (string)
-     *	`media_url` (string/url)
-     *	`created_at` (string): Formato ISO 8601.
-     *	`comments_count` (string/number)
-
-**GET `api/comments/info/<int:id>`** (Informações sobre um comentario específico)
-*	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
-     *	`id` (string)
-     *	`author` (object): Contém: `name`, `username` e `avatar_url`
+     *  `post` (object): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count`, `coments_count`, `is_liked`, `is_reposted` e `repostedBy`
+     *	`author` (object): Contém: `name`, `username`, `avatar_url` e `is_following`
      *	`content` (string)
      *	`media_url` (string/url)
      *	`created_at` (string): Formato ISO 8601.
      *	`likes_count` (string/number)
+     *  `is_liked` (string)
+
+**GET `api/comments/info/<int:id>`** (Informações sobre um comentario específico)
+*	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
+     *	`id` (string)
+     *	`author` (object): Contém: `name`, `username`, `avatar_url` e `is_following`
+     *	`content` (string)
+     *	`media_url` (string/url)
+     *	`created_at` (string): Formato ISO 8601.
+     *	`likes_count` (string/number)
+     *  `is_liked` (string)
 
 **POST `api/comments/like/<int:id>/`** (Curte um comentario específico)
 *	**Retorno Esperado:** `200 OK` or `404 Not Found`
@@ -187,7 +196,7 @@ para rodar: `python manage.py runserver`
      *  `count` (string)
      *  `next` (string/url)
      *  `previous` (string/url)
-     *  `results` (array de `post`): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count` e `coments_count`
+     *  `results` (array de `post`): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count`, `coments_count`, `is_liked`, `is_reposted` e `repostedBy`
      > paginação definida para 10 posts, alterar caso necessário
 
 **GET `api/posts/users/<str:username>`** (Posts usuario - Publicações Mais Recentes do usuario especificado)
@@ -195,7 +204,7 @@ para rodar: `python manage.py runserver`
      *  `count` (string)
      *  `next` (string/url)
      *  `previous` (string/url)
-     *  `results` (array de `post`): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count` e `coments_count`
+     *  `results` (array de `post`): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count`, `coments_count`, `is_liked`, `is_reposted` e `repostedBy`
      > paginação definida para 10 posts, alterar caso necessário
 
 **GET `api/posts`** (Feed Global - Publicações Mais Recentes)
@@ -203,18 +212,19 @@ para rodar: `python manage.py runserver`
      *  `count` (string)
      *  `next` (string/url)
      *  `previous` (string/url)
-     *  `results` (array de `post`): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count` e `coments_count`
+     *  `results` (array de `post`): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count`, `coments_count`, `is_liked`, `is_reposted` e `repostedBy`
      > paginação definida para 10 posts, alterar caso necessário
 
 **GET `api/posts/info/<int:pk>/comments`** (Comentários do post especificado)
-*	**Retorno Esperado:** `200 OK` or `404 Not Found`.
+*	**Retorno Esperado:** `200 OK` or `404 Not Found`. Array de `Comentarios`
      *	`id` (string)
-     *  `post` (object): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count` e `coments_count`
-     *	`author` (object): Contém: `name`, `username` e `avatar_url`
+     *  `post` (object): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count`, `coments_count`, `is_liked`, `is_reposted` e `repostedBy`
+     *	`author` (object): Contém: `name`, `username`, `avatar_url` e `is_following`
      *	`content` (string)
      *	`media_url` (string/url)
      *	`created_at` (string): Formato ISO 8601.
      *	`likes_count` (string/number)
+     *  `is_liked` (string)
      > paginação definida para 10 posts, alterar caso necessário
 
 **GET `api/search/posts/<string:search>/`** (Pesquisa posts)
@@ -222,7 +232,7 @@ para rodar: `python manage.py runserver`
      *  `count` (string)
      *  `next` (string/url)
      *  `previous` (string/url)
-     *  `results` (array de `post`): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count` e `coments_count`
+     *  `results` (array de `post`): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count`, `coments_count`, `is_liked`, `is_reposted` e `repostedBy`
      > paginação definida para 5 posts, alterar caso necessário
 
 **GET `api/search/users/<string:search>/`** (Pesquisa usuarios)
@@ -230,5 +240,5 @@ para rodar: `python manage.py runserver`
      *  `count` (string)
      *  `next` (string/url)
      *  `previous` (string/url)
-     *  `results` (array de `users`): Contém: `email`, `username`, `name`, `bio`, `created_at`, `following_count`, `followers_count`, `posts_count`, `avatar_url`, `banner_url` 
+     *  `results` (array de `users`): Contém: `email`, `username`, `name`, `bio`, `created_at`, `following_count`, `followers_count`, `posts_count`, `avatar_url`, `banner_url` e `is_following`
      > paginação definida para 5 posts, alterar caso necessário
