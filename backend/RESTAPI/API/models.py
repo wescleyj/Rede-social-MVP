@@ -3,9 +3,9 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
-    username = models.CharField(unique=True, max_length=20)
+    username = models.CharField(unique=True, max_length=25)
     name = models.CharField(max_length=255)
-    bio = models.TextField(blank=True, default="")
+    bio = models.TextField(blank=True, default="", max_length=160)
     created_at = models.DateTimeField(auto_now_add=True)
     avatar_url = models.URLField(blank=True, default="")
     banner_url = models.URLField(blank=True, default="")
@@ -29,7 +29,7 @@ class User(AbstractUser):
 class Post(models.Model):
     id = models.AutoField(primary_key=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
-    content = models.TextField()
+    content = models.TextField(max_length=280)
     media_url = models.URLField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -54,7 +54,7 @@ class Post(models.Model):
 class Comment (models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
-    content = models.TextField()
+    content = models.TextField(max_length=280)
     media_url = models.URLField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, related_name='liked_comments', blank=True)
