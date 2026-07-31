@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.db.models import Q
 from .serializers import *
 
 class RegisterView(generics.CreateAPIView):
@@ -248,3 +249,25 @@ class PostCommentsView(generics.ListAPIView):
         post = get_object_or_404(Post, pk=post_id)
         comments = Comment.objects.filter(post=post).order_by('-created_at')
         return comments
+
+class PostSearchView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    pagination_class = PageNumberPagination
+    page_size = 5
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self, *args, **kwargs):
+        search = self.kwargs['search']
+        posts = Post.objects.filter(content__icontains=search).order_by('-created_at')
+        return posts
+
+class UserSearchView(generics.ListAPIView):
+    serializer_class = UserProfileSerializer
+    pagination_class = PageNumberPagination
+    page_size = 5
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self, *args, **kwargs):
+        search = self.kwargs['search']
+        users = User.objects.filter(Q(username__icontains=search) | Q(name__icontains=search)).order_by('-created_at')
+        return users

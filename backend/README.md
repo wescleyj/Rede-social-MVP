@@ -216,3 +216,19 @@ para rodar: `python manage.py runserver`
      *	`created_at` (string): Formato ISO 8601.
      *	`likes_count` (string/number)
      > paginação definida para 10 posts, alterar caso necessário
+
+**GET `api/search/posts/<string:search>/`** (Pesquisa posts)
+*	**Retorno Esperado:** `200 OK`.
+     *  `count` (string)
+     *  `next` (string/url)
+     *  `previous` (string/url)
+     *  `results` (array de `post`): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count` e `coments_count`
+     > paginação definida para 5 posts, alterar caso necessário
+
+**GET `api/search/users/<string:search>/`** (Pesquisa usuarios)
+*	**Retorno Esperado:** `200 OK`.
+     *  `count` (string)
+     *  `next` (string/url)
+     *  `previous` (string/url)
+     *  `results` (array de `users`): Contém: `email`, `username`, `name`, `bio`, `created_at`, `following_count`, `followers_count`, `posts_count`, `avatar_url`, `banner_url` 
+     > paginação definida para 5 posts, alterar caso necessário

@@ -28,4 +28,6 @@ urlpatterns = [
     path('comments/delete/<int:pk>/', CommentDeleteView.as_view(), name='comment-delete'),
     path('posts/users/<str:username>', UserPostListView.as_view(), name='user-post-list'),
     path('posts/', FeedPostListView.as_view(), name='feed-post-list'),
+    path('search/posts/<str:search>/', PostSearchView.as_view(), name='search-post'),
+    path('search/users/<str:search>/', UserSearchView.as_view(), name='search-user'),
 ]
