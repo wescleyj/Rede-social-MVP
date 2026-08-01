@@ -10,6 +10,8 @@ class User(AbstractUser):
     avatar_url = models.URLField(blank=True, default="")
     banner_url = models.URLField(blank=True, default="")
     following = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
+    is_superuser = models.BooleanField(default=False)
+    is_private = models.BooleanField(default=False)
 
     @property
     def followers_count(self):

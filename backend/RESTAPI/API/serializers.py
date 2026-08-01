@@ -6,10 +6,14 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'name', 'email', 'bio', 'created_at', 'avatar_url', 'banner_url']
+        fields = ['id', 'username', 'password', 'name', 'email', 'bio', 'created_at', 'avatar_url', 'banner_url', 'is_superuser']
 
     def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
+        request = self.context.get('request')
+        if request.user.is_authenticated and request.user.is_superuser:
+            user = User.objects.create_superuser(**validated_data)
+        else:
+            user = User.objects.create_user(**validated_data)
         return user
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -20,7 +24,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'username', 'name', 'bio', 'created_at', 'following_count', 'followers_count', 'posts_count', 'avatar_url', 'banner_url', 'is_following']
+        fields = ['email', 'username', 'name', 'bio', 'created_at', 'following_count', 'followers_count', 'posts_count', 'avatar_url', 'banner_url', 'is_following', 'is_superuser', 'is_private']
 
     def get_is_following(self, obj):
         request = self.context.get('request')
@@ -53,7 +57,7 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['name', 'username', 'avatar_url', 'is_following']
+        fields = ['name', 'username', 'avatar_url', 'is_following', 'is_private']
 
     def get_is_following(self, obj):
         request = self.context.get('request')

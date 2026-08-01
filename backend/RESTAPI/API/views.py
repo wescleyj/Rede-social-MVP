@@ -1,6 +1,7 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.exceptions import NotFound
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -74,8 +75,24 @@ class MyProfileDeleteView(generics.DestroyAPIView):
     def get_object(self, *args, **kwargs):
         user_to_delete = self.request.user
         if not user_to_delete.is_authenticated:
-            return Response({'error': 'User is not authenticated'}, status=401)
+            self.permission_denied(self.request, message='User is not authenticated')
+        return user_to_delete
 
+    def perfrom_destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+
+class AdminUserDeleteView(generics.DestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserProfileSerializer
+    queryset = User.objects.all()
+
+    def get_object(self, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            self.permission_denied(self.request, message='You are not authorized to perform this operation')
+        user_to_delete = get_object_or_404(User, username=self.kwargs.get('username'))
+        if not user_to_delete:
+            raise NotFound(detail='User not found', code=status.HTTP_404_NOT_FOUND)
         return user_to_delete
 
     def perfrom_destroy(self, request, *args, **kwargs):
@@ -143,7 +160,7 @@ class PostDeleteView(generics.DestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_destroy(self, instance):
-        if instance.author != self.request.user:
+        if (instance.author != self.request.user) and not self.request.user.is_superuser:
             self.permission_denied(self.request, message="You are not authorized to delete this post.")
         instance.delete()
 
@@ -170,7 +187,7 @@ class CommentDeleteView(generics.DestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_destroy(self, instance):
-        if instance.author != self.request.user:
+        if (instance.author != self.request.user) and not self.request.user.is_superuser:
             self.permission_denied(self.request, message="You are not authorized to delete this post.")
         instance.delete()
 
@@ -233,12 +250,15 @@ class FeedPostListView(generics.ListAPIView):
     serializer_class = PostSerializer
     pagination_class = PageNumberPagination
     page_size = 10
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self, *args, **kwargs):
         me = self.request.user
-        following_users = me.following.all()
-        posts = Post.objects.filter(Q(author__in=following_users) | Q(reposts__in=following_users)).order_by('-created_at').distinct()
+        if not me.is_authenticated:
+            posts = Post.objects.filter().order_by('-created_at').distinct()
+        else:
+            following_users = me.following.all()
+            posts = Post.objects.filter(Q(author__in=following_users) | Q(reposts__in=following_users)).order_by('-created_at').distinct()
         return posts
 
 class PostCommentsView(generics.ListAPIView):

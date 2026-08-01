@@ -95,7 +95,10 @@ para rodar: `python manage.py runserver`
      *  `username` (string)
 
 **DELETE `api/users/me/delete/`** (Deleta o usuário logado)
-*	**Retorno Esperado:** `204 No Content` or `403 Forbidden`
+*	**Retorno Esperado:** `204 No Content` or `401 Unauthorized`
+
+**DELETE `api/users/delete/<str:username>/`** (Deleta o usuário especificado)
+*	**Retorno Esperado:** `204 No Content`, `403 Forbidden` or `404 Not Found`
 
 **GET `api/users/info/<str:username>`** (Dados do perfil especificado)
 *	**Retorno Esperado (JSON):**
