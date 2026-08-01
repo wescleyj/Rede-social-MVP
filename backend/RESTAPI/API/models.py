@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -64,3 +65,19 @@ class Comment (models.Model):
     @property
     def likes_count(self):
         return self.likes.count()
+
+class Report(models.Model):
+    id = models.AutoField(primary_key=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports')
+    reported_id = models.PositiveIntegerField()
+    reported_type = models.CharField(max_length=20, choices=[
+        ('user', 'User'),
+        ('post', 'Post'),
+        ('comment', 'Comment'),
+    ])
+    additional_info = models.TextField(blank=True, default="", max_length=400)
+    is_closed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']

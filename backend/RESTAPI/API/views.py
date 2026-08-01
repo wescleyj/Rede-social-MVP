@@ -1,9 +1,9 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound
 from rest_framework.pagination import PageNumberPagination
-from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Q
 from .serializers import *
@@ -294,3 +294,67 @@ class UserSearchView(generics.ListAPIView):
         search = self.kwargs['search']
         users = User.objects.filter(Q(username__icontains=search) | Q(name__icontains=search)).order_by('-created_at')
         return users
+
+class CreateReportView(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = ReportSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(author=self.request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ReportListView(generics.RetrieveAPIView):
+    serializer_class = ReportSerializer
+    pagination_class = PageNumberPagination
+    page_size = 5
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self, *args, **kwargs):
+        pk = self.kwargs['pk']
+        reports = Report.objects.filter(id=pk).order_by('-created_at')
+        return reports
+
+class FeedReportListView(generics.ListAPIView):
+    serializer_class = ReportSerializer
+    pagination_class = PageNumberPagination
+    page_size = 10
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self, *args, **kwargs):
+        report_status = self.kwargs.get('filter')
+
+        if not self.request.user.is_superuser:
+            self.permission_denied(self.request, message='You are not authorized to perform this operation.')
+        if report_status == 'closed':
+            reports = Report.objects.filter(is_closed=True).order_by('-created_at')
+        elif report_status == 'open':
+            reports = Report.objects.filter(is_closed=False).order_by('-created_at')
+        elif report_status == 'null':
+            open_reports = Report.objects.filter(is_closed=False)
+            serialized_data = self.get_serializer(open_reports, many=True).data
+            null_ids = [item['id'] for item in serialized_data if item['obj_instance'] is None]
+            if null_ids:
+                Report.objects.filter(id__in=null_ids).update(is_closed=True)
+            return Report.objects.filter(id__in=null_ids).order_by('-created_at')
+        else:
+            reports = Report.objects.all().order_by('-created_at')
+        return reports
+
+class ReportToggleStatusView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        report = get_object_or_404(Report, pk=pk)
+        if not self.request.user.is_superuser:
+            return Response({"Error": "You are not authorized to perform this operation."}, status=status.HTTP_403_FORBIDDEN)
+
+        if not report.is_closed:
+            report.is_closed = True
+            report.save()
+            return Response({"Success": "Closed report."}, status=status.HTTP_200_OK)
+        else:
+            report.is_closed = False
+            report.save()
+            return Response({"Success": "Opened report."}, status=status.HTTP_200_OK)

@@ -39,9 +39,10 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     bio = serializers.CharField(required=True, allow_blank=True)
     avatar_url = serializers.URLField(required=True, allow_blank=True)
     banner_url = serializers.URLField(required=True, allow_blank=True)
+    is_private = serializers.BooleanField(required=True)
     class Meta:
         model = User
-        fields = ['id', 'username', 'name', 'email', 'bio', 'avatar_url', 'banner_url']
+        fields = ['id', 'username', 'name', 'email', 'bio', 'avatar_url', 'banner_url', 'is_private']
 
 class PasswordUpdateSerializer(serializers.ModelSerializer):
     current_password = serializers.CharField(required=True, write_only=True)
@@ -133,3 +134,44 @@ class CommentSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.likes.filter(id=request.user.id).exists()
         return False
+
+class ReportSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(read_only=True)
+    obj_instance = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Report
+        fields = ['id', 'author', 'reported_id', 'reported_type', 'obj_instance', 'additional_info', 'is_closed', 'created_at']
+
+    def validate(self, attrs):
+        reported_type = attrs.get('reported_type')
+        reported_id = attrs.get('reported_id')
+        model_mapping = {
+            'user': User,
+            'post': Post,
+            'comment': Comment,
+        }
+
+        if reported_type not in model_mapping:
+            raise serializers.ValidationError({
+                'reported_type': f"Invalid type. Must be one of: {', '.join(model_mapping.keys())}"
+            })
+        ModelClass = model_mapping[reported_type]
+        if not ModelClass.objects.filter(id=reported_id).exists():
+            raise serializers.ValidationError({
+                'reported_id': f"Target {reported_type} with ID '{reported_id}' does not exist."
+            })
+        return attrs
+
+    def get_obj_instance(self, obj):
+        mapping = {
+            'user': (User, UserProfileSerializer),
+            'post': (Post, PostSerializer),
+            'comment': (Comment, CommentSerializer),
+        }
+        ModelClass, SerializerClass = mapping[obj.reported_type]
+        try:
+            instance = ModelClass.objects.get(id=obj.reported_id)
+            return SerializerClass(instance, context=self.context).data
+        except ModelClass.DoesNotExist:
+            return None

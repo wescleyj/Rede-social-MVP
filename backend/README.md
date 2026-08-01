@@ -68,6 +68,7 @@ para rodar: `python manage.py runserver`
      *	`avatar_url` (string/URL)
      *	`banner_url` (string/URL)
      *  `is_following` (string)
+     *  `is_private` (boolean)
 
 **PUT or PATCH `api/users/me/`** (Atualizer informações do usuário logado)
 *	**Corpo da Requisição (JSON):**
@@ -77,6 +78,7 @@ para rodar: `python manage.py runserver`
      *  `bio` (string)
      *  `avatar_url` (string)
      *  `banner_url` (string)
+     *  `is_private` (boolean)
 *	**Retorno Esperado:** `201 Created` ou erro `409 Conflict`.
      *  `id` (string)
      *	`username` (string)
@@ -85,6 +87,7 @@ para rodar: `python manage.py runserver`
      *	`bio` (string)
      *	`avatar_url` (string)
      *	`banner_url` (string)
+     *  `is_private` (boolean)
 
 **PUT or PATCH `api/users/me/update_passwd/`** (Atualizer senha do usuário)
 *	**Corpo da Requisição (JSON):**
@@ -113,6 +116,8 @@ para rodar: `python manage.py runserver`
      *	`avatar_url` (string/URL)
      *	`banner_url` (string/URL)
      *  `is_following` (string)
+     *  `is_superuser` (boolean)
+     *  `is_private` (boolean)
 
 **POST `api/users/follow/<str:username>/`** (Segue ou para de seguir o usuário)
 *    **Retorno Esperado:** `200 OK` or `404 Not Found`.
@@ -125,7 +130,7 @@ para rodar: `python manage.py runserver`
      * `media_url` (string, optional)
 *    **Retorno Esperado:** `201 Created`.
      *	`id` (string)
-     *	`author` (object): Contém: `name`, `username`, `avatar_url` e `is_following`
+     *	`author` (object): Contém: `name`, `username`, `avatar_url`, `is_following` e `is_private`
      *	`content` (string)
      *	`media_url` (string)
      *	`created_at` (string): Formato ISO 8601.
@@ -137,7 +142,7 @@ para rodar: `python manage.py runserver`
 **GET `api/posts/info/<int:id>`** (Informações sobre um post específico)
 *	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
      *	`id` (string)
-     *	`author` (object): Contém: `name`, `username`, `avatar_url` e `is_following`
+     *	`author` (object): Contém: `name`, `username`, `avatar_url`, `is_following` e `is_private`
      *	`content` (string)
      *	`media_url` (string)
      *	`created_at` (string): Formato ISO 8601.
@@ -169,7 +174,7 @@ para rodar: `python manage.py runserver`
 *    **Retorno Esperado:** `201 Created` or `404 Not Found`.
      *	`id` (string)
      *  `post` (object): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count`, `coments_count`, `is_liked`, `is_reposted` e `repostedBy`
-     *	`author` (object): Contém: `name`, `username`, `avatar_url` e `is_following`
+     *	`author` (object): Contém: `name`, `username`, `avatar_url`, `is_following` e `is_private`
      *	`content` (string)
      *	`media_url` (string/url)
      *	`created_at` (string): Formato ISO 8601.
@@ -179,7 +184,7 @@ para rodar: `python manage.py runserver`
 **GET `api/comments/info/<int:id>`** (Informações sobre um comentario específico)
 *	**Retorno Esperado:** Array de objetos JSON, onde cada objeto contém:
      *	`id` (string)
-     *	`author` (object): Contém: `name`, `username`, `avatar_url` e `is_following`
+     *	`author` (object): Contém: `name`, `username`, `avatar_url`, `is_following` e `is_private`
      *	`content` (string)
      *	`media_url` (string/url)
      *	`created_at` (string): Formato ISO 8601.
@@ -222,11 +227,11 @@ para rodar: `python manage.py runserver`
 *	**Retorno Esperado:** `200 OK` or `404 Not Found`. Array de `Comentarios`
      *	`id` (string)
      *  `post` (object): Contém: `id`, `author`, `content`, `media_url`, `created_at`, `likes_count`, `reposts_count`, `coments_count`, `is_liked`, `is_reposted` e `repostedBy`
-     *	`author` (object): Contém: `name`, `username`, `avatar_url` e `is_following`
+     *	`author` (object): Contém: `name`, `username`, `avatar_url`, `is_following` e `is_private`
      *	`content` (string)
      *	`media_url` (string/url)
      *	`created_at` (string): Formato ISO 8601.
-     *	`likes_count` (string/number)
+     *	`likes_count` (string)
      *  `is_liked` (string)
      > paginação definida para 10 posts, alterar caso necessário
 
@@ -243,5 +248,44 @@ para rodar: `python manage.py runserver`
      *  `count` (string)
      *  `next` (string/url)
      *  `previous` (string/url)
-     *  `results` (array de `users`): Contém: `email`, `username`, `name`, `bio`, `created_at`, `following_count`, `followers_count`, `posts_count`, `avatar_url`, `banner_url` e `is_following`
+     *  `results` (array de `users`): Contém: `email`, `username`, `name`, `bio`, `created_at`, `following_count`, `followers_count`, `posts_count`, `avatar_url`, `banner_url`, `is_following`, `is_superuser` e `is_private`.
      > paginação definida para 5 posts, alterar caso necessário
+
+**POST `api/reports/create/`** (Cria um report novo)
+*    **Corpo da Requisição(JSON):**
+     * `reported_id` (string)
+     * `reported_type` (string options: `user`, `post`, `comment`)
+     * `additional_info` (string, optional)
+*    **Retorno Esperado:** `201 Created` or `400 Bad Request`.
+     *	`id` (string)
+     *	`author` (object): Contém: `name`, `username`, `avatar_url`, `is_following` e `is_private`
+     *	`reported_id` (string)
+     *	`reported_type` (string)
+     *  `user` or `post` or `comment` (object)
+     *	`additional_info` (string)
+     *  `is_closed` (boolean)
+     *	`created_at` (string): Formato ISO 8601.
+
+**GET `api/reports/info/<int:pk>`** (Informações de um report)
+*    **Retorno Esperado:** `200 OK` or `404 Not Found`.
+     *	`id` (string)
+     *	`author` (object): Contém: `name`, `username`, `avatar_url`, `is_following` e `is_private`
+     *	`reported_id` (string)
+     *	`reported_type` (string)
+     *  `obj_instance`: `user` or `post` or `comment` (object)
+     *	`additional_info` (string)
+     *  `is_closed` (boolean)
+     *	`created_at` (string): Formato ISO 8601.
+
+**GET `api/reports/<str:filter>`** (Caso o filtro seja open, pega os reports em aberto. Caso seja closed, pega os reports fechado. Caso seja null, fecha todos os reports com `obj_instance == null` e retorna os reports fechados. Caso seja qualquer coisa alem disso, retorna todos os reports)
+*    **Retorno Esperado:** `200 OK`.
+     *  `count` (string)
+     *  `next` (string/url)
+     *  `previous` (string/url)
+     *  `results` (array de `reports`): Contém: `id`, `author`, `reported_id`, `reported_type`, `obj_instance`, `additional_info`, `is_closed` e `created_at`.
+     > paginação definida para 10 posts, alterar caso necessário
+
+**POST `api/reports/toggle/<int:id>/`** (Abre ou fecha um report especificado)
+*	**Retorno Esperado:** `200 OK` or `404 Not Found`
+     * `Success: Closed report.` (string)
+     * `Success: Opened report.` (string)

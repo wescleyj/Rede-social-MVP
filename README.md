@@ -59,12 +59,6 @@ Dentro da pasta `backend`:
 pip install Django djangorestframework djangorestframework_simplejwt django-cors-headers
 ```
 
-Se o projeto tiver `requirements.txt`, você pode usar:
-
-```bash
-pip install -r requirements.txt
-```
-
 ### Rodar o backend
 Ainda dentro da pasta `backend`:
 

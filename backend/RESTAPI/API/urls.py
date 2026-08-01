@@ -31,4 +31,9 @@ urlpatterns = [
     path('posts/', FeedPostListView.as_view(), name='feed-post-list'),
     path('search/posts/<str:search>/', PostSearchView.as_view(), name='search-post'),
     path('search/users/<str:search>/', UserSearchView.as_view(), name='search-user'),
+    path('reports/create/', CreateReportView.as_view(), name='create-report'),
+    path('reports/info/<int:pk>/', ReportListView.as_view(), name='report-detail'),
+    path('reports/<str:filter>/', FeedReportListView.as_view(), name='report-feed'),
+    path('reports/toggle/<int:pk>/', ReportToggleStatusView.as_view(), name='toggle-report-status'),
 ]
+# usuario privado
