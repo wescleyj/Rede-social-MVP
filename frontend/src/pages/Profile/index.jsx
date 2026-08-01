@@ -19,6 +19,7 @@ export default function Profile() {
     const [bioUpdate, setBioUpdate] = useState("");
     const [avatarUrl, setAvatarUrl] = useState("");
     const [bannerUrl, setBannerUrl] = useState("");
+    const [isPrivateUpdate, setIsPrivateUpdate] = useState(false);
 
     // Estados para Alteração de Senha
     const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -42,9 +43,7 @@ export default function Profile() {
     const isMutualFollow = isFollowing || username === 'pessoa_2';
 
     // Estados do Modal de Denúncia de Perfil
-    const [isReportingProfile, setIsReportingProfile] = useState(false);
-    const [reportReason, setReportReason] = useState('');
-    const [reportCustom, setReportCustom] = useState('');
+
 
     const requireAuth = (callback) => (e) => {
         if (e && e.stopPropagation) e.stopPropagation();
@@ -91,6 +90,7 @@ export default function Profile() {
             setBioUpdate(userData.bio || "");
             setAvatarUrl(userData.avatar_url || "");
             setBannerUrl(userData.banner_url || "");
+            setIsPrivateUpdate(Boolean(userData.is_private));
         }
     }, [userData, isOwnProfile]);
 
@@ -107,21 +107,21 @@ export default function Profile() {
     const handleEditSubmit = async (e) => {
         e.preventDefault();
 
-        // O backend atual exige name, username, email, bio, avatar_url e banner_url no UserUpdateSerializer
+        // O backend exige name, username, email, bio, avatar_url, banner_url e is_private
         const payload = {
             name: nameUpdate,
             username: userData.username,
             email: userData.email,
             bio: bioUpdate,
             avatar_url: avatarUrl,
-            banner_url: bannerUrl
+            banner_url: bannerUrl,
+            is_private: isPrivateUpdate
         };
 
         try {
             const response = await api.put("/api/users/me/", payload);
             
             // Atualizar o contexto global de auth com os novos dados
-            // Opcionalmente podemos forçar um recarregamento da página para simplicidade
             window.location.reload(); 
         } catch (error) {
             console.error(error);
@@ -198,14 +198,6 @@ export default function Profile() {
         }
     }
 
-    function handleReportSubmit(e) {
-        e.preventDefault();
-        // Na vida real isso faria POST /reports/users
-        alert(`Denúncia enviada com sucesso! Analisaremos o perfil @${username || userData.username}.`);
-        setIsReportingProfile(false);
-        setReportReason('');
-        setReportCustom('');
-    }
 
     async function handleConfirmDeleteAccount(e) {
         e.preventDefault();
@@ -363,11 +355,7 @@ export default function Profile() {
                                     disabled={!isMutualFollow}
                                     title={!isMutualFollow ? "Vocês precisam se seguir para trocar mensagens" : "Enviar Mensagem"}
                                 >
-                                    ✉️ Mensagem
-                                </button>
-
-                                <button className="btn-secondary btn-report" onClick={requireAuth(() => setIsReportingProfile(true))}>
-                                    ⚑ Denunciar
+                                    Mensagem
                                 </button>
 
                                 {userData?.is_superuser && (
@@ -376,7 +364,7 @@ export default function Profile() {
                                         onClick={handleAdminDeleteUser}
                                         title="Excluir este usuário como Administrador"
                                     >
-                                        🗑️ Excluir Usuário
+                                        Excluir Usuário
                                     </button>
                                 )}
                             </>
@@ -429,6 +417,20 @@ export default function Profile() {
                                             onChange={(e) => setBannerUrl(e.target.value)}
                                             maxLength={200}
                                         />
+                                    </div>
+
+                                    <div className="form-group-checkbox">
+                                        <label className="checkbox-label">
+                                            <input
+                                                type="checkbox"
+                                                checked={isPrivateUpdate}
+                                                onChange={(e) => setIsPrivateUpdate(e.target.checked)}
+                                            />
+                                            <span>Conta Privada</span>
+                                        </label>
+                                        <span className="form-hint">
+                                            Quando ativado, apenas seus seguidores poderão ver suas publicações.
+                                        </span>
                                     </div>
 
                                     <div className="modal-actions">
@@ -547,7 +549,17 @@ export default function Profile() {
                     )}
 
                     <div className="profile-bio">
-                        <h1>{profileUser.name}</h1>
+                        <div className="profile-name-row">
+                            <h1>{profileUser.name}</h1>
+                            {profileUser.is_private && (
+                                <span className="badge-private-profile" title="Esta conta é privada">
+                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+                                        <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                                    </svg>
+                                    Privada
+                                </span>
+                            )}
+                        </div>
                         <span>@{profileUser.username}</span>
                         <p>{profileUser.bio || "Sem biografia"}</p>
 
@@ -572,7 +584,17 @@ export default function Profile() {
                 </nav>
 
                 <section className="profile-feed">
-                    {filteredPosts.length > 0 ? (
+                    {!isOwnProfile && profileUser?.is_private && !isFollowing && !userData?.is_superuser ? (
+                        <div className="profile-private-lock-box">
+                            <div className="lock-icon-circle">
+                                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                                </svg>
+                            </div>
+                            <h3>Esta conta é privada</h3>
+                            <p>Siga @{profileUser.username} para ver as publicações e fotos.</p>
+                        </div>
+                    ) : filteredPosts.length > 0 ? (
                         filteredPosts.map((post) => (
                             <PostCard key={post.id} post={post} />
                         ))
@@ -582,42 +604,6 @@ export default function Profile() {
                 </section>
             </main>
 
-            {isReportingProfile && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <h2>Denunciar Perfil</h2>
-                        <form onSubmit={handleReportSubmit} className="report-form">
-                            <label>
-                                <input type="radio" name="reason" value="spam" onChange={(e) => setReportReason(e.target.value)} required /> Spam
-                            </label>
-                            <label>
-                                <input type="radio" name="reason" value="falso" onChange={(e) => setReportReason(e.target.value)} /> Falsidade Ideológica
-                            </label>
-                            <label>
-                                <input type="radio" name="reason" value="abuso" onChange={(e) => setReportReason(e.target.value)} /> Assédio ou Abuso
-                            </label>
-                            <label>
-                                <input type="radio" name="reason" value="outro" onChange={(e) => setReportReason(e.target.value)} /> Outro
-                            </label>
-
-                            {reportReason === 'outro' && (
-                                <textarea 
-                                    className="report-custom-text" 
-                                    placeholder="Descreva o motivo da denúncia..."
-                                    value={reportCustom}
-                                    onChange={(e) => setReportCustom(e.target.value)}
-                                    required
-                                />
-                            )}
-
-                            <div className="modal-actions">
-                                <button type="button" onClick={() => setIsReportingProfile(false)}>Cancelar</button>
-                                <button type="submit" className="btn-submit-report" disabled={!reportReason}>Enviar Denúncia</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

@@ -42,10 +42,20 @@
 .post-author-name {
     font-size: 15px;
     color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
-.post-meta:hover .post-author-name {
-    text-decoration: underline;
+.icon-private-lock {
+    color: #f59e0b;
+    flex-shrink: 0;
+}
+
+.comment-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .post-author-handle {
@@ -320,11 +330,17 @@
     color: var(--text-muted, #64748b);
 }
 
+.comment-actions-top {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 .btn-comment-delete {
     background: transparent;
     border: none;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 14px;
     padding: 4px 6px;
     border-radius: 6px;
     opacity: 0.5;
@@ -335,6 +351,25 @@
 .btn-comment-delete:hover {
     opacity: 1;
     background-color: rgba(239, 68, 68, 0.15);
+}
+
+.btn-comment-report {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    opacity: 0.4;
+    color: var(--text-muted, #64748b);
+    transition: opacity 0.2s, background-color 0.2s, color 0.2s;
+    line-height: 1;
+}
+
+.btn-comment-report:hover {
+    opacity: 1;
+    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.1);
 }
 
 .comment-content {

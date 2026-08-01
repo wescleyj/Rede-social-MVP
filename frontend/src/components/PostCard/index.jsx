@@ -22,10 +22,15 @@ export default function PostCard({ post }) {
 
     const isAuthor = userData && userData.username === postUpd.author?.username;
     
-    // Estados do Modal de Denúncia
+    // Estados do Modal de Denúncia de Post
     const [isReporting, setIsReporting] = useState(false);
     const [reportReason, setReportReason] = useState('');
     const [reportCustom, setReportCustom] = useState('');
+
+    // Estados do Modal de Denúncia de Comentário
+    const [reportingCommentId, setReportingCommentId] = useState(null);
+    const [commentReportReason, setCommentReportReason] = useState('');
+    const [commentReportCustom, setCommentReportCustom] = useState('');
 
     // Estados de Comentários
     const [showComments, setShowComments] = useState(false);
@@ -98,12 +103,43 @@ export default function PostCard({ post }) {
     const repostsCount = postUpd.reposts_count ?? postUpd.totalReposts ?? 0;
     const likesCount = postUpd.likes_count ?? postUpd.totalLikes ?? 0;
 
-    function handleReportSubmit(e) {
+    async function handleReportSubmit(e) {
         e.preventDefault();
-        alert(`Denúncia registrada com sucesso!\nMotivo: ${reportReason === 'outro' ? reportCustom : reportReason}`);
-        setIsReporting(false);
-        setReportReason('');
-        setReportCustom('');
+        const reasonText = reportReason === 'outro' ? (reportCustom.trim() || 'Outro') : reportReason;
+        try {
+            await api.post('/api/reports/create/', {
+                reported_id: post.id,
+                reported_type: 'post',
+                additional_info: reasonText
+            });
+            alert("Denúncia registrada com sucesso! Ela foi enviada para análise dos administradores.");
+            setIsReporting(false);
+            setReportReason('');
+            setReportCustom('');
+        } catch (err) {
+            console.error("Erro ao enviar denúncia:", err);
+            alert("Erro ao registrar denúncia. Tente novamente.");
+        }
+    }
+
+    async function handleCommentReportSubmit(e) {
+        e.preventDefault();
+        if (!reportingCommentId) return;
+        const reasonText = commentReportReason === 'outro' ? (commentReportCustom.trim() || 'Outro') : commentReportReason;
+        try {
+            await api.post('/api/reports/create/', {
+                reported_id: reportingCommentId,
+                reported_type: 'comment',
+                additional_info: reasonText
+            });
+            alert("Denúncia do comentário registrada com sucesso! Ela foi enviada para análise dos administradores.");
+            setReportingCommentId(null);
+            setCommentReportReason('');
+            setCommentReportCustom('');
+        } catch (err) {
+            console.error("Erro ao denunciar comentário:", err);
+            alert("Erro ao registrar denúncia do comentário.");
+        }
     }
 
     async function toggleComments() {
@@ -238,7 +274,14 @@ export default function PostCard({ post }) {
                     onClick={() => postUpd.author?.username && navigate(`/profile/${postUpd.author.username}`)}
                     style={{ cursor: 'pointer' }}
                 >
-                    <strong className="post-author-name">{postUpd.author?.name || 'Usuário'}</strong>
+                    <strong className="post-author-name">
+                        {postUpd.author?.name || 'Usuário'}
+                        {postUpd.author?.is_private && (
+                            <svg className="icon-private-lock" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" title="Conta Privada">
+                                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                            </svg>
+                        )}
+                    </strong>
                     <span className="post-author-handle">@{postUpd.author?.username || 'usuario'}</span>
                     {formattedDate && <span className="post-date">• {formattedDate}</span>}
                 </div>
@@ -313,7 +356,14 @@ export default function PostCard({ post }) {
                                     <div className="comment-main">
                                         <div className="comment-header">
                                             <div className="comment-author-info" onClick={() => navigate(`/profile/${authorObj?.username}`)}>
-                                                <strong className="comment-name">{authorObj?.name || authorObj?.username}</strong>
+                                                <strong className="comment-name">
+                                                    {authorObj?.name || authorObj?.username}
+                                                    {authorObj?.is_private && (
+                                                        <svg className="icon-private-lock" viewBox="0 0 24 24" width="12" height="12" fill="currentColor" title="Conta Privada">
+                                                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                                                        </svg>
+                                                    )}
+                                                </strong>
                                                 <span className="comment-username">@{authorObj?.username}</span>
                                                 {c.created_at && (
                                                     <span className="comment-date">
@@ -321,16 +371,30 @@ export default function PostCard({ post }) {
                                                     </span>
                                                 )}
                                             </div>
-                                            {canDeleteComment && (
+                                            <div className="comment-actions-top">
+                                                {canDeleteComment && (
+                                                    <button 
+                                                        type="button"
+                                                        className="btn-comment-delete" 
+                                                        onClick={() => handleCommentDelete(c.id)}
+                                                        title="Excluir comentário"
+                                                    >
+                                                        🗑️
+                                                    </button>
+                                                )}
                                                 <button 
                                                     type="button"
-                                                    className="btn-comment-delete" 
-                                                    onClick={() => handleCommentDelete(c.id)}
-                                                    title="Excluir comentário"
+                                                    className="btn-comment-report" 
+                                                    onClick={requireAuth(() => {
+                                                        setReportingCommentId(c.id);
+                                                        setCommentReportReason('');
+                                                        setCommentReportCustom('');
+                                                    })}
+                                                    title="Denunciar comentário"
                                                 >
-                                                    🗑️
+                                                    ⚑
                                                 </button>
-                                            )}
+                                            </div>
                                         </div>
                                         <p className="comment-content">{c.content || c.text}</p>
                                         <div className="comment-footer">
@@ -422,6 +486,52 @@ export default function PostCard({ post }) {
                             <div className="modal-actions">
                                 <button type="button" onClick={() => setIsReporting(false)}>Cancelar</button>
                                 <button type="submit" className="btn-submit-report">Enviar Denúncia</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {reportingCommentId && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Denunciar Comentário</h2>
+                        <form onSubmit={handleCommentReportSubmit}>
+                            <p style={{marginBottom: '10px', color: 'var(--text-muted)'}}>Por que você está denunciando este comentário?</p>
+                            
+                            <div className="report-options">
+                                <label>
+                                    <input type="radio" name="comment_reason" value="spam" onChange={(e) => setCommentReportReason(e.target.value)} required />
+                                    Spam ou enganoso
+                                </label>
+                                <label>
+                                    <input type="radio" name="comment_reason" value="abuso" onChange={(e) => setCommentReportReason(e.target.value)} />
+                                    Discurso de ódio ou racismo
+                                </label>
+                                <label>
+                                    <input type="radio" name="comment_reason" value="violencia" onChange={(e) => setCommentReportReason(e.target.value)} />
+                                    Violência ou danos físicos
+                                </label>
+                                <label>
+                                    <input type="radio" name="comment_reason" value="outro" onChange={(e) => setCommentReportReason(e.target.value)} />
+                                    Outro motivo
+                                </label>
+                            </div>
+
+                            {commentReportReason === 'outro' && (
+                                <textarea 
+                                    className="report-textarea"
+                                    placeholder="Descreva o motivo da denúncia..."
+                                    value={commentReportCustom}
+                                    onChange={(e) => setCommentReportCustom(e.target.value)}
+                                    maxLength={300}
+                                    required
+                                />
+                            )}
+
+                            <div className="modal-actions">
+                                <button type="button" onClick={() => setReportingCommentId(null)}>Cancelar</button>
+                                <button type="submit" className="btn-submit-report" disabled={!commentReportReason}>Enviar Denúncia</button>
                             </div>
                         </form>
                     </div>

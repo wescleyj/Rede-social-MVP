@@ -435,3 +435,97 @@
     background-color: rgba(239, 68, 68, 0.1) !important;
     border-color: var(--danger, #ef4444) !important;
 }
+
+/* Suporte à Conta Privada */
+.profile-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.badge-private-profile {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.form-group-checkbox {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+}
+
+.form-group-checkbox .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 14.5px;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.form-group-checkbox .checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--brand);
+    cursor: pointer;
+}
+
+.form-group-checkbox .form-hint {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    line-height: 1.4;
+    padding-left: 28px;
+}
+
+.profile-private-lock-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+}
+
+.profile-private-lock-box .lock-icon-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.profile-private-lock-box h3 {
+    margin: 0 0 8px 0;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.profile-private-lock-box p {
+    margin: 0;
+    font-size: 14.5px;
+    color: var(--text-muted);
+    max-width: 320px;
+    line-height: 1.5;
+}

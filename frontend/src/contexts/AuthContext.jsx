@@ -38,12 +38,30 @@ export function AuthProvider({ children }) {
         window.location.href = '/signin';
     };
 
-    const togglePrivacy = () => {
+    const togglePrivacy = async () => {
         if (!userData || userData.isAnonymous) return;
-        // Na vida real isso faria PUT /users/me/privacy
         const newPrivacyStatus = !userData.is_private;
-        setUserData({ ...userData, is_private: newPrivacyStatus });
-        alert(`Sua conta agora é ${newPrivacyStatus ? 'PRIVADA' : 'PÚBLICA'}.`);
+        try {
+            const payload = {
+                name: userData.name,
+                username: userData.username,
+                email: userData.email,
+                bio: userData.bio || '',
+                avatar_url: userData.avatar_url || '',
+                banner_url: userData.banner_url || '',
+                is_private: newPrivacyStatus
+            };
+            const response = await api.put('/api/users/me/', payload);
+            setUserData(prev => ({
+                ...prev,
+                ...response.data,
+                isAnonymous: false
+            }));
+            alert(`Sua conta agora é ${newPrivacyStatus ? 'PRIVADA' : 'PÚBLICA'}.`);
+        } catch (error) {
+            console.error('Erro ao atualizar privacidade:', error);
+            alert('Erro ao alterar a privacidade da conta.');
+        }
     };
 
     useEffect(() => {

@@ -9,7 +9,7 @@ import './styles.css';
 export default function Sidebar() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { userData, logout, togglePrivacy } = useContext(AuthContext);
+    const { userData, logout } = useContext(AuthContext);
     const [showMenu, setShowMenu] = useState(false);
 
     if (!userData) {
@@ -80,12 +80,6 @@ export default function Sidebar() {
 
                 {showMenu && !userData.isAnonymous && (
                     <div className="sidebar-dropdown-menu">
-                        <button className="dropdown-item" onClick={(e) => {
-                            e.stopPropagation();
-                            togglePrivacy();
-                        }}>
-                            Conta Privada: {userData.is_private ? 'ON' : 'OFF'}
-                        </button>
                         <button className="dropdown-item logout" onClick={(e) => {
                             e.stopPropagation();
                             logout();
