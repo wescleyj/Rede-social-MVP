@@ -199,8 +199,17 @@ export default function PostCard({ post }) {
     return (
         <article className="post-card">
             {postUpd.repostedBy && (
-                <div className="post-reposted-by">
-                    <Arrow /> Repostado por {postUpd.repostedBy.name}
+                <div 
+                    className="post-reposted-by"
+                    onClick={(e) => {
+                        if (postUpd.repostedBy.username) {
+                            e.stopPropagation();
+                            navigate(`/profile/${postUpd.repostedBy.username}`);
+                        }
+                    }}
+                    style={{ cursor: 'pointer' }}
+                >
+                    <Arrow /> Repostado por @{postUpd.repostedBy.username || postUpd.repostedBy.name}
                 </div>
             )}
 

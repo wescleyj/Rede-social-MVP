@@ -95,9 +95,12 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 10px;
-    height: 40px;
+    gap: 8px;
+    min-height: 40px;
+    height: auto;
+    margin-left: 140px;
     margin-bottom: 16px;
+    flex-wrap: wrap;
 }
 
 .profile-actions .btn-secondary,
@@ -107,17 +110,18 @@
     color: var(--text);
     border: 1px solid var(--border-light);
     border-radius: 20px;
-    padding: 0 20px;
+    padding: 0 14px;
     height: 36px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
     box-sizing: border-box;
-    font-weight: 700;
-    font-size: 14px;
+    font-weight: 600;
+    font-size: 13.5px;
     cursor: pointer;
-    transition: background-color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .profile-actions .btn-secondary:hover {
@@ -129,6 +133,7 @@
     background-color: var(--brand);
     color: #020617;
     border: none;
+    font-weight: 700;
 }
 
 .profile-actions .btn-primary:hover {
@@ -139,6 +144,23 @@
     background-color: transparent;
     color: var(--text);
     border: 1px solid var(--border-light);
+}
+
+.profile-actions .btn-report:hover {
+    border-color: rgba(245, 158, 11, 0.5);
+    color: #f59e0b;
+    background-color: rgba(245, 158, 11, 0.1);
+}
+
+.profile-actions .btn-danger {
+    border-color: rgba(244, 63, 94, 0.4);
+    color: var(--danger);
+}
+
+.profile-actions .btn-danger:hover {
+    background-color: rgba(244, 63, 94, 0.15);
+    border-color: var(--danger);
+    color: var(--danger);
 }
 
 .profile-bio {
