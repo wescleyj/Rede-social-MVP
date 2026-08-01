@@ -25,9 +25,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                     <Route path="/signin" element={<RotaPublica><SignIn /></RotaPublica>} />
                     <Route path="/signup" element={<RotaPublica><SignUp /></RotaPublica>} />
 
-                    {/* Perfil - acessível apenas para quem está logado */}
+                    {/* Perfil - /profile próprio requer login; /profile/:username é público */}
                     <Route path="/profile" element={<RotaPrivada><Profile /></RotaPrivada>} />
-                    <Route path="/profile/:username" element={<RotaPrivada><Profile /></RotaPrivada>} />
+                    <Route path="/profile/:username" element={<Profile />} />
 
 
                     {/* Admin Dashboard - acessível apenas para is_staff === true */}

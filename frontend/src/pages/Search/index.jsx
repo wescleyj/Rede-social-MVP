@@ -66,6 +66,10 @@ export default function Search() {
     };
 
     const handleFollowToggle = async (userParam) => {
+        if (userData?.isAnonymous) {
+            navigate('/signin');
+            return;
+        }
         try {
             await api.post(`/api/users/follow/${userParam.username}/`);
             setUsers(users.map(u => u.username === userParam.username ? { ...u, is_following: !u.is_following } : u));

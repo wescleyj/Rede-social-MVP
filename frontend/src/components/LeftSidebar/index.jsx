@@ -35,7 +35,17 @@ export default function Sidebar() {
                 </li>
 
                 <li className={location.pathname === '/profile' ? 'active' : ''}>
-                    <Link to="/profile">Perfil</Link>
+                    <Link 
+                        to={userData.isAnonymous ? '/signin' : '/profile'}
+                        onClick={(e) => {
+                            if (userData.isAnonymous) {
+                                e.preventDefault();
+                                navigate('/signin');
+                            }
+                        }}
+                    >
+                        Perfil
+                    </Link>
                 </li>
                 
                 {userData.is_superuser && (

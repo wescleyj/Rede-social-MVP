@@ -46,12 +46,25 @@ export default function Profile() {
     const [reportReason, setReportReason] = useState('');
     const [reportCustom, setReportCustom] = useState('');
 
-    const isOwnProfile = !username || (userData && username === userData.username);
+    const requireAuth = (callback) => (e) => {
+        if (e && e.stopPropagation) e.stopPropagation();
+        if (userData?.isAnonymous) {
+            navigate('/signin');
+            return;
+        }
+        callback(e);
+    };
+
+    const isOwnProfile = (!username && !userData?.isAnonymous) || (userData && !userData.isAnonymous && username === userData.username);
 
     // Carregar os dados do perfil visualizado
     useEffect(() => {
         async function fetchProfile() {
-            if (!username && userData) {
+            if (!username) {
+                if (userData?.isAnonymous) {
+                    navigate('/signin');
+                    return;
+                }
                 // Meu próprio perfil acessado via /profile
                 setProfileUser(userData);
                 return;
@@ -339,21 +352,21 @@ export default function Profile() {
                                 <button
                                     className={`btn-primary ${isFollowing ? 'following' : ''}`}
                                     disabled={followIsLoading}
-                                    onClick={handleFollow}
+                                    onClick={requireAuth(handleFollow)}
                                 >
                                     {isFollowing ? 'Seguindo' : 'Seguir'}
                                 </button>
                                 
                                 <button 
                                     className="btn-secondary" 
-                                    onClick={() => navigate(`/messages/${username}`)}
+                                    onClick={requireAuth(() => navigate(`/messages/${username}`))}
                                     disabled={!isMutualFollow}
                                     title={!isMutualFollow ? "Vocês precisam se seguir para trocar mensagens" : "Enviar Mensagem"}
                                 >
                                     ✉️ Mensagem
                                 </button>
 
-                                <button className="btn-secondary btn-report" onClick={() => setIsReportingProfile(true)}>
+                                <button className="btn-secondary btn-report" onClick={requireAuth(() => setIsReportingProfile(true))}>
                                     ⚑ Denunciar
                                 </button>
 

@@ -50,9 +50,7 @@ export default function Home() {
                 console.error('Erro ao carregar o feed:', error.message);
             }
         }
-        if (!userData?.isAnonymous) {
-            fetchFeed();
-        }
+        fetchFeed();
     }, [userData]);
 
     return (

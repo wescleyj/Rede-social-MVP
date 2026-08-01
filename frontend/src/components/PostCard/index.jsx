@@ -120,6 +120,10 @@ export default function PostCard({ post }) {
 
     async function handleSendComment(e) {
         e.preventDefault();
+        if (userData?.isAnonymous) {
+            navigate('/signin');
+            return;
+        }
         if (!newComment.trim() || isSendingComment) return;
         setIsSendingComment(true);
         
@@ -219,13 +223,19 @@ export default function PostCard({ post }) {
                         src={avatarSrc}
                         alt="Avatar"
                         className="post-avatar-small"
+                        onClick={() => postUpd.author?.username && navigate(`/profile/${postUpd.author.username}`)}
+                        style={{ cursor: 'pointer' }}
                     />
                 ) : (
-                    <div className="post-avatar-small"></div>
+                    <div 
+                        className="post-avatar-small"
+                        onClick={() => postUpd.author?.username && navigate(`/profile/${postUpd.author.username}`)}
+                        style={{ cursor: 'pointer' }}
+                    ></div>
                 )}
                 <div 
                     className="post-meta" 
-                    onClick={requireAuth(() => navigate(`/profile/${postUpd.author?.username}`))}
+                    onClick={() => postUpd.author?.username && navigate(`/profile/${postUpd.author.username}`)}
                     style={{ cursor: 'pointer' }}
                 >
                     <strong className="post-author-name">{postUpd.author?.name || 'Usuário'}</strong>
@@ -246,7 +256,7 @@ export default function PostCard({ post }) {
 
             <div className="post-actions">
                 <div className="post-interactions">
-                    <button className="btn-action btn-message" onClick={requireAuth(toggleComments)}>
+                    <button className="btn-action btn-message" onClick={toggleComments}>
                         <SpeechBubble /> {formatNumber(commentsCount)}
                     </button>
                     <button 
@@ -289,7 +299,7 @@ export default function PostCard({ post }) {
                         {commentsList.map(c => {
                             const authorObj = typeof c.author === 'object' ? c.author : { username: c.author, name: c.author };
                             const avatarSrc = buildImageUrl(authorObj?.avatar_url);
-                            const canDeleteComment = userData && (userData.username === authorObj?.username || userData.is_superuser);
+                            const canDeleteComment = userData && !userData.isAnonymous && (userData.username === authorObj?.username || userData.is_superuser);
 
                             return (
                                 <div key={c.id} className="comment-item">
@@ -342,19 +352,33 @@ export default function PostCard({ post }) {
                             <p className="no-comments">Seja o primeiro a comentar!</p>
                         )}
                     </div>
-                    <form className="comment-input-area" onSubmit={handleSendComment}>
-                        <input 
-                            type="text" 
-                            placeholder="Escreva um comentário..."
-                            value={newComment}
-                            onChange={(e) => setNewComment(e.target.value)}
-                            maxLength={280}
-                            disabled={isSendingComment}
-                        />
-                        <button type="submit" disabled={!newComment.trim() || isSendingComment}>
-                            {isSendingComment ? 'Enviando...' : 'Enviar'}
-                        </button>
-                    </form>
+                    {userData?.isAnonymous ? (
+                        <div className="comment-login-prompt" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'var(--bg-hover)', borderRadius: '8px', marginTop: '12px' }}>
+                            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Faça login para poder comentar</span>
+                            <button 
+                                type="button" 
+                                className="btn-primary" 
+                                style={{ padding: '6px 14px', fontSize: '0.85rem' }} 
+                                onClick={() => navigate('/signin')}
+                            >
+                                Entrar
+                            </button>
+                        </div>
+                    ) : (
+                        <form className="comment-input-area" onSubmit={handleSendComment}>
+                            <input 
+                                type="text" 
+                                placeholder="Escreva um comentário..."
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                                maxLength={280}
+                                disabled={isSendingComment}
+                            />
+                            <button type="submit" disabled={!newComment.trim() || isSendingComment}>
+                                {isSendingComment ? 'Enviando...' : 'Enviar'}
+                            </button>
+                        </form>
+                    )}
                 </div>
             )}
 
