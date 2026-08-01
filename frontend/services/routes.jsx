@@ -33,7 +33,7 @@ export function RotaAdmin({ children }) {
         return <div>Carregando...</div>;
     }
 
-    if (!userData.is_staff) {
+    if (!userData.is_superuser) {
         return <Navigate to="/" replace />;
     }
 

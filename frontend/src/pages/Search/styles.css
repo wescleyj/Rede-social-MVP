@@ -1,3 +1,71 @@
+.search-header-container {
+    padding: 12px 16px;
+    position: sticky;
+    top: 0;
+    background-color: rgba(3, 7, 18, 0.85);
+    backdrop-filter: blur(12px);
+    z-index: 10;
+    border-bottom: 1px solid var(--border);
+}
+
+.search-page-form {
+    width: 100%;
+}
+
+.search-page-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.search-page-icon {
+    position: absolute;
+    left: 14px;
+    font-size: 14px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.search-page-input-wrapper input {
+    width: 100%;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 10px 38px 10px 38px;
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-page-input-wrapper input:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+.btn-clear-search-page {
+    position: absolute;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--text-muted);
+    font-size: 11px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.btn-clear-search-page:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
 .search-tabs {
     display: flex;
     border-bottom: 1px solid var(--border);
@@ -27,14 +95,15 @@
 }
 
 .search-results {
-    padding: 0; /* Reset for full width items if needed, or keep padding */
+    padding: 0;
 }
 
-.search-loading, .no-results {
-    padding: 24px;
+.search-loading, .no-results, .search-empty-prompt {
+    padding: 40px 24px;
     text-align: center;
     color: var(--text-muted);
-    font-size: 16px;
+    font-size: 15px;
+    line-height: 1.5;
 }
 
 .search-user-card {
@@ -84,7 +153,7 @@
 
 .user-names span {
     color: var(--text-muted);
-    font-size: 15px;
+    font-size: 14px;
 }
 
 .user-info-search p {
@@ -117,5 +186,4 @@
 .btn-follow.following:hover {
     border-color: var(--danger);
     color: var(--danger);
-    /* No real site isso mudaria o texto pra "Deixar de Seguir", mas para MVP visual basta vermelho */
 }

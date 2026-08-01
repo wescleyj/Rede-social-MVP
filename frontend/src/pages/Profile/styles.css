@@ -1,6 +1,6 @@
 .profile-main-content {
     width: 100%;
-    max-width: 600px;
+    max-width: 680px;
     border-left: 1px solid var(--border);
     border-right: 1px solid var(--border);
     display: flex;
@@ -95,17 +95,25 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    gap: 10px;
     height: 40px;
     margin-bottom: 16px;
 }
 
 .profile-actions .btn-secondary,
 .profile-actions .btn-primary {
+    margin: 0;
     background-color: transparent;
     color: var(--text);
     border: 1px solid var(--border-light);
     border-radius: 20px;
-    padding: 8px 20px;
+    padding: 0 20px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-sizing: border-box;
     font-weight: 700;
     font-size: 14px;
     cursor: pointer;
@@ -316,6 +324,8 @@
 }
 
 .form-group input[type="text"],
+.form-group input[type="password"],
+.form-group input[type="url"],
 .form-group textarea,
 .form-group input[type="file"] {
     background-color: var(--bg);
@@ -333,9 +343,29 @@
     resize: vertical;
 }
 
-.form-group input[type="text"]:focus,
+.form-group input:focus,
 .form-group textarea:focus {
     border-color: var(--brand);
+}
+
+.auth-error-msg {
+    color: var(--danger);
+    background-color: rgba(244, 63, 94, 0.1);
+    border: 1px solid rgba(244, 63, 94, 0.2);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.auth-success-msg {
+    color: var(--success);
+    background-color: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    margin-bottom: 16px;
 }
 
 .modal-actions {
@@ -371,4 +401,15 @@
 
 .modal-actions button[type="submit"]:hover {
     background-color: var(--brand-hover);
+}
+
+.btn-danger {
+    background-color: transparent !important;
+    color: var(--danger, #ef4444) !important;
+    border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+.btn-danger:hover {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    border-color: var(--danger, #ef4444) !important;
 }

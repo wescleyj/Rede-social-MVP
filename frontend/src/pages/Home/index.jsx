@@ -2,7 +2,6 @@ import "./styles.css";
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LeftSidebar from '../../components/LeftSidebar';
-import RightSidebar from "../../components/RightSidebar";
 import PostCard from '../../components/PostCard';
 import api from "../../../services/api.js";
 import { AuthContext } from '../../contexts/AuthContext';
@@ -111,8 +110,6 @@ export default function Home() {
                     )}
                 </section>
             </main>
-
-            <RightSidebar />
         </div>
     );
 }

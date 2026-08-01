@@ -31,6 +31,8 @@ export default function PostCard({ post }) {
     const [showComments, setShowComments] = useState(false);
     const [commentsList, setCommentsList] = useState([]);
     const [newComment, setNewComment] = useState('');
+    const [isSendingComment, setIsSendingComment] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const requireAuth = (actionFn) => (e) => {
         if (e) e.stopPropagation();
@@ -42,6 +44,7 @@ export default function PostCard({ post }) {
     };
 
     async function like() {
+        if (likeIsLoading) return;
         setLikeIsLoading(true);
 
         try {
@@ -49,7 +52,7 @@ export default function PostCard({ post }) {
 
             const wasLiked = postUpd.isLiked || postUpd.is_liked;
             const currentLikes = postUpd.likes_count ?? postUpd.totalLikes ?? 0;
-            const newLikes = wasLiked ? currentLikes - 1 : currentLikes + 1;
+            const newLikes = wasLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
 
             setPost({
                 ...postUpd,
@@ -66,6 +69,7 @@ export default function PostCard({ post }) {
     }
 
     async function repost() {
+        if (repostIsLoading) return;
         setRepostIsLoading(true);
 
         try {
@@ -73,7 +77,7 @@ export default function PostCard({ post }) {
 
             const wasReposted = postUpd.isReply || postUpd.is_reposted;
             const currentReposts = postUpd.reposts_count ?? postUpd.totalReposts ?? 0;
-            const newReposts = wasReposted ? currentReposts - 1 : currentReposts + 1;
+            const newReposts = wasReposted ? Math.max(0, currentReposts - 1) : currentReposts + 1;
 
             setPost({
                 ...postUpd,
@@ -116,31 +120,72 @@ export default function PostCard({ post }) {
 
     async function handleSendComment(e) {
         e.preventDefault();
-        if (!newComment.trim()) return;
+        if (!newComment.trim() || isSendingComment) return;
+        setIsSendingComment(true);
         
         try {
             const res = await api.post('/api/comments/create/', {
                 post_id: post.id,
-                content: newComment
+                content: newComment.trim()
             });
+            // O backend retorna o comentário criado
             setCommentsList([...commentsList, res.data]);
             setPost({ ...postUpd, comments_count: commentsCount + 1, totalComments: commentsCount + 1 });
             setNewComment('');
         } catch (err) {
             console.error("Erro ao enviar comentário", err);
             alert("Erro ao enviar comentário.");
+        } finally {
+            setIsSendingComment(false);
+        }
+    }
+
+    async function handleCommentLike(commentId) {
+        try {
+            await api.post(`/api/comments/like/${commentId}/`);
+            setCommentsList(prev => prev.map(c => {
+                if (c.id === commentId) {
+                    const wasLiked = c.is_liked;
+                    const newCount = wasLiked ? Math.max(0, (c.likes_count ?? 1) - 1) : (c.likes_count ?? 0) + 1;
+                    return { ...c, is_liked: !wasLiked, likes_count: newCount };
+                }
+                return c;
+            }));
+        } catch (err) {
+            console.error("Erro ao curtir comentário", err);
+        }
+    }
+
+    async function handleCommentDelete(commentId) {
+        if (!window.confirm("Deseja excluir este comentário?")) return;
+        try {
+            await api.delete(`/api/comments/delete/${commentId}/`);
+            setCommentsList(prev => prev.filter(c => c.id !== commentId));
+            setPost(prev => ({
+                ...prev,
+                comments_count: Math.max(0, commentsCount - 1),
+                totalComments: Math.max(0, commentsCount - 1)
+            }));
+        } catch (err) {
+            console.error("Erro ao deletar comentário", err);
+            alert("Erro ao excluir o comentário.");
         }
     }
 
     async function handleDelete() {
+        if (isDeleting) return;
         if (!window.confirm("Tem certeza que deseja excluir esta publicação? Essa ação não pode ser desfeita.")) return;
         
+        setIsDeleting(true);
         try {
             await api.delete(`/api/posts/delete/${post.id}/`);
             setIsDeleted(true);
-        } catch (err) {
-            console.error("Erro ao deletar post", err);
-            alert("Erro ao excluir. Tente novamente.");
+            if (onPostDeleted) onPostDeleted(post.id);
+        } catch (error) {
+            console.error("Erro ao excluir post", error);
+            alert("Erro ao excluir a publicação.");
+        } finally {
+            setIsDeleting(false);
         }
     }
 
@@ -209,11 +254,11 @@ export default function PostCard({ post }) {
                 </div>
                 
                 <div style={{ display: 'flex', gap: '8px' }}>
-                    {isAuthor && (
+                    {(isAuthor || userData?.is_superuser) && (
                         <button 
                             className="btn-action btn-delete" 
                             onClick={requireAuth(handleDelete)} 
-                            title="Excluir publicação"
+                            title={isAuthor ? "Excluir publicação" : "Excluir publicação (Admin)"}
                             style={{ filter: 'grayscale(100%) brightness(2)' }}
                         >
                             🗑️
@@ -224,7 +269,7 @@ export default function PostCard({ post }) {
                         onClick={requireAuth(() => setIsReporting(true))} 
                         title="Denunciar publicação"
                     >
-                        🚩
+                        ⚑
                     </button>
                 </div>
             </div>
@@ -232,12 +277,58 @@ export default function PostCard({ post }) {
             {showComments && (
                 <div className="comments-section">
                     <div className="comments-list">
-                        {commentsList.map(c => (
-                            <div key={c.id} className="comment-item">
-                                <strong>@{c.author?.username || c.author}</strong>
-                                <p>{c.content || c.text}</p>
-                            </div>
-                        ))}
+                        {commentsList.map(c => {
+                            const authorObj = typeof c.author === 'object' ? c.author : { username: c.author, name: c.author };
+                            const avatarSrc = buildImageUrl(authorObj?.avatar_url);
+                            const canDeleteComment = userData && (userData.username === authorObj?.username || userData.is_superuser);
+
+                            return (
+                                <div key={c.id} className="comment-item">
+                                    <div className="comment-avatar-container" onClick={() => navigate(`/profile/${authorObj?.username}`)}>
+                                        {avatarSrc ? (
+                                            <img src={avatarSrc} alt="Avatar" className="comment-avatar" />
+                                        ) : (
+                                            <div className="comment-avatar-placeholder"></div>
+                                        )}
+                                    </div>
+                                    <div className="comment-main">
+                                        <div className="comment-header">
+                                            <div className="comment-author-info" onClick={() => navigate(`/profile/${authorObj?.username}`)}>
+                                                <strong className="comment-name">{authorObj?.name || authorObj?.username}</strong>
+                                                <span className="comment-username">@{authorObj?.username}</span>
+                                                {c.created_at && (
+                                                    <span className="comment-date">
+                                                        • {new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(c.created_at))}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {canDeleteComment && (
+                                                <button 
+                                                    type="button"
+                                                    className="btn-comment-delete" 
+                                                    onClick={() => handleCommentDelete(c.id)}
+                                                    title="Excluir comentário"
+                                                >
+                                                    🗑️
+                                                </button>
+                                            )}
+                                        </div>
+                                        <p className="comment-content">{c.content || c.text}</p>
+                                        <div className="comment-footer">
+                                            <button 
+                                                type="button"
+                                                className={`btn-comment-like ${c.is_liked ? 'liked' : ''}`}
+                                                onClick={requireAuth(() => handleCommentLike(c.id))}
+                                                title="Curtir comentário"
+                                            >
+                                                <Heart className="comment-heart-icon" />
+                                                <span className="comment-likes-text">{formatNumber(c.likes_count ?? 0)}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
                         {commentsCount === 0 && commentsList.length === 0 && (
                             <p className="no-comments">Seja o primeiro a comentar!</p>
                         )}
@@ -249,8 +340,11 @@ export default function PostCard({ post }) {
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
                             maxLength={280}
+                            disabled={isSendingComment}
                         />
-                        <button type="submit" disabled={!newComment.trim()}>Enviar</button>
+                        <button type="submit" disabled={!newComment.trim() || isSendingComment}>
+                            {isSendingComment ? 'Enviando...' : 'Enviar'}
+                        </button>
                     </form>
                 </div>
             )}
@@ -287,6 +381,7 @@ export default function PostCard({ post }) {
                                     placeholder="Descreva o motivo da denúncia..."
                                     value={reportCustom}
                                     onChange={(e) => setReportCustom(e.target.value)}
+                                    maxLength={300}
                                     required
                                 />
                             )}

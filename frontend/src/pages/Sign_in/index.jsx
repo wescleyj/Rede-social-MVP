@@ -9,15 +9,18 @@ export default function SignIn() {
     const inputUsername = useRef();
     const inputPassword = useRef();
     const [mensagem, setMensagem] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     async function checkUser(e) {
         e.preventDefault();
+        if (isLoading) return;
         setMensagem(null);
+        setIsLoading(true);
 
         try {
             const success = await login(
-                inputUsername.current.value,
+                inputUsername.current.value.trim(),
                 inputPassword.current.value
             );
 
@@ -36,6 +39,8 @@ export default function SignIn() {
             } else {
                 setMensagem({ tipo: 'erro', texto: 'Erro ao conectar com o servidor.' });
             }
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -62,9 +67,11 @@ export default function SignIn() {
                     </div>
                     <div className="input-group">
                         <label>Senha</label>
-                        <input type="password" placeholder="********" required ref={inputPassword} />
+                        <input type="password" placeholder="********" required ref={inputPassword} disabled={isLoading} />
                     </div>
-                    <input type="submit" className="btn-primary" value="Entrar" />
+                    <button type="submit" className="btn-primary" disabled={isLoading}>
+                        {isLoading ? 'Entrando...' : 'Entrar'}
+                    </button>
                 </form>
 
                 <div className="divider">

@@ -19,8 +19,13 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        const isLoginRequest = error.config?.url?.includes('/api/auth/login/');
+        const isSkipAuthRedirect = error.config?.skipAuthRedirect;
+
+        // Não desloga nem redireciona se for uma tentativa de login ou verificação de credenciais que falhou
+        if (error.response?.status === 401 && !isLoginRequest && !isSkipAuthRedirect) {
             localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken');
             window.location.href = '/signin';
         }
         return Promise.reject(error);

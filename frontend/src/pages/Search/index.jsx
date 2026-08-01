@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import LeftSidebar from '../../components/LeftSidebar';
-import RightSidebar from '../../components/RightSidebar';
 import PostCard from '../../components/PostCard';
 import './styles.css';
 
@@ -15,10 +14,15 @@ export default function Search() {
     const navigate = useNavigate();
     const { userData } = useContext(AuthContext);
     
+    const [searchInput, setSearchInput] = useState(query);
     const [activeTab, setActiveTab] = useState("usuarios"); // 'usuarios' | 'publicacoes'
     const [users, setUsers] = useState([]);
     const [posts, setPosts] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        setSearchInput(query);
+    }, [query]);
 
     useEffect(() => {
         let isMounted = true;
@@ -54,6 +58,13 @@ export default function Search() {
         return () => { isMounted = false; };
     }, [query]);
 
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        if (searchInput.trim()) {
+            navigate(`/pesquisa?q=${encodeURIComponent(searchInput.trim())}`);
+        }
+    };
+
     const handleFollowToggle = async (userParam) => {
         try {
             await api.post(`/api/users/follow/${userParam.username}/`);
@@ -68,8 +79,28 @@ export default function Search() {
             <LeftSidebar />
 
             <main className="content search-main">
-                <header className="home-header">
-                    <h2>Resultados para "{query}"</h2>
+                <header className="search-header-container">
+                    <form className="search-page-form" onSubmit={handleSearchSubmit}>
+                        <div className="search-page-input-wrapper">
+                            <span className="search-page-icon">🔍</span>
+                            <input
+                                type="text"
+                                placeholder="Buscar usuários ou publicações..."
+                                value={searchInput}
+                                onChange={(e) => setSearchInput(e.target.value)}
+                                maxLength={100}
+                            />
+                            {searchInput && (
+                                <button 
+                                    type="button" 
+                                    className="btn-clear-search-page"
+                                    onClick={() => setSearchInput('')}
+                                >
+                                    ✕
+                                </button>
+                            )}
+                        </div>
+                    </form>
                 </header>
 
                 <div className="search-tabs">
@@ -92,61 +123,67 @@ export default function Search() {
                         <div className="search-loading">Buscando...</div>
                     ) : (
                         <>
-                            {activeTab === 'usuarios' && (
-                                <div className="users-list">
-                                    {users.length > 0 ? (
-                                        users.map(user => (
-                                            <div key={user.username || user.id} className="search-user-card" onClick={() => navigate(`/profile/${user.username}`)}>
-                                                {user.avatar_url ? (
-                                                    <img src={buildImageUrl(user.avatar_url)} alt="Avatar" className="user-avatar-large" />
-                                                ) : (
-                                                    <div className="user-avatar-large"></div>
-                                                )}
-                                                <div className="user-info-search">
-                                                    <div className="user-info-header">
-                                                        <div className="user-names">
-                                                            <strong>{user.name}</strong>
-                                                            <span>@{user.username}</span>
-                                                        </div>
-                                                        {(!userData || userData.username !== user.username) && (
-                                                            <button 
-                                                                className={`btn-follow ${user.is_following ? 'following' : ''}`}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleFollowToggle(user);
-                                                                }}
-                                                            >
-                                                                {user.is_following ? 'Seguindo' : 'Seguir'}
-                                                            </button>
+                            {query.trim() === '' ? (
+                                <div className="search-empty-prompt">
+                                    <p>Digite um termo no campo de busca acima para pesquisar usuários ou publicações.</p>
+                                </div>
+                            ) : (
+                                <>
+                                    {activeTab === 'usuarios' && (
+                                        <div className="users-list">
+                                            {users.length > 0 ? (
+                                                users.map(user => (
+                                                    <div key={user.username || user.id} className="search-user-card" onClick={() => navigate(`/profile/${user.username}`)}>
+                                                        {user.avatar_url ? (
+                                                            <img src={buildImageUrl(user.avatar_url)} alt="Avatar" className="user-avatar-large" />
+                                                        ) : (
+                                                            <div className="user-avatar-large"></div>
                                                         )}
+                                                        <div className="user-info-search">
+                                                            <div className="user-info-header">
+                                                                <div className="user-names">
+                                                                    <strong>{user.name}</strong>
+                                                                    <span>@{user.username}</span>
+                                                                </div>
+                                                                {(!userData || userData.username !== user.username) && (
+                                                                    <button 
+                                                                        className={`btn-follow ${user.is_following ? 'following' : ''}`}
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleFollowToggle(user);
+                                                                        }}
+                                                                    >
+                                                                        {user.is_following ? 'Seguindo' : 'Seguir'}
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                            <p>{user.bio}</p>
+                                                        </div>
                                                     </div>
-                                                    <p>{user.bio}</p>
-                                                </div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <p className="no-results">Nenhum usuário encontrado para "{query}".</p>
+                                                ))
+                                            ) : (
+                                                <p className="no-results">Nenhum usuário encontrado para "{query}".</p>
+                                            )}
+                                        </div>
                                     )}
-                                </div>
-                            )}
 
-                            {activeTab === 'publicacoes' && (
-                                <div className="posts-list">
-                                    {posts.length > 0 ? (
-                                        posts.map(post => (
-                                            <PostCard key={post.id} post={post} />
-                                        ))
-                                    ) : (
-                                        <p className="no-results">Nenhuma publicação encontrada para "{query}".</p>
+                                    {activeTab === 'publicacoes' && (
+                                        <div className="posts-list">
+                                            {posts.length > 0 ? (
+                                                posts.map(post => (
+                                                    <PostCard key={post.id} post={post} />
+                                                ))
+                                            ) : (
+                                                <p className="no-results">Nenhuma publicação encontrada para "{query}".</p>
+                                            )}
+                                        </div>
                                     )}
-                                </div>
+                                </>
                             )}
                         </>
                     )}
                 </div>
             </main>
-
-            <RightSidebar />
         </div>
     );
 }

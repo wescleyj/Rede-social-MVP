@@ -7,7 +7,7 @@
 
 .content {
     width: 100%;
-    max-width: 600px;
+    max-width: 680px;
     border-left: 1px solid var(--border);
     border-right: 1px solid var(--border);
     display: flex;

@@ -30,17 +30,17 @@ export default function Sidebar() {
                     <Link to="/">Início</Link>
                 </li>
 
-                <li>
-                    <Link to="/profile" className={`menu-item ${location.pathname === '/profile' ? 'active' : ''}`}>
-                        Perfil
-                    </Link>
+                <li className={location.pathname.startsWith('/pesquisa') ? 'active' : ''}>
+                    <Link to="/pesquisa">Pesquisar</Link>
+                </li>
+
+                <li className={location.pathname === '/profile' ? 'active' : ''}>
+                    <Link to="/profile">Perfil</Link>
                 </li>
                 
-                {userData.is_staff && (
-                    <li>
-                        <Link to="/admin" className={`menu-item ${location.pathname === '/admin' ? 'active' : ''}`}>
-                            Painel Admin
-                        </Link>
+                {userData.is_superuser && (
+                    <li className={location.pathname === '/admin' ? 'active' : ''}>
+                        <Link to="/admin">Painel Admin</Link>
                     </li>
                 )}
             </ul>
