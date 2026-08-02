@@ -120,7 +120,23 @@ para rodar: `python manage.py runserver`
      *  `is_following` (string)
      *  `is_private` (boolean)
 
-**POST `api/users/follow/<str:username>/`** (Segue ou para de seguir o usuário)
+**POST `api/users/follow/<str:username>/`** (Segue, solicita para seguir ou para de seguir o usuário)
+*    **Retorno Esperado:** `200 OK` or `404 Not Found`.
+     *	`message: Follow request accepted` (string)
+     *  `message: Follow request declined.` (string)
+
+**GET `api/users/follow/requests/list`** (Lista as solicitacoes de seguir ao perfil logado)
+*    **Retorno Esperado:** `200 OK`.
+     *  `count` (string)
+     *  `next` (string/url)
+     *  `previous` (string/url)
+     *  `results` (array de `followrequest`): Contém: `id`, `requester`, `target` e `created_at`.
+     > paginação definida para 10 posts, alterar caso necessário
+
+**POST `api/users/follow/requests/manage/<int:pk>/`** (aceita ou deleta solicitaçoes para seguir)
+*	 **Corpo da Requisição (JSON):**
+     *  `request_id` (string)
+     *  `action` (string): `accept` or `decline`
 *    **Retorno Esperado:** `200 OK` or `404 Not Found`.
      *	`Success: Followed @<str:username>` (string)
      *  `Success: Unfollowed @<str:username>` (string)

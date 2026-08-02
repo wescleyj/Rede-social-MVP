@@ -28,6 +28,25 @@ class User(AbstractUser):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'name']
 
+class FollowRequest(models.Model):
+    requester = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='sent_follow_requests'
+    )
+    target = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='received_follow_requests'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('requester', 'target')
+
+    def accept(self):
+        self.requester.following.add(self.target)
+        self.delete()
+
+    def decline(self):
+        self.delete()
+
 class Post(models.Model):
     id = models.AutoField(primary_key=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')

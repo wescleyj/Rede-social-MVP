@@ -142,9 +142,42 @@ class FollowToggleView(APIView):
         if request.user.following.filter(id=target_user.id).exists():
             request.user.following.remove(target_user)
             return Response({"Success": f"Unfollowed @{target_user.username}."}, status=status.HTTP_200_OK)
+
+        if target_user.is_private:
+            follow_request = FollowRequest.objects.filter(requester=request.user, target=target_user).first()
+            if follow_request:
+                follow_request.delete()
+                return Response({"Success": f"Cancelled follow request to @{target_user.username}."}, status=status.HTTP_200_OK)
+            else:
+                FollowRequest.objects.create(requester=request.user, target=target_user)
+                return Response({"Success": f"Follow request sent to @{target_user.username}."}, status=status.HTTP_200_OK)
         else:
             request.user.following.add(target_user)
             return Response({"Success": f"Followed @{target_user.username}."}, status=status.HTTP_200_OK)
+
+class ListFollowRequestView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FollowRequestSerializer
+    pagination_class = PageNumberPagination
+    page_size = 10
+
+    def get_queryset(self, *args, **kwargs):
+        requests = FollowRequest.objects.filter(target=self.request.user).order_by('-created_at').distinct()
+        return requests
+
+class HandleFollowRequestView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, request_id, action):
+        follow_request = get_object_or_404(FollowRequest, pk=request_id, target=request.user)
+        if action == "accept":
+            follow_request.accept()
+            return Response({"message": "Follow request accepted."}, status=status.HTTP_200_OK)
+        elif action == "decline":
+            follow_request.decline()
+            return Response({"message": "Follow request declined."}, status=status.HTTP_200_OK)
+
+        return Response({"error": "Invalid action."}, status=status.HTTP_400_BAD_REQUEST)
 
 class PostCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -322,10 +355,7 @@ class UserSearchView(generics.ListAPIView):
 
     def get_queryset(self, *args, **kwargs):
         search = self.kwargs['search']
-        if not self.request.user.is_authenticated:
-            users = User.objects.filter(Q(username__icontains=search) | Q(name__icontains=search)).filter(Q(is_private=False)).distinct().order_by('-created_at')
-        else:
-            users = User.objects.filter(Q(username__icontains=search) | Q(name__icontains=search)).filter(Q(is_private=False) | Q(followers=self.request.user)).distinct().order_by('-created_at')
+        users = User.objects.filter(Q(username__icontains=search) | Q(name__icontains=search)).distinct().order_by('-created_at')
         return users
 
 class CreateReportView(generics.CreateAPIView):

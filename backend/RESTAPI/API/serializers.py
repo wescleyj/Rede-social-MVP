@@ -1,4 +1,3 @@
-from django.contrib.auth.models import AnonymousUser
 from rest_framework import serializers
 from .models import *
 
@@ -22,15 +21,22 @@ class UserProfileSerializer(serializers.ModelSerializer):
     following_count = serializers.IntegerField(read_only=True)
     posts_count = serializers.IntegerField(read_only=True)
     is_following = serializers.SerializerMethodField(read_only=True)
+    is_pending = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
-        fields = ['username', 'name', 'bio', 'created_at', 'following_count', 'followers_count', 'posts_count', 'avatar_url', 'banner_url', 'is_following', 'is_private']
+        fields = ['username', 'name', 'bio', 'created_at', 'following_count', 'followers_count', 'posts_count', 'avatar_url', 'banner_url', 'is_following', 'is_private', 'is_pending']
 
     def get_is_following(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return request.user.following.filter(id=obj.id).exists()
+        return False
+
+    def get_is_pending(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated and obj.is_private:
+            return FollowRequest.objects.filter(requester=request.user, target=obj).exists()
         return False
 
 class UserUpdateSerializer(serializers.ModelSerializer):
@@ -66,6 +72,14 @@ class AuthorSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return request.user.following.filter(id=obj.id).exists()
         return False
+
+class FollowRequestSerializer(serializers.ModelSerializer):
+    requester = serializers.ReadOnlyField(source='requester.username')
+    target = serializers.ReadOnlyField(source='target.username')
+
+    class Meta:
+        model = FollowRequest
+        fields = ['id', 'requester', 'target', 'created_at']
 
 class PostSerializer(serializers.ModelSerializer):
     author = AuthorSerializer(read_only=True)
