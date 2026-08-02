@@ -36,4 +36,3 @@ urlpatterns = [
     path('reports/<str:filter>/', FeedReportListView.as_view(), name='report-feed'),
     path('reports/toggle/<int:pk>/', ReportToggleStatusView.as_view(), name='toggle-report-status'),
 ]
-# usuario privado

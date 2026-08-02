@@ -37,7 +37,7 @@ class LogoutView(APIView):
 class UserProfileDetailView(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.AllowAny]
     lookup_field = 'username'
 
 class MyProfileDetailView(generics.RetrieveUpdateAPIView):
@@ -48,7 +48,9 @@ class MyProfileDetailView(generics.RetrieveUpdateAPIView):
         serializer_class = UserProfileSerializer
         response_data = {
             'id': self.request.user.id,
-            **serializer_class(queryset).data
+            'email': self.request.user.email,
+            **serializer_class(queryset).data,
+            'is_superuser': self.request.user.is_superuser
         }
         return Response(response_data, status=status.HTTP_200_OK)
 
@@ -165,9 +167,18 @@ class PostDeleteView(generics.DestroyAPIView):
         instance.delete()
 
 class PostDetailView(generics.RetrieveAPIView):
-    queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_object(self, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        post = get_object_or_404(Post, id=pk)
+        is_following = self.request.user.following.filter(username=post.author.username).exists()
+        if self.request.user.is_superuser or is_following or self.request.user.username == post.author.username:
+            return post
+        else:
+            return self.permission_denied(self.request, message="You are not authorized to view this post.")
+
 
 class CommentCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -192,9 +203,17 @@ class CommentDeleteView(generics.DestroyAPIView):
         instance.delete()
 
 class CommentDetailView(generics.RetrieveAPIView):
-    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_object(self, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        comment = get_object_or_404(Comment, id=pk)
+        is_following = self.request.user.following.filter(username=comment.author.username).exists()
+        if self.request.user.is_superuser or is_following or self.request.user.username == comment.author.username:
+            return comment
+        else:
+            return self.permission_denied(self.request, message="You are not authorized to view this comment.")
 
 class LikeToggleView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -243,7 +262,11 @@ class UserPostListView(generics.ListAPIView):
             raise serializers.ValidationError({'error': 'Username is required.'})
 
         user = get_object_or_404(User, username=username)
-        posts = Post.objects.filter(Q(author=user) | Q(reposts=user)).order_by('-created_at').distinct()
+        is_following = self.request.user.following.filter(username=user.username).exists()
+        if self.request.user.is_superuser or is_following or self.request.user.username == user.username:
+            posts = Post.objects.filter(Q(author=user) | Q(reposts=user)).order_by('-created_at').distinct()
+        else:
+            return self.permission_denied(self.request, message="You are not authorized to view this user's posts.")
         return posts
 
 class FeedPostListView(generics.ListAPIView):
@@ -254,8 +277,8 @@ class FeedPostListView(generics.ListAPIView):
 
     def get_queryset(self, *args, **kwargs):
         me = self.request.user
-        if not me.is_authenticated:
-            posts = Post.objects.filter().order_by('-created_at').distinct()
+        if not me.is_authenticated or me.following_count == 0:
+            posts = Post.objects.filter(Q(author__is_private=False)).order_by('-created_at').distinct()
         else:
             following_users = me.following.all()
             posts = Post.objects.filter(Q(author__in=following_users) | Q(reposts__in=following_users)).order_by('-created_at').distinct()
@@ -270,7 +293,11 @@ class PostCommentsView(generics.ListAPIView):
     def get_queryset(self, *args, **kwargs):
         post_id = self.kwargs['pk']
         post = get_object_or_404(Post, pk=post_id)
-        comments = Comment.objects.filter(post=post).order_by('-created_at')
+        is_following = self.request.user.following.filter(username=post.author.username).exists()
+        if self.request.user.is_superuser or is_following or self.request.user.username == post.author.username:
+            comments = Comment.objects.filter(post=post).filter(Q(author__is_private=False) | Q(author=self.request.user) | Q(author__followers=self.request.user)).distinct().order_by('-created_at')
+        else:
+            return self.permission_denied(self.request, message="You are not authorized to view this user's posts.")
         return comments
 
 class PostSearchView(generics.ListAPIView):
@@ -281,7 +308,10 @@ class PostSearchView(generics.ListAPIView):
 
     def get_queryset(self, *args, **kwargs):
         search = self.kwargs['search']
-        posts = Post.objects.filter(content__icontains=search).order_by('-created_at')
+        if not self.request.user.is_authenticated:
+            posts = Post.objects.filter(content__icontains=search).filter(Q(author__is_private=False)).order_by('-created_at')
+        else:
+            posts = Post.objects.filter(content__icontains=search).filter(Q(author__is_private=False) | Q(author=self.request.user) | Q(author__followers=self.request.user)).distinct().order_by('-created_at')
         return posts
 
 class UserSearchView(generics.ListAPIView):
@@ -292,7 +322,10 @@ class UserSearchView(generics.ListAPIView):
 
     def get_queryset(self, *args, **kwargs):
         search = self.kwargs['search']
-        users = User.objects.filter(Q(username__icontains=search) | Q(name__icontains=search)).order_by('-created_at')
+        if not self.request.user.is_authenticated:
+            users = User.objects.filter(Q(username__icontains=search) | Q(name__icontains=search)).filter(Q(is_private=False)).distinct().order_by('-created_at')
+        else:
+            users = User.objects.filter(Q(username__icontains=search) | Q(name__icontains=search)).filter(Q(is_private=False) | Q(followers=self.request.user)).distinct().order_by('-created_at')
         return users
 
 class CreateReportView(generics.CreateAPIView):
@@ -345,7 +378,7 @@ class FeedReportListView(generics.ListAPIView):
 class ReportToggleStatusView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, pk):
+    def post(self, pk):
         report = get_object_or_404(Report, pk=pk)
         if not self.request.user.is_superuser:
             return Response({"Error": "You are not authorized to perform this operation."}, status=status.HTTP_403_FORBIDDEN)

@@ -104,7 +104,7 @@ class SocialAppAPITests(APITestCase): #testa rotas
         url = reverse('user-profile', kwargs={'username': self.user1.username})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['email'], self.user1.email)
+        self.assertEqual(response.data['name'], self.user1.name)
 
     def test_follow_and_unfollow_user(self):
         self.client.force_authenticate(user=self.user1)

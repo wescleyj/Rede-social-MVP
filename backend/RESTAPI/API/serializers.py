@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from rest_framework import serializers
 from .models import *
 
@@ -24,7 +25,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'username', 'name', 'bio', 'created_at', 'following_count', 'followers_count', 'posts_count', 'avatar_url', 'banner_url', 'is_following', 'is_superuser', 'is_private']
+        fields = ['username', 'name', 'bio', 'created_at', 'following_count', 'followers_count', 'posts_count', 'avatar_url', 'banner_url', 'is_following', 'is_private']
 
     def get_is_following(self, obj):
         request = self.context.get('request')

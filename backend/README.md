@@ -69,6 +69,7 @@ para rodar: `python manage.py runserver`
      *	`banner_url` (string/URL)
      *  `is_following` (string)
      *  `is_private` (boolean)
+     *  `is_superuser` (boolean)
 
 **PUT or PATCH `api/users/me/`** (Atualizer informações do usuário logado)
 *	**Corpo da Requisição (JSON):**
@@ -88,6 +89,7 @@ para rodar: `python manage.py runserver`
      *	`avatar_url` (string)
      *	`banner_url` (string)
      *  `is_private` (boolean)
+     *  `is_superuser` (boolean)
 
 **PUT or PATCH `api/users/me/update_passwd/`** (Atualizer senha do usuário)
 *	**Corpo da Requisição (JSON):**
@@ -116,7 +118,6 @@ para rodar: `python manage.py runserver`
      *	`avatar_url` (string/URL)
      *	`banner_url` (string/URL)
      *  `is_following` (string)
-     *  `is_superuser` (boolean)
      *  `is_private` (boolean)
 
 **POST `api/users/follow/<str:username>/`** (Segue ou para de seguir o usuário)
@@ -248,7 +249,7 @@ para rodar: `python manage.py runserver`
      *  `count` (string)
      *  `next` (string/url)
      *  `previous` (string/url)
-     *  `results` (array de `users`): Contém: `email`, `username`, `name`, `bio`, `created_at`, `following_count`, `followers_count`, `posts_count`, `avatar_url`, `banner_url`, `is_following`, `is_superuser` e `is_private`.
+     *  `results` (array de `users`): Contém: `email`, `username`, `name`, `bio`, `created_at`, `following_count`, `followers_count`, `posts_count`, `avatar_url`, `banner_url`, `is_following` e `is_private`.
      > paginação definida para 5 posts, alterar caso necessário
 
 **POST `api/reports/create/`** (Cria um report novo)
