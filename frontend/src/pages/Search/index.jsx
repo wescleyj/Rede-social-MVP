@@ -258,7 +258,11 @@ export default function Search() {
                                             {posts.length > 0 ? (
                                                 <>
                                                     {posts.map(post => (
-                                                        <PostCard key={post.id} post={post} />
+                                                        <PostCard 
+                                                            key={post.id} 
+                                                            post={post} 
+                                                            onPostDeleted={(deletedId) => setPosts(prev => prev.filter(p => p.id !== deletedId))}
+                                                        />
                                                     ))}
 
                                                     <div ref={searchObserverTarget} style={{ height: '20px', width: '100%' }} />

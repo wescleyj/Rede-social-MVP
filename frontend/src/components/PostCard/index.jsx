@@ -14,7 +14,7 @@ import { buildImageUrl } from "../../utils/buildImageUrl.js";
 
 
 
-export default function PostCard({ post }) {
+export default function PostCard({ post, onPostDeleted }) {
     const { userData } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -268,10 +268,13 @@ export default function PostCard({ post }) {
         try {
             await api.delete(`/api/posts/delete/${post.id}/`);
             setIsDeleted(true);
-            if (onPostDeleted) onPostDeleted(post.id);
+            if (typeof onPostDeleted === 'function') {
+                onPostDeleted(post.id);
+            }
         } catch (error) {
             console.error("Erro ao excluir post", error);
-            alert("Erro ao excluir a publicação.");
+            const errorMsg = error.response?.data?.detail || error.response?.data?.error || error.response?.data?.message || "Erro ao excluir a publicação.";
+            alert(errorMsg);
         } finally {
             setIsDeleting(false);
         }

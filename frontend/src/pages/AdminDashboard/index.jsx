@@ -69,7 +69,8 @@ export default function AdminDashboard() {
             fetchReports();
         } catch (error) {
             console.error("Erro ao concluir denúncia:", error);
-            alert("Erro ao alterar o status da denúncia.");
+            const errorMsg = error.response?.data?.Error || error.response?.data?.detail || error.response?.data?.message || "Erro ao alterar o status da denúncia.";
+            alert(errorMsg);
         } finally {
             setActionLoadingId(null);
         }
@@ -85,7 +86,8 @@ export default function AdminDashboard() {
             fetchReports();
         } catch (error) {
             console.error("Erro ao deletar post:", error);
-            alert("Erro ao excluir a publicação.");
+            const errorMsg = error.response?.data?.Error || error.response?.data?.detail || error.response?.data?.message || "Erro ao excluir a publicação.";
+            alert(errorMsg);
         } finally {
             setActionLoadingId(null);
         }
@@ -101,7 +103,8 @@ export default function AdminDashboard() {
             fetchReports();
         } catch (error) {
             console.error("Erro ao deletar comentário:", error);
-            alert("Erro ao excluir o comentário.");
+            const errorMsg = error.response?.data?.Error || error.response?.data?.detail || error.response?.data?.message || "Erro ao excluir o comentário.";
+            alert(errorMsg);
         } finally {
             setActionLoadingId(null);
         }

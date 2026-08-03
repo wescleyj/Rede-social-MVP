@@ -677,7 +677,14 @@ export default function Profile() {
                     ) : filteredPosts.length > 0 ? (
                         <>
                             {filteredPosts.map((post) => (
-                                <PostCard key={post.id} post={post} />
+                                <PostCard 
+                                    key={post.id} 
+                                    post={post} 
+                                    onPostDeleted={(deletedId) => {
+                                        setPosts(prev => prev.filter(p => p.id !== deletedId));
+                                        setProfileUser(prev => prev ? { ...prev, posts_count: Math.max(0, (prev.posts_count ?? 1) - 1) } : prev);
+                                    }}
+                                />
                             ))}
 
                             <div ref={postsObserverTarget} style={{ height: '20px', width: '100%' }} />
