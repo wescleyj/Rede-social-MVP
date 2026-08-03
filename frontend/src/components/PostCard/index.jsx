@@ -35,6 +35,8 @@ export default function PostCard({ post }) {
     // Estados de Comentários
     const [showComments, setShowComments] = useState(false);
     const [commentsList, setCommentsList] = useState([]);
+    const [nextCommentsPage, setNextCommentsPage] = useState(null);
+    const [isLoadingMoreComments, setIsLoadingMoreComments] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [isSendingComment, setIsSendingComment] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -146,12 +148,46 @@ export default function PostCard({ post }) {
         if (!showComments) {
             try {
                 const res = await api.get(`/api/posts/info/${post.id}/comments/`);
-                setCommentsList(res.data.results || res.data);
+                const data = res.data;
+                if (data && data.results !== undefined) {
+                    setCommentsList(data.results);
+                    setNextCommentsPage(data.next || null);
+                } else if (Array.isArray(data)) {
+                    setCommentsList(data);
+                    setNextCommentsPage(null);
+                } else {
+                    setCommentsList([]);
+                    setNextCommentsPage(null);
+                }
             } catch (err) {
                 console.error("Erro ao carregar comentários", err);
             }
         }
         setShowComments(!showComments);
+    }
+
+    async function handleLoadMoreComments() {
+        if (!nextCommentsPage || isLoadingMoreComments) return;
+        setIsLoadingMoreComments(true);
+        try {
+            const endpoint = nextCommentsPage.replace(/^.*?\/api\//, '/api/');
+            const res = await api.get(endpoint);
+            const data = res.data;
+            if (data && data.results !== undefined) {
+                setCommentsList(prev => {
+                    const existingIds = new Set(prev.map(c => c.id));
+                    const uniqueNew = data.results.filter(c => !existingIds.has(c.id));
+                    return [...prev, ...uniqueNew];
+                });
+                setNextCommentsPage(data.next || null);
+            } else {
+                setNextCommentsPage(null);
+            }
+        } catch (err) {
+            console.error("Erro ao carregar mais comentários:", err);
+        } finally {
+            setIsLoadingMoreComments(false);
+        }
     }
 
     async function handleSendComment(e) {
@@ -414,6 +450,25 @@ export default function PostCard({ post }) {
                         })}
                         {commentsCount === 0 && commentsList.length === 0 && (
                             <p className="no-comments">Seja o primeiro a comentar!</p>
+                        )}
+                        {nextCommentsPage && (
+                            <div style={{ textAlign: 'center', padding: '8px 0' }}>
+                                <button
+                                    type="button"
+                                    onClick={handleLoadMoreComments}
+                                    disabled={isLoadingMoreComments}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: 'var(--brand)',
+                                        cursor: 'pointer',
+                                        fontSize: '13px',
+                                        fontWeight: '600'
+                                    }}
+                                >
+                                    {isLoadingMoreComments ? 'Carregando mais comentários...' : 'Carregar mais comentários'}
+                                </button>
+                            </div>
                         )}
                     </div>
                     {userData?.isAnonymous ? (

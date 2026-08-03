@@ -1,21 +1,94 @@
 import "./styles.css";
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LeftSidebar from '../../components/LeftSidebar';
 import PostCard from '../../components/PostCard';
 import api from "../../../services/api.js";
 import { AuthContext } from '../../contexts/AuthContext';
 
-// Mocks removidos, a página agora depende exclusivamente da API real
-
 export default function Home() {
     const { userData } = useContext(AuthContext);
     const [posts, setPosts] = useState([]);
+    const [nextPage, setNextPage] = useState(null);
+    const [isLoadingInitial, setIsLoadingInitial] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [postContent, setPostContent] = useState('');
     const [mediaUrl, setMediaUrl] = useState('');
     const [isPublishing, setIsPublishing] = useState(false);
 
+    const observerTarget = useRef(null);
     const navigate = useNavigate();
+
+    const fetchFeed = useCallback(async (url = null) => {
+        const isMore = Boolean(url);
+        if (isMore) {
+            setIsLoadingMore(true);
+        } else {
+            setIsLoadingInitial(true);
+        }
+
+        try {
+            const endpoint = url ? url.replace(/^.*?\/api\//, '/api/') : '/api/posts/';
+            const response = await api.get(endpoint);
+            const data = response.data;
+
+            if (data && data.results !== undefined) {
+                if (isMore) {
+                    setPosts(prev => {
+                        const existingIds = new Set(prev.map(p => p.id));
+                        const uniqueNew = data.results.filter(p => !existingIds.has(p.id));
+                        return [...prev, ...uniqueNew];
+                    });
+                } else {
+                    setPosts(data.results);
+                }
+                setNextPage(data.next || null);
+            } else if (Array.isArray(data)) {
+                setPosts(data);
+                setNextPage(null);
+            } else {
+                if (!isMore) setPosts([]);
+                setNextPage(null);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar o feed:', error.message);
+        } finally {
+            if (isMore) {
+                setIsLoadingMore(false);
+            } else {
+                setIsLoadingInitial(false);
+            }
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchFeed();
+    }, [fetchFeed, userData]);
+
+    // IntersectionObserver para Carregamento Gradual / Infinito
+    useEffect(() => {
+        if (!nextPage || isLoadingMore || isLoadingInitial) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && nextPage && !isLoadingMore) {
+                    fetchFeed(nextPage);
+                }
+            },
+            { threshold: 0.1, rootMargin: '200px' }
+        );
+
+        const currentTarget = observerTarget.current;
+        if (currentTarget) {
+            observer.observe(currentTarget);
+        }
+
+        return () => {
+            if (currentTarget) {
+                observer.unobserve(currentTarget);
+            }
+        };
+    }, [nextPage, isLoadingMore, isLoadingInitial, fetchFeed]);
 
     const handlePublish = async () => {
         if (!postContent.trim() && !mediaUrl) return;
@@ -23,12 +96,12 @@ export default function Home() {
         
         try {
             const payload = {
-                content: postContent,
-                media_url: mediaUrl
+                content: postContent.trim(),
+                media_url: mediaUrl.trim()
             };
             
             const response = await api.post('/api/posts/create/', payload);
-            setPosts([response.data, ...posts]);
+            setPosts(prev => [response.data, ...prev]);
             setPostContent('');
             setMediaUrl('');
         } catch (error) {
@@ -38,20 +111,6 @@ export default function Home() {
             setIsPublishing(false);
         }
     };
-
-    useEffect(() => {
-        async function fetchFeed() {
-            try {
-                // Fetch Global/Following Feed
-                const response = await api.get('/api/posts/');
-                // O Django Rest Framework retorna { count, next, previous, results } para paginação
-                setPosts(response.data.results || response.data);
-            } catch (error) {
-                console.error('Erro ao carregar o feed:', error.message);
-            }
-        }
-        fetchFeed();
-    }, [userData]);
 
     return (
         <div className="layout-wrapper">
@@ -99,10 +158,33 @@ export default function Home() {
                 </section>
 
                 <section className="feed-container">
-                    {posts.length > 0 ? (
-                        posts.map((post) => (
-                            <PostCard key={post.id} post={post} />
-                        ))
+                    {isLoadingInitial ? (
+                        <div className="feed-loading-initial">
+                            <div className="feed-spinner"></div>
+                            <span>Carregando publicações...</span>
+                        </div>
+                    ) : posts.length > 0 ? (
+                        <>
+                            {posts.map((post) => (
+                                <PostCard key={post.id} post={post} />
+                            ))}
+
+                            {/* Sentinela de IntersectionObserver para scroll infinito */}
+                            <div ref={observerTarget} className="feed-sentinel" />
+
+                            {isLoadingMore && (
+                                <div className="feed-loading-more">
+                                    <div className="feed-spinner small"></div>
+                                    <span>Carregando mais...</span>
+                                </div>
+                            )}
+
+                            {!nextPage && posts.length >= 10 && (
+                                <div className="feed-end-message">
+                                    <span>Você chegou ao fim das publicações</span>
+                                </div>
+                            )}
+                        </>
                     ) : (
                         <div className="post-placeholder">Nenhuma publicação ainda.</div>
                     )}

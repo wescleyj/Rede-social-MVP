@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import LeftSidebar from '../../components/LeftSidebar';
 import PostCard from '../../components/PostCard';
@@ -18,7 +18,11 @@ export default function Search() {
     const [activeTab, setActiveTab] = useState("usuarios"); // 'usuarios' | 'publicacoes'
     const [users, setUsers] = useState([]);
     const [posts, setPosts] = useState([]);
+    const [nextPostsPage, setNextPostsPage] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingMorePosts, setIsLoadingMorePosts] = useState(false);
+
+    const searchObserverTarget = useRef(null);
 
     useEffect(() => {
         setSearchInput(query);
@@ -31,6 +35,7 @@ export default function Search() {
             if (query.trim() === '') {
                 setUsers([]);
                 setPosts([]);
+                setNextPostsPage(null);
                 setIsLoading(false);
                 return;
             }
@@ -38,13 +43,23 @@ export default function Search() {
             setIsLoading(true);
             try {
                 const [usersRes, postsRes] = await Promise.all([
-                    api.get(`/api/search/users/${query}/`),
-                    api.get(`/api/search/posts/${query}/`)
+                    api.get(`/api/search/users/${encodeURIComponent(query)}/`),
+                    api.get(`/api/search/posts/${encodeURIComponent(query)}/`)
                 ]);
                 
                 if (isMounted) {
-                    setUsers(usersRes.data.results || usersRes.data);
-                    setPosts(postsRes.data.results || postsRes.data);
+                    setUsers(usersRes.data.results || usersRes.data || []);
+                    const postsData = postsRes.data;
+                    if (postsData && postsData.results !== undefined) {
+                        setPosts(postsData.results);
+                        setNextPostsPage(postsData.next || null);
+                    } else if (Array.isArray(postsData)) {
+                        setPosts(postsData);
+                        setNextPostsPage(null);
+                    } else {
+                        setPosts([]);
+                        setNextPostsPage(null);
+                    }
                 }
             } catch (err) {
                 console.error("Erro na busca:", err);
@@ -57,6 +72,53 @@ export default function Search() {
         
         return () => { isMounted = false; };
     }, [query]);
+
+    const fetchMorePosts = useCallback(async () => {
+        if (!nextPostsPage || isLoadingMorePosts) return;
+        setIsLoadingMorePosts(true);
+
+        try {
+            const endpoint = nextPostsPage.replace(/^.*?\/api\//, '/api/');
+            const res = await api.get(endpoint);
+            const data = res.data;
+
+            if (data && data.results !== undefined) {
+                setPosts(prev => {
+                    const existingIds = new Set(prev.map(p => p.id));
+                    const uniqueNew = data.results.filter(p => !existingIds.has(p.id));
+                    return [...prev, ...uniqueNew];
+                });
+                setNextPostsPage(data.next || null);
+            } else {
+                setNextPostsPage(null);
+            }
+        } catch (err) {
+            console.error("Erro ao carregar mais posts da busca:", err);
+        } finally {
+            setIsLoadingMorePosts(false);
+        }
+    }, [nextPostsPage, isLoadingMorePosts]);
+
+    // IntersectionObserver para busca de posts
+    useEffect(() => {
+        if (activeTab !== 'publicacoes' || !nextPostsPage || isLoadingMorePosts) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && nextPostsPage && !isLoadingMorePosts) {
+                    fetchMorePosts();
+                }
+            },
+            { threshold: 0.1, rootMargin: '200px' }
+        );
+
+        const currentTarget = searchObserverTarget.current;
+        if (currentTarget) observer.observe(currentTarget);
+
+        return () => {
+            if (currentTarget) observer.unobserve(currentTarget);
+        };
+    }, [activeTab, nextPostsPage, isLoadingMorePosts, fetchMorePosts]);
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
@@ -191,9 +253,26 @@ export default function Search() {
                                     {activeTab === 'publicacoes' && (
                                         <div className="posts-list">
                                             {posts.length > 0 ? (
-                                                posts.map(post => (
-                                                    <PostCard key={post.id} post={post} />
-                                                ))
+                                                <>
+                                                    {posts.map(post => (
+                                                        <PostCard key={post.id} post={post} />
+                                                    ))}
+
+                                                    <div ref={searchObserverTarget} style={{ height: '20px', width: '100%' }} />
+
+                                                    {isLoadingMorePosts && (
+                                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 20px', gap: '10px', color: 'var(--text-muted)', fontSize: '13.5px' }}>
+                                                            <div className="feed-spinner small"></div>
+                                                            <span>Carregando mais publicações...</span>
+                                                        </div>
+                                                    )}
+
+                                                    {!nextPostsPage && posts.length >= 10 && (
+                                                        <div style={{ padding: '30px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px', borderTop: '1px solid var(--border)', marginTop: '8px' }}>
+                                                            <span>Você chegou ao fim das publicações</span>
+                                                        </div>
+                                                    )}
+                                                </>
                                             ) : (
                                                 <p className="no-results">Nenhuma publicação encontrada para "{query}".</p>
                                             )}

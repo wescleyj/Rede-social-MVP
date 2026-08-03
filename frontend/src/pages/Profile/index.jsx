@@ -40,6 +40,11 @@ export default function Profile() {
     const [isPending, setIsPending] = useState(false);
     const [followIsLoading, setFollowIsLoading] = useState(false);
 
+    // Paginação do Feed do Perfil
+    const [nextPostsPage, setNextPostsPage] = useState(null);
+    const [isLoadingMorePosts, setIsLoadingMorePosts] = useState(false);
+    const postsObserverTarget = React.useRef(null);
+
     const requireAuth = (callback) => (e) => {
         if (e && e.stopPropagation) e.stopPropagation();
         if (userData?.isAnonymous) {
@@ -69,9 +74,6 @@ export default function Profile() {
                 setProfileUser(response.data);
                 setIsFollowing(Boolean(response.data.is_following));
                 setIsPending(Boolean(response.data.is_pending));
-                if (username === userData?.username) {
-                    fetchFollowRequests();
-                }
             } catch (error) {
                 console.error("Erro ao carregar perfil:", error);
                 setProfileUser(null);
@@ -280,26 +282,72 @@ export default function Profile() {
         }
     }
 
-    // Carregar Feed do Perfil
-    useEffect(() => {
-        async function fetchProfilePosts() {
-            if (!username && !userData?.username) return;
-            
-            try {
-                // Usa a rota do usuário logado se for o próprio perfil, caso contrário, usa a rota pública
-                const route = isOwnProfile 
-                    ? '/api/users/me/posts' 
-                    : `/api/posts/users/${username}`;
-                
-                const response = await api.get(route);
-                setPosts(response.data.results || response.data);
-            } catch (error) {
-                console.error('Erro ao carregar os posts do perfil:', error.message);
-            }
+    // Carregar Feed do Perfil com Paginação
+    const fetchProfilePosts = React.useCallback(async (url = null) => {
+        if (!username && !userData?.username) return;
+        const isMore = Boolean(url);
+        if (isMore) {
+            setIsLoadingMorePosts(true);
         }
-        
-        fetchProfilePosts();
+
+        try {
+            const defaultRoute = isOwnProfile 
+                ? '/api/users/me/posts' 
+                : `/api/posts/users/${username}`;
+            const endpoint = url ? url.replace(/^.*?\/api\//, '/api/') : defaultRoute;
+            
+            const response = await api.get(endpoint);
+            const data = response.data;
+
+            if (data && data.results !== undefined) {
+                if (isMore) {
+                    setPosts(prev => {
+                        const existingIds = new Set(prev.map(p => p.id));
+                        const uniqueNew = data.results.filter(p => !existingIds.has(p.id));
+                        return [...prev, ...uniqueNew];
+                    });
+                } else {
+                    setPosts(data.results);
+                }
+                setNextPostsPage(data.next || null);
+            } else if (Array.isArray(data)) {
+                setPosts(data);
+                setNextPostsPage(null);
+            } else {
+                if (!isMore) setPosts([]);
+                setNextPostsPage(null);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar os posts do perfil:', error.message);
+        } finally {
+            if (isMore) setIsLoadingMorePosts(false);
+        }
     }, [username, isOwnProfile, userData]);
+
+    useEffect(() => {
+        fetchProfilePosts();
+    }, [fetchProfilePosts]);
+
+    // IntersectionObserver para carregar mais posts do perfil
+    useEffect(() => {
+        if (!nextPostsPage || isLoadingMorePosts) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && nextPostsPage && !isLoadingMorePosts) {
+                    fetchProfilePosts(nextPostsPage);
+                }
+            },
+            { threshold: 0.1, rootMargin: '200px' }
+        );
+
+        const currentTarget = postsObserverTarget.current;
+        if (currentTarget) observer.observe(currentTarget);
+
+        return () => {
+            if (currentTarget) observer.unobserve(currentTarget);
+        };
+    }, [nextPostsPage, isLoadingMorePosts, fetchProfilePosts]);
 
     if (!userData || !profileUser) {
         return <div className="layout-wrapper">Carregando...</div>;
@@ -624,9 +672,27 @@ export default function Profile() {
                             </p>
                         </div>
                     ) : filteredPosts.length > 0 ? (
-                        filteredPosts.map((post) => (
-                            <PostCard key={post.id} post={post} />
-                        ))
+                        <>
+                            {filteredPosts.map((post) => (
+                                <PostCard key={post.id} post={post} />
+                            ))}
+
+                            {/* Sentinela de paginação */}
+                            <div ref={postsObserverTarget} style={{ height: '20px', width: '100%' }} />
+
+                            {isLoadingMorePosts && (
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 20px', gap: '10px', color: 'var(--text-muted)', fontSize: '13.5px' }}>
+                                    <div className="feed-spinner small"></div>
+                                    <span>Carregando mais publicações...</span>
+                                </div>
+                            )}
+
+                            {!nextPostsPage && filteredPosts.length >= 10 && (
+                                <div style={{ padding: '30px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px', borderTop: '1px solid var(--border)', marginTop: '8px' }}>
+                                    <span>Você chegou ao fim das publicações</span>
+                                </div>
+                            )}
+                        </>
                     ) : (
                         <p className="no-posts-message">Nenhuma publicação encontrada.</p>
                     )}

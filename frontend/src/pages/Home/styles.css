@@ -62,10 +62,16 @@
 
 .compose-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
     padding-top: 12px;
+}
+
+.compose-tools {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .compose-actions .btn-publish {
@@ -85,14 +91,59 @@
     color: var(--text-muted);
     font-size: 15px;
 }
-.compose-actions {
-    justify-content: space-between;
+
+.feed-loading-initial {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 12px;
+    color: var(--text-muted);
+    font-size: 14px;
 }
 
-.compose-tools {
+.feed-loading-more {
     display: flex;
     align-items: center;
+    justify-content: center;
+    padding: 24px 20px;
     gap: 10px;
+    color: var(--text-muted);
+    font-size: 13.5px;
+}
+
+.feed-spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid rgba(56, 189, 248, 0.2);
+    border-top-color: var(--brand);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.feed-spinner.small {
+    width: 18px;
+    height: 18px;
+    border-width: 2px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.feed-sentinel {
+    height: 20px;
+    width: 100%;
+}
+
+.feed-end-message {
+    padding: 30px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
 }
 
 .btn-attach {
