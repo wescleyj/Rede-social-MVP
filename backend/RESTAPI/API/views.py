@@ -168,8 +168,10 @@ class ListFollowRequestView(generics.ListAPIView):
 class HandleFollowRequestView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, request_id, action):
-        follow_request = get_object_or_404(FollowRequest, pk=request_id, target=request.user)
+    def post(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        action = request.data.get('action')
+        follow_request = get_object_or_404(FollowRequest, pk=pk, target=request.user)
         if action == "accept":
             follow_request.accept()
             return Response({"message": "Follow request accepted."}, status=status.HTTP_200_OK)
