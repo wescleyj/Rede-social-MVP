@@ -410,7 +410,7 @@ class FeedReportListView(generics.ListAPIView):
 class ReportToggleStatusView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, pk):
+    def post(self, request, pk):
         report = get_object_or_404(Report, pk=pk)
         if not self.request.user.is_superuser:
             return Response({"Error": "You are not authorized to perform this operation."}, status=status.HTTP_403_FORBIDDEN)
