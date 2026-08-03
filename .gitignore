@@ -1,4 +1,22 @@
-.venv
+# Python & Virtualenv
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.sqlite3
+
+# Node & Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# IDEs & System
 .idea/
 .vscode/
+*.swp
+*.swo
 .DS_Store
+Thumbs.db
