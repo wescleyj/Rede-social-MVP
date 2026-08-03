@@ -174,3 +174,22 @@
     border: 1px solid rgba(244, 63, 94, 0.2);
     border-radius: 8px;
 }
+
+/* ==========================================================================
+   RESPONSIVIDADE: MOBILE
+   ========================================================================== */
+@media (max-width: 480px) {
+    .auth-page {
+        padding: 12px;
+    }
+
+    .auth-container {
+        padding: 24px 18px;
+        border-radius: 18px;
+    }
+
+    .auth-header h1 {
+        font-size: 21px;
+    }
+}
+

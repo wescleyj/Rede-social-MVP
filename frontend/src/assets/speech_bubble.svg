@@ -1,12 +1,3 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" class="message-icon">
-	<style>
-		.message-icon path {
-			stroke: #a1a1aa;
-			stroke-width: 2;
-			fill: none;
-			stroke-linejoin: round;
-			transition: stroke 0.3s;
-		}
-	</style>
-	<path d="M 6 6 C 4.895 6 4 6.895 4 8 L 4 28 L 10 22 L 26 22 C 27.105 22 28 21.105 28 20 L 28 8 C 28 6.895 27.105 6 26 6 L 6 6 Z" />
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
 </svg>
