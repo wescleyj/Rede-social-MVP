@@ -1,3 +1,4 @@
+// Formata números para ficar melhor visualmente e mais pratico
 export function formatNumber(num) {
     if (!num) return 0;
 

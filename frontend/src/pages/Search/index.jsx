@@ -7,6 +7,7 @@ import './styles.css';
 import { AuthContext } from '../../contexts/AuthContext';
 import api from '../../../services/api.js';
 import { buildImageUrl } from '../../utils/buildImageUrl.js';
+import LockIcon from '../../assets/lock.svg?react';
 
 export default function Search() {
     const [searchParams] = useSearchParams();
@@ -31,6 +32,7 @@ export default function Search() {
     useEffect(() => {
         let isMounted = true;
         
+        // Busca usuários e publicações correspondentes ao termo de pesquisa
         async function fetchResults() {
             if (query.trim() === '') {
                 setUsers([]);
@@ -73,6 +75,7 @@ export default function Search() {
         return () => { isMounted = false; };
     }, [query]);
 
+    // Carrega páginas adicionais de publicações da busca na API
     const fetchMorePosts = useCallback(async () => {
         if (!nextPostsPage || isLoadingMorePosts) return;
         setIsLoadingMorePosts(true);
@@ -99,7 +102,7 @@ export default function Search() {
         }
     }, [nextPostsPage, isLoadingMorePosts]);
 
-    // IntersectionObserver para busca de posts
+    // Lida com a rolagem infinita dos resultados de publicações via IntersectionObserver
     useEffect(() => {
         if (activeTab !== 'publicacoes' || !nextPostsPage || isLoadingMorePosts) return;
 
@@ -120,6 +123,7 @@ export default function Search() {
         };
     }, [activeTab, nextPostsPage, isLoadingMorePosts, fetchMorePosts]);
 
+    // Atualiza a rota com o novo termo de pesquisa submetido no formulário
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         if (searchInput.trim()) {
@@ -127,6 +131,7 @@ export default function Search() {
         }
     };
 
+    // Lida com o seguimento ou cancelamento de solicitação diretamente no card da busca
     const handleFollowToggle = async (userParam) => {
         if (userData?.isAnonymous) {
             navigate('/signin');
@@ -220,9 +225,7 @@ export default function Search() {
                                                                     <strong>
                                                                         {user.name}
                                                                         {user.is_private && (
-                                                                            <svg className="icon-private-lock" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" title="Conta Privada" style={{ marginLeft: '4px', verticalAlign: 'middle', color: '#f59e0b' }}>
-                                                                                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-                                                                            </svg>
+                                                                            <LockIcon className="icon-private-lock" title="Conta Privada" style={{ marginLeft: '4px', verticalAlign: 'middle', color: '#f59e0b' }} />
                                                                         )}
                                                                     </strong>
                                                                     <span>@{user.username}</span>

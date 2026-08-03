@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import './styles.css';
 
+// Renderiza a página de erro 404 para rotas inexistentes ou removidas
 export default function NotFound() {
     return (
         <div className="notfound-container">

@@ -6,6 +6,9 @@ import './styles.css';
 import SpeechBubble from "../../assets/speech_bubble.svg?react";
 import Heart from "../../assets/heart.svg?react";
 import Arrow from "../../assets/arrows.svg?react";
+import LockIcon from "../../assets/lock.svg?react";
+import TrashIcon from "../../assets/trash.svg?react";
+import FlagIcon from "../../assets/flag.svg?react";
 import { formatNumber } from "../../utils/formatNumber.js";
 import { buildImageUrl } from "../../utils/buildImageUrl.js";
 
@@ -15,6 +18,7 @@ export default function PostCard({ post }) {
     const { userData } = useContext(AuthContext);
     const navigate = useNavigate();
 
+    // Estados reativos para dados da publicação e controle de requisições
     const [postUpd, setPost] = useState(post);
     const [likeIsLoading, setLikeIsLoading] = useState(false);
     const [repostIsLoading, setRepostIsLoading] = useState(false);
@@ -41,6 +45,7 @@ export default function PostCard({ post }) {
     const [isSendingComment, setIsSendingComment] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
+    // Garante autenticação prévia antes de executar ações interativas
     const requireAuth = (actionFn) => (e) => {
         if (e) e.stopPropagation();
         if (userData?.isAnonymous) {
@@ -50,6 +55,7 @@ export default function PostCard({ post }) {
         }
     };
 
+    // Lida com curtidas no post, tratando racing conditions e atualizando o contador localmente
     async function like() {
         if (likeIsLoading) return;
         setLikeIsLoading(true);
@@ -57,15 +63,14 @@ export default function PostCard({ post }) {
         try {
             await api.post(`/api/posts/like/${post.id}/`);
 
-            const wasLiked = postUpd.isLiked || postUpd.is_liked;
-            const currentLikes = postUpd.likes_count ?? postUpd.totalLikes ?? 0;
+            // Atualiza os valores e estado do botão para as novas informações evitando ter que dar reload na pagina
+            const wasLiked = Boolean(postUpd.is_liked);
+            const currentLikes = postUpd.likes_count ?? 0;
             const newLikes = wasLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
 
             setPost({
                 ...postUpd,
                 likes_count: newLikes,
-                totalLikes: newLikes,
-                isLiked: !wasLiked,
                 is_liked: !wasLiked
             });
         } catch (error) {
@@ -75,6 +80,7 @@ export default function PostCard({ post }) {
         }
     }
 
+    // Lida com reposts do post, tratando racing conditions e atualizando o contador localmente
     async function repost() {
         if (repostIsLoading) return;
         setRepostIsLoading(true);
@@ -82,15 +88,14 @@ export default function PostCard({ post }) {
         try {
             await api.post(`/api/posts/repost/${post.id}/`);
 
-            const wasReposted = postUpd.isReply || postUpd.is_reposted;
-            const currentReposts = postUpd.reposts_count ?? postUpd.totalReposts ?? 0;
+            // Atualiza os valores e estado do botão para as novas informações evitando ter que dar reload na pagina
+            const wasReposted = Boolean(postUpd.is_reposted);
+            const currentReposts = postUpd.reposts_count ?? 0;
             const newReposts = wasReposted ? Math.max(0, currentReposts - 1) : currentReposts + 1;
 
             setPost({
                 ...postUpd,
                 reposts_count: newReposts,
-                totalReposts: newReposts,
-                isReply: !wasReposted,
                 is_reposted: !wasReposted
             });
         } catch (error) {
@@ -100,11 +105,12 @@ export default function PostCard({ post }) {
         }
     }
 
-    // Compatibilidade: aceita tanto os nomes do backend (likes_count) quanto os do mock (totalLikes)
-    const commentsCount = postUpd.comments_count ?? postUpd.totalComments ?? 0;
-    const repostsCount = postUpd.reposts_count ?? postUpd.totalReposts ?? 0;
-    const likesCount = postUpd.likes_count ?? postUpd.totalLikes ?? 0;
+    // Valida o resultado colocando como 0 se tiver algum problema e retornar null
+    const commentsCount = postUpd.comments_count ?? 0;
+    const repostsCount = postUpd.reposts_count ?? 0;
+    const likesCount = postUpd.likes_count ?? 0;
 
+    // Lida com o envio de denúncias de publicações, tratando feedback visual e erros
     async function handleReportSubmit(e) {
         e.preventDefault();
         const reasonText = reportReason === 'outro' ? (reportCustom.trim() || 'Outro') : reportReason;
@@ -124,6 +130,7 @@ export default function PostCard({ post }) {
         }
     }
 
+    // Lida com o envio de denúncias de comentários, tratando feedback visual e erros
     async function handleCommentReportSubmit(e) {
         e.preventDefault();
         if (!reportingCommentId) return;
@@ -144,6 +151,7 @@ export default function PostCard({ post }) {
         }
     }
 
+    // Lida com a abertura da seção de comentários, buscando a primeira página de dados
     async function toggleComments() {
         if (!showComments) {
             try {
@@ -166,6 +174,7 @@ export default function PostCard({ post }) {
         setShowComments(!showComments);
     }
 
+    // Lida com o carregamento gradual das próximas páginas de comentários, tratando paginação e erros
     async function handleLoadMoreComments() {
         if (!nextCommentsPage || isLoadingMoreComments) return;
         setIsLoadingMoreComments(true);
@@ -190,6 +199,7 @@ export default function PostCard({ post }) {
         }
     }
 
+    // Lida com a publicação de novos comentários, atualizando a lista e a contagem localmente
     async function handleSendComment(e) {
         e.preventDefault();
         if (userData?.isAnonymous) {
@@ -204,9 +214,9 @@ export default function PostCard({ post }) {
                 post_id: post.id,
                 content: newComment.trim()
             });
-            // O backend retorna o comentário criado
+            // O backend retorna o comentário criado de forma direta
             setCommentsList([...commentsList, res.data]);
-            setPost({ ...postUpd, comments_count: commentsCount + 1, totalComments: commentsCount + 1 });
+            setPost({ ...postUpd, comments_count: commentsCount + 1 });
             setNewComment('');
         } catch (err) {
             console.error("Erro ao enviar comentário", err);
@@ -216,6 +226,7 @@ export default function PostCard({ post }) {
         }
     }
 
+    // Lida com curtidas em comentários, atualizando o contador e o estado do botão localmente
     async function handleCommentLike(commentId) {
         try {
             await api.post(`/api/comments/like/${commentId}/`);
@@ -232,6 +243,7 @@ export default function PostCard({ post }) {
         }
     }
 
+    // Lida com a exclusão de comentários, atualizando a contagem e a lista localmente
     async function handleCommentDelete(commentId) {
         if (!window.confirm("Deseja excluir este comentário?")) return;
         try {
@@ -239,8 +251,7 @@ export default function PostCard({ post }) {
             setCommentsList(prev => prev.filter(c => c.id !== commentId));
             setPost(prev => ({
                 ...prev,
-                comments_count: Math.max(0, commentsCount - 1),
-                totalComments: Math.max(0, commentsCount - 1)
+                comments_count: Math.max(0, (prev.comments_count ?? 1) - 1)
             }));
         } catch (err) {
             console.error("Erro ao deletar comentário", err);
@@ -248,6 +259,7 @@ export default function PostCard({ post }) {
         }
     }
 
+    // Lida com a exclusão da publicação, tratando confirmação, erros e remoção da tela
     async function handleDelete() {
         if (isDeleting) return;
         if (!window.confirm("Tem certeza que deseja excluir esta publicação? Essa ação não pode ser desfeita.")) return;
@@ -272,6 +284,7 @@ export default function PostCard({ post }) {
     
     const formattedDate = postUpd.created_at ? new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(new Date(postUpd.created_at)) : '';
 
+    // Renderiza o card da publicação, exibindo autor, mídias, ações interativas e seção de comentários
     return (
         <article className="post-card">
             {postUpd.repostedBy && (
@@ -313,9 +326,7 @@ export default function PostCard({ post }) {
                     <strong className="post-author-name">
                         {postUpd.author?.name || 'Usuário'}
                         {postUpd.author?.is_private && (
-                            <svg className="icon-private-lock" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" title="Conta Privada">
-                                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-                            </svg>
+                            <LockIcon className="icon-private-lock" title="Conta Privada" />
                         )}
                     </strong>
                     <span className="post-author-handle">@{postUpd.author?.username || 'usuario'}</span>
@@ -339,14 +350,14 @@ export default function PostCard({ post }) {
                         <SpeechBubble /> {formatNumber(commentsCount)}
                     </button>
                     <button 
-                        className={`btn-action btn-repost ${(postUpd.isReply || postUpd.is_reposted) ? 'reposted' : ''}`} 
+                        className={`btn-action btn-repost ${postUpd.is_reposted ? 'reposted' : ''}`} 
                         disabled={repostIsLoading || isAuthor} 
                         onClick={requireAuth(repost)}
                         title={isAuthor ? "Você não pode repostar sua própria publicação" : "Repostar"}
                     >
                         <Arrow /> {formatNumber(repostsCount)}
                     </button>
-                    <button className={`btn-action btn-like ${(postUpd.isLiked || postUpd.is_liked) ? 'liked' : ''}`} disabled={likeIsLoading} onClick={requireAuth(like)}>
+                    <button className={`btn-action btn-like ${postUpd.is_liked ? 'liked' : ''}`} disabled={likeIsLoading} onClick={requireAuth(like)}>
                         <Heart /> {formatNumber(likesCount)}
                     </button>
                 </div>
@@ -357,9 +368,8 @@ export default function PostCard({ post }) {
                             className="btn-action btn-delete" 
                             onClick={requireAuth(handleDelete)} 
                             title={isAuthor ? "Excluir publicação" : "Excluir publicação (Admin)"}
-                            style={{ filter: 'grayscale(100%) brightness(2)' }}
                         >
-                            🗑️
+                            <TrashIcon />
                         </button>
                     )}
                     <button 
@@ -367,7 +377,7 @@ export default function PostCard({ post }) {
                         onClick={requireAuth(() => setIsReporting(true))} 
                         title="Denunciar publicação"
                     >
-                        ⚑
+                        <FlagIcon />
                     </button>
                 </div>
             </div>
@@ -395,9 +405,7 @@ export default function PostCard({ post }) {
                                                 <strong className="comment-name">
                                                     {authorObj?.name || authorObj?.username}
                                                     {authorObj?.is_private && (
-                                                        <svg className="icon-private-lock" viewBox="0 0 24 24" width="12" height="12" fill="currentColor" title="Conta Privada">
-                                                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-                                                        </svg>
+                                                        <LockIcon className="icon-private-lock" title="Conta Privada" />
                                                     )}
                                                 </strong>
                                                 <span className="comment-username">@{authorObj?.username}</span>
@@ -415,7 +423,7 @@ export default function PostCard({ post }) {
                                                         onClick={() => handleCommentDelete(c.id)}
                                                         title="Excluir comentário"
                                                     >
-                                                        🗑️
+                                                        <TrashIcon />
                                                     </button>
                                                 )}
                                                 <button 
@@ -428,11 +436,11 @@ export default function PostCard({ post }) {
                                                     })}
                                                     title="Denunciar comentário"
                                                 >
-                                                    ⚑
+                                                    <FlagIcon />
                                                 </button>
                                             </div>
                                         </div>
-                                        <p className="comment-content">{c.content || c.text}</p>
+                                        <p className="comment-content">{c.content}</p>
                                         <div className="comment-footer">
                                             <button 
                                                 type="button"

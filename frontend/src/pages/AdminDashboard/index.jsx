@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import LeftSidebar from '../../components/LeftSidebar';
 import api from '../../../services/api';
+import { buildImageUrl } from '../../utils/buildImageUrl.js';
 import './styles.css';
 
 export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState('reports'); // 'reports' | 'create_admin'
     
-    // Reports state
+    // Estados para listagem de denúncias e paginação
     const [reports, setReports] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
     const [nextPage, setNextPage] = useState(null);
@@ -14,17 +15,17 @@ export default function AdminDashboard() {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     
-    // Action loading state
+    // Controle de estado para ações de moderação individuais
     const [actionLoadingId, setActionLoadingId] = useState(null);
 
-    // Form states for creating admin
+    // Estados do formulário de criação de administrador
     const [adminName, setAdminName] = useState('');
     const [adminUser, setAdminUser] = useState('');
     const [adminEmail, setAdminEmail] = useState('');
     const [adminPass, setAdminPass] = useState('');
     const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
 
-    // Fetch open reports from GET /api/reports/open/
+    // Busca as denúncias em aberto na API, tratando paginação e permissões
     const fetchReports = useCallback(async (url = null) => {
         setIsLoading(true);
         setErrorMsg('');
@@ -60,7 +61,7 @@ export default function AdminDashboard() {
         }
     }, [activeTab, fetchReports]);
 
-    // Conclude/Toggle report status via POST /api/reports/toggle/<int:id>/
+    // Lida com a conclusão ou reabertura de uma denúncia, atualizando a listagem
     const handleToggleReport = async (reportId) => {
         setActionLoadingId(reportId);
         try {
@@ -74,7 +75,7 @@ export default function AdminDashboard() {
         }
     };
 
-    // Delete reported post via DELETE /api/posts/delete/<postId>/
+    // Lida com a exclusão de uma publicação denunciada, tratando erros e confirmações
     const handleDeletePost = async (reportId, postId) => {
         if (!window.confirm(`Confirmar exclusão da publicação #${postId}?`)) return;
         setActionLoadingId(reportId);
@@ -90,7 +91,7 @@ export default function AdminDashboard() {
         }
     };
 
-    // Delete reported comment via DELETE /api/comments/delete/<commentId>/
+    // Lida com a exclusão de um comentário denunciado, tratando erros e confirmações
     const handleDeleteComment = async (reportId, commentId) => {
         if (!window.confirm(`Confirmar exclusão do comentário #${commentId}?`)) return;
         setActionLoadingId(reportId);
@@ -106,7 +107,7 @@ export default function AdminDashboard() {
         }
     };
 
-    // Ban / delete user via DELETE /api/users/delete/<username>/
+    // Lida com o banimento e exclusão da conta de um usuário denunciado
     const handleDeleteUser = async (reportId, username) => {
         if (!username) {
             alert("Não foi possível identificar o usuário para exclusão.");
@@ -132,7 +133,7 @@ export default function AdminDashboard() {
         }
     };
 
-    // Create new admin account via POST /api/auth/register/
+    // Lida com o cadastro de uma nova conta de administrador, tratando erros de validação
     const handleCreateAdmin = async (e) => {
         e.preventDefault();
         if (isCreatingAdmin) return;
@@ -158,19 +159,14 @@ export default function AdminDashboard() {
         }
     };
 
-    const buildAvatarUrl = (url) => {
-        if (!url) return null;
-        if (url.startsWith('http://') || url.startsWith('https://')) return url;
-        const apiBase = api.defaults.baseURL || 'http://localhost:8000';
-        return `${apiBase}${url.startsWith('/') ? '' : '/'}${url}`;
-    };
+
 
     return (
         <div className="layout-wrapper">
             <LeftSidebar />
 
             <main className="content admin-main">
-                <header className="home-header admin-header">
+                <header className="admin-header">
                     <div>
                         <h2>Painel Administrativo</h2>
                         <span className="admin-subtitle">Gerenciamento de denúncias, moderação e administradores</span>
@@ -212,7 +208,7 @@ export default function AdminDashboard() {
                                     <div className="reports-list">
                                         {reports.map(report => {
                                             const reporter = report.author;
-                                            const reporterAvatar = buildAvatarUrl(reporter?.avatar_url);
+                                            const reporterAvatar = buildImageUrl(reporter?.avatar_url);
                                             const targetType = report.reported_type;
                                             const targetInstance = report.obj_instance;
                                             const isActionRunning = actionLoadingId === report.id;
@@ -257,7 +253,6 @@ export default function AdminDashboard() {
                                                         </div>
                                                     </div>
 
-                                                    {/* Target Object Preview */}
                                                     <div className="target-preview-box">
                                                         <div className="target-preview-header">
                                                             <span>Conteúdo Denunciado:</span>
@@ -278,7 +273,7 @@ export default function AdminDashboard() {
                                                                         <p className="preview-content">{targetInstance.content}</p>
                                                                         {targetInstance.media_url && (
                                                                             <img 
-                                                                                src={buildAvatarUrl(targetInstance.media_url)} 
+                                                                                src={buildImageUrl(targetInstance.media_url)} 
                                                                                 alt="Mídia da publicação" 
                                                                                 className="preview-media" 
                                                                             />
@@ -291,7 +286,7 @@ export default function AdminDashboard() {
                                                                         <div className="preview-user-details">
                                                                             {targetInstance.avatar_url && (
                                                                                 <img 
-                                                                                    src={buildAvatarUrl(targetInstance.avatar_url)} 
+                                                                                    src={buildImageUrl(targetInstance.avatar_url)} 
                                                                                     alt="Avatar" 
                                                                                     className="preview-user-avatar" 
                                                                                 />
@@ -321,9 +316,7 @@ export default function AdminDashboard() {
                                                         )}
                                                     </div>
 
-                                                    {/* Actions Row */}
                                                     <div className="report-actions-row">
-                                                        {/* Conclude Report Button */}
                                                         <button 
                                                             type="button" 
                                                             className="btn-toggle-status btn-close"
@@ -333,7 +326,6 @@ export default function AdminDashboard() {
                                                             {isActionRunning ? 'Concluindo...' : 'Concluir Denúncia'}
                                                         </button>
 
-                                                        {/* Moderation actions on target */}
                                                         {targetInstance !== null && (
                                                             <>
                                                                 {targetType === 'post' && (
@@ -400,7 +392,6 @@ export default function AdminDashboard() {
                                         })}
                                     </div>
 
-                                    {/* Pagination */}
                                     {(nextPage || prevPage) && (
                                         <div className="admin-pagination">
                                             <button 

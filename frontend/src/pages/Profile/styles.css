@@ -1,6 +1,6 @@
 .profile-main-content {
     width: 100%;
-    max-width: 680px;
+    max-width: 750px;
     border-left: 1px solid var(--border);
     border-right: 1px solid var(--border);
     display: flex;
@@ -11,15 +11,16 @@
 .profile-header {
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding: 0 16px;
-    height: 53px;
+    gap: 18px;
+    padding: 0 24px;
+    height: 64px;
     position: sticky;
     top: 0;
     background-color: rgba(3, 7, 18, 0.85);
     backdrop-filter: blur(12px);
     z-index: 10;
     border-bottom: 1px solid var(--border);
+    box-sizing: border-box;
 }
 
 .btn-back {
@@ -49,10 +50,11 @@
 
 .header-info h2 {
     margin: 0;
-    font-size: 18px;
+    font-size: 19px;
     font-weight: 700;
     color: var(--text);
     font-family: var(--font-display);
+    line-height: 1.2;
 }
 
 .header-info span {
@@ -97,7 +99,6 @@
     align-items: center;
     gap: 8px;
     min-height: 40px;
-    height: auto;
     margin-left: 140px;
     margin-bottom: 16px;
     flex-wrap: wrap;
@@ -266,11 +267,11 @@
 }
 
 .btn-report:hover {
-    background-color: rgba(244, 63, 94, 0.1); /* var(--danger) com opacidade */
+    background-color: rgba(244, 63, 94, 0.1);
     border-color: var(--danger);
 }
 
-/* Reusing some modal styles from PostCard for Profile */
+/* Modal de Denúncia */
 .report-form {
     display: flex;
     flex-direction: column;
@@ -291,7 +292,7 @@
 
 .btn-submit-report {
     background-color: var(--danger);
-    color: white;
+    color: #ffffff;
     border: none;
     padding: 8px 16px;
     border-radius: 20px;
@@ -306,7 +307,7 @@
 }
 
 .btn-submit-report:hover:not(:disabled) {
-    background-color: #dc2626;
+    background-color: var(--danger-hover);
 }
 
 /* Modal de Edição de Perfil */
@@ -439,13 +440,13 @@
 
 .btn-danger {
     background-color: transparent !important;
-    color: var(--danger, #ef4444) !important;
-    border-color: rgba(239, 68, 68, 0.4) !important;
+    color: var(--danger) !important;
+    border-color: rgba(244, 63, 94, 0.4) !important;
 }
 
 .btn-danger:hover {
-    background-color: rgba(239, 68, 68, 0.1) !important;
-    border-color: var(--danger, #ef4444) !important;
+    background-color: rgba(244, 63, 94, 0.15) !important;
+    border-color: var(--danger) !important;
 }
 
 /* Suporte à Conta Privada */
@@ -541,3 +542,80 @@
     max-width: 320px;
     line-height: 1.5;
 }
+
+/* ==========================================================================
+   RESPONSIVIDADE: TABLET & MOBILE
+   ========================================================================== */
+@media (max-width: 768px) {
+    .profile-main-content {
+        max-width: 100%;
+        border-left: none;
+        border-right: none;
+    }
+
+    .profile-header {
+        height: 56px;
+        padding: 0 16px;
+        gap: 12px;
+    }
+
+    .header-info h2 {
+        font-size: 17.5px;
+    }
+
+    .header-info span {
+        font-size: 12px;
+    }
+
+    .profile-banner {
+        height: 140px;
+    }
+
+    .profile-avatar-large {
+        width: 86px;
+        height: 86px;
+        top: -43px;
+        left: 14px;
+        border-width: 3px;
+    }
+
+    .profile-actions {
+        margin-left: 92px;
+        margin-bottom: 12px;
+        gap: 6px;
+        min-height: 32px;
+    }
+
+    .profile-actions .btn-secondary,
+    .profile-actions .btn-primary {
+        padding: 0 10px;
+        height: 32px;
+        font-size: 12px;
+    }
+
+    .profile-details {
+        padding: 14px;
+    }
+
+    .profile-name-row h1 {
+        font-size: 20px;
+    }
+
+    .profile-stats {
+        gap: 16px;
+        font-size: 14px;
+    }
+
+    .profile-tabs .tab-button {
+        padding: 12px 4px;
+        font-size: 13.5px;
+    }
+
+    .modal-content {
+        width: 92%;
+        max-width: 100%;
+        padding: 18px 16px;
+        margin: 12px;
+    }
+}
+

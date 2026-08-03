@@ -20,6 +20,13 @@
     color: var(--text-muted);
 }
 
+.post-reposted-by svg {
+    width: 14px;
+    height: 14px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
 .post-header {
     display: flex;
     align-items: center;
@@ -44,18 +51,22 @@
     color: var(--text);
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
 }
 
 .icon-private-lock {
+    width: 13px;
+    height: 13px;
     color: #f59e0b;
     flex-shrink: 0;
+    vertical-align: middle;
+    display: inline-block;
 }
 
 .comment-name {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
 }
 
 .post-author-handle {
@@ -119,13 +130,14 @@
 }
 
 .btn-action svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
 }
 
 .btn-repost svg {
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
 }
 
 .btn-action > * {
@@ -137,7 +149,8 @@
     color: var(--brand);
     background-color: rgba(56, 189, 248, 0.1);
 }
-.btn-message:hover svg path {
+.btn-message:hover svg {
+    color: var(--brand);
     stroke: var(--brand);
 }
 
@@ -149,8 +162,9 @@
 .btn-repost:hover {
     background-color: rgba(34, 197, 94, 0.1);
 }
-.btn-repost:hover svg line,
-.btn-repost.reposted svg line {
+.btn-repost:hover svg,
+.btn-repost.reposted svg {
+    color: var(--success);
     stroke: var(--success);
 }
 
@@ -167,17 +181,23 @@
     fill: var(--danger);
 }
 
-/* Denunciar */
-.btn-report {
-    padding: 6px;
-    font-size: 18px; /* Aumentado para melhor visualização do ícone */
-    opacity: 0.6;
-    transition: opacity 0.2s, background-color 0.2s;
+/* Ações secundárias do post (Excluir e Denunciar) */
+.btn-delete:hover {
+    color: var(--danger);
+    background-color: rgba(244, 63, 94, 0.1);
+}
+.btn-delete:hover svg {
+    color: var(--danger);
+    stroke: var(--danger);
 }
 
 .btn-report:hover {
-    opacity: 1;
-    background-color: rgba(244, 63, 94, 0.1);
+    color: #f59e0b;
+    background-color: rgba(245, 158, 11, 0.1);
+}
+.btn-report:hover svg {
+    color: #f59e0b;
+    stroke: #f59e0b;
 }
 
 /* Modal de Denúncia */
@@ -217,17 +237,18 @@
 }
 
 .btn-submit-report {
-    background-color: var(--danger, #ef4444);
-    color: white;
+    background-color: var(--danger);
+    color: #ffffff;
     border: none;
     padding: 8px 16px;
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
+    transition: background-color 0.2s;
 }
 
 .btn-submit-report:hover {
-    background-color: #dc2626;
+    background-color: var(--danger-hover);
 }
 
 /* Data do Post */
@@ -336,40 +357,37 @@
     gap: 4px;
 }
 
-.btn-comment-delete {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    padding: 4px 6px;
-    border-radius: 6px;
-    opacity: 0.5;
-    transition: opacity 0.2s, background-color 0.2s;
-    line-height: 1;
-}
-
-.btn-comment-delete:hover {
-    opacity: 1;
-    background-color: rgba(239, 68, 68, 0.15);
-}
-
+.btn-comment-delete,
 .btn-comment-report {
     background: transparent;
     border: none;
     cursor: pointer;
-    font-size: 14px;
-    padding: 4px 6px;
+    padding: 5px;
     border-radius: 6px;
-    opacity: 0.4;
-    color: var(--text-muted, #64748b);
+    opacity: 0.55;
+    color: var(--text-muted);
     transition: opacity 0.2s, background-color 0.2s, color 0.2s;
-    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-comment-delete svg,
+.btn-comment-report svg {
+    width: 14px;
+    height: 14px;
+}
+
+.btn-comment-delete:hover {
+    opacity: 1;
+    color: var(--danger);
+    background-color: rgba(244, 63, 94, 0.15);
 }
 
 .btn-comment-report:hover {
     opacity: 1;
-    color: #ef4444;
-    background-color: rgba(239, 68, 68, 0.1);
+    color: #f59e0b;
+    background-color: rgba(245, 158, 11, 0.15);
 }
 
 .comment-content {
@@ -477,7 +495,7 @@
 
 .comment-input-area button {
     background-color: var(--brand);
-    color: white;
+    color: #020617;
     border: none;
     padding: 0 16px;
     border-radius: 20px;
@@ -492,5 +510,45 @@
 }
 
 .comment-input-area button:hover:not(:disabled) {
-    background-color: #0284c7;
+    background-color: var(--brand-hover);
 }
+
+/* ==========================================================================
+   RESPONSIVIDADE: TABLET & MOBILE
+   ========================================================================== */
+@media (max-width: 768px) {
+    .post-card {
+        padding: 14px 12px;
+    }
+
+    .post-media {
+        max-height: 360px;
+        border-radius: 12px;
+    }
+
+    .post-interactions {
+        gap: 6px;
+    }
+
+    .post-interactions .btn-action {
+        min-width: auto;
+        padding: 6px 8px;
+        font-size: 12.5px;
+    }
+
+    .comments-section {
+        margin-top: 10px;
+        padding-top: 10px;
+    }
+
+    .comment-input-area input {
+        padding: 8px 12px;
+        font-size: 13.5px;
+    }
+
+    .comment-input-area button {
+        padding: 0 14px;
+        font-size: 13px;
+    }
+}
+

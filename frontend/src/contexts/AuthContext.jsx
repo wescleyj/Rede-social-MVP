@@ -3,11 +3,14 @@ import api from '../../services/api';
 
 export const AuthContext = createContext({});
 
+// Estrutura de dados padrão para visitantes anônimos
 const VISITOR_USER = { name: 'Visitante', username: 'visitante', avatar_url: null, isAnonymous: true };
 
+// Provedor global de autenticação e sessão do usuário
 export function AuthProvider({ children }) {
     const [userData, setUserData] = useState(null);
 
+    // Lida com o login do usuário, salvando tokens JWT e buscando dados do perfil
     const login = async (username, password) => {
         const response = await api.post('/api/auth/login/', { username, password });
         
@@ -17,8 +20,6 @@ export function AuthProvider({ children }) {
                 localStorage.setItem('refreshToken', response.data.refresh);
             }
             
-            // Buscar os dados após o login bem sucedido
-            // O interceptor já vai injetar o token no header
             const userResponse = await api.get('/api/users/me/');
             setUserData({ ...userResponse.data, isAnonymous: false });
             return true;
@@ -26,8 +27,8 @@ export function AuthProvider({ children }) {
         return false;
     };
 
+    // Lida com o logout do usuário, invalidando tokens e redefinindo a sessão
     const logout = () => {
-        // Tentar deslogar no backend (invalidar refresh token)
         const refresh = localStorage.getItem('refreshToken');
         if (refresh) {
             api.post('/api/logout/', { refresh }).catch(err => console.error("Erro no logout remoto", err));
@@ -38,9 +39,11 @@ export function AuthProvider({ children }) {
         window.location.href = '/signin';
     };
 
+    // Lida com a alternância de privacidade do perfil (pública/privada), tratando erros e feedback
     const togglePrivacy = async () => {
         if (!userData || userData.isAnonymous) return;
         const newPrivacyStatus = !userData.is_private;
+
         try {
             const payload = {
                 name: userData.name,
@@ -64,6 +67,7 @@ export function AuthProvider({ children }) {
         }
     };
 
+    // Inicializa a sessão buscando os dados do perfil autenticado via token armazenado
     useEffect(() => {
         const token = localStorage.getItem('token');
 
@@ -89,6 +93,7 @@ export function AuthProvider({ children }) {
         }
     }, []);
 
+    // Disponibiliza dados e ações de autenticação para todos os componentes filhos
     return (
         <AuthContext.Provider value={{ userData, setUserData, login, logout, togglePrivacy }}>
             {children}

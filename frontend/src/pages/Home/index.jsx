@@ -7,6 +7,7 @@ import api from "../../../services/api.js";
 import { AuthContext } from '../../contexts/AuthContext';
 
 export default function Home() {
+    // Estados reativos para dados das publicações e controle de requisições
     const { userData } = useContext(AuthContext);
     const [posts, setPosts] = useState([]);
     const [nextPage, setNextPage] = useState(null);
@@ -19,6 +20,7 @@ export default function Home() {
     const observerTarget = useRef(null);
     const navigate = useNavigate();
 
+    // Busca o feed de publicações na API, tratando paginação incremental e erros
     const fetchFeed = useCallback(async (url = null) => {
         const isMore = Boolean(url);
         if (isMore) {
@@ -65,7 +67,7 @@ export default function Home() {
         fetchFeed();
     }, [fetchFeed, userData]);
 
-    // IntersectionObserver para Carregamento Gradual / Infinito
+    // Lida com a rolagem infinita de publicações via IntersectionObserver
     useEffect(() => {
         if (!nextPage || isLoadingMore || isLoadingInitial) return;
 
@@ -90,6 +92,7 @@ export default function Home() {
         };
     }, [nextPage, isLoadingMore, isLoadingInitial, fetchFeed]);
 
+    // Lida com a criação de novas publicações, inserindo o post criado no topo do feed
     const handlePublish = async () => {
         if (!postContent.trim() && !mediaUrl) return;
         setIsPublishing(true);
@@ -112,6 +115,7 @@ export default function Home() {
         }
     };
 
+    // Renderiza a página inicial com compositor de publicações e feed com rolagem infinita
     return (
         <div className="layout-wrapper">
             <LeftSidebar />
@@ -136,10 +140,10 @@ export default function Home() {
                                 <div className="compose-tools">
                                     <input 
                                         type="url"
+                                        className="compose-media-input"
                                         placeholder="Link de imagem ou GIF..."
                                         value={mediaUrl}
                                         onChange={(e) => setMediaUrl(e.target.value)}
-                                        style={{ background: 'var(--bg-secondary)', border: 'none', color: '#fff', padding: '10px', borderRadius: '15px', width: '250px' }}
                                         maxLength={200}
                                     />
                                 </div>
@@ -169,7 +173,6 @@ export default function Home() {
                                 <PostCard key={post.id} post={post} />
                             ))}
 
-                            {/* Sentinela de IntersectionObserver para scroll infinito */}
                             <div ref={observerTarget} className="feed-sentinel" />
 
                             {isLoadingMore && (

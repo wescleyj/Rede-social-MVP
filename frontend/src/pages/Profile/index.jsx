@@ -6,6 +6,8 @@ import api from "../../../services/api.js";
 import { AuthContext } from "../../contexts/AuthContext";
 import "./styles.css";
 import { buildImageUrl } from "../../utils/buildImageUrl.js";
+import LockIcon from "../../assets/lock.svg?react";
+import CalendarIcon from "../../assets/calendar.svg?react";
 
 export default function Profile() {
     const { userData, logout } = useContext(AuthContext);
@@ -21,7 +23,7 @@ export default function Profile() {
     const [bannerUrl, setBannerUrl] = useState("");
     const [isPrivateUpdate, setIsPrivateUpdate] = useState(false);
 
-    // Estados para Alteração de Senha
+    // Estados para controle do modal e formulário de alteração de senha
     const [isChangingPassword, setIsChangingPassword] = useState(false);
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -30,7 +32,7 @@ export default function Profile() {
     const [passwordSuccess, setPasswordSuccess] = useState("");
     const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
 
-    // Estados para Exclusão de Conta com Senha
+    // Estados para controle do modal e formulário de exclusão de conta
     const [isDeletingAccountModal, setIsDeletingAccountModal] = useState(false);
     const [deletePassword, setDeletePassword] = useState("");
     const [deleteError, setDeleteError] = useState("");
@@ -40,7 +42,7 @@ export default function Profile() {
     const [isPending, setIsPending] = useState(false);
     const [followIsLoading, setFollowIsLoading] = useState(false);
 
-    // Paginação do Feed do Perfil
+    // Estados para paginação e carregamento gradual das publicações
     const [nextPostsPage, setNextPostsPage] = useState(null);
     const [isLoadingMorePosts, setIsLoadingMorePosts] = useState(false);
     const postsObserverTarget = React.useRef(null);
@@ -56,7 +58,7 @@ export default function Profile() {
 
     const isOwnProfile = (!username && !userData?.isAnonymous) || (userData && !userData.isAnonymous && username === userData.username);
 
-    // Carregar os dados do perfil visualizado
+    // Carrega dados do perfil visualizado e status de seguimento
     useEffect(() => {
         async function fetchProfile() {
             if (!username) {
@@ -85,7 +87,7 @@ export default function Profile() {
         fetchProfile();
     }, [username, userData]);
 
-    // Sincronizar estados do modal com userData
+    // Sincroniza os campos do formulário de edição com os dados atuais do perfil
     useEffect(() => {
         if (userData && isOwnProfile) {
             setNameUpdate(userData.name || "");
@@ -106,6 +108,7 @@ export default function Profile() {
         setEditPerfil(!editPerfil);
     };
 
+    // Lida com a atualização dos dados do perfil, tratando erros e persistência
     const handleEditSubmit = async (e) => {
         e.preventDefault();
 
@@ -131,6 +134,7 @@ export default function Profile() {
         }
     };
 
+    // Lida com a alteração de senha do usuário, validando requisitos e tratando erros
     const handlePasswordChange = async (e) => {
         e.preventDefault();
         setPasswordError('');
@@ -177,6 +181,7 @@ export default function Profile() {
         }
     };
 
+    // Lida com ações de seguir, deixar de seguir e envio de solicitações para contas privadas
     async function handleFollow() {
         if (followIsLoading) return;
         setFollowIsLoading(true);
@@ -233,6 +238,7 @@ export default function Profile() {
 
 
 
+    // Lida com a exclusão definitiva da conta do usuário autenticado após validação de senha
     async function handleConfirmDeleteAccount(e) {
         e.preventDefault();
         if (isSubmittingDelete) return;
@@ -267,6 +273,7 @@ export default function Profile() {
         }
     }
 
+    // Lida com a exclusão de contas de terceiros por administradores
     async function handleAdminDeleteUser() {
         const targetUsername = profileUser?.username || username;
         const confirm = window.confirm(`[ADMIN] Tem certeza que deseja excluir permanentemente a conta de @${targetUsername} e todas as suas publicações?`);
@@ -282,7 +289,7 @@ export default function Profile() {
         }
     }
 
-    // Carregar Feed do Perfil com Paginação
+    // Busca as publicações do perfil na API, tratando paginação incremental e erros
     const fetchProfilePosts = React.useCallback(async (url = null) => {
         if (!username && !userData?.username) return;
         const isMore = Boolean(url);
@@ -328,7 +335,7 @@ export default function Profile() {
         fetchProfilePosts();
     }, [fetchProfilePosts]);
 
-    // IntersectionObserver para carregar mais posts do perfil
+    // Lida com a rolagem infinita das publicações do perfil via IntersectionObserver
     useEffect(() => {
         if (!nextPostsPage || isLoadingMorePosts) return;
 
@@ -625,9 +632,7 @@ export default function Profile() {
                             <h1>{profileUser.name}</h1>
                             {profileUser.is_private && (
                                 <span className="badge-private-profile" title="Esta conta é privada">
-                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
-                                        <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-                                    </svg>
+                                    <LockIcon width="13" height="13" />
                                     Privada
                                 </span>
                             )}
@@ -636,7 +641,7 @@ export default function Profile() {
                         <p>{profileUser.bio || "Sem biografia"}</p>
 
                         <div className="profile-meta">
-                            <span>📅 Entrou em {profileUser.created_at ? new Date(profileUser.created_at).getFullYear() : '—'}</span>
+                            <span><CalendarIcon width="14" height="14" style={{ verticalAlign: 'middle', marginRight: '6px' }} /> Entrou em {profileUser.created_at ? new Date(profileUser.created_at).getFullYear() : '—'}</span>
                         </div>
 
                         <div className="profile-stats">
@@ -659,9 +664,7 @@ export default function Profile() {
                     {!isOwnProfile && profileUser?.is_private && !isFollowing && !userData?.is_superuser ? (
                         <div className="profile-private-lock-box">
                             <div className="lock-icon-circle">
-                                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
-                                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-                                </svg>
+                                <LockIcon width="32" height="32" />
                             </div>
                             <h3>Esta conta é privada</h3>
                             <p>
@@ -677,7 +680,6 @@ export default function Profile() {
                                 <PostCard key={post.id} post={post} />
                             ))}
 
-                            {/* Sentinela de paginação */}
                             <div ref={postsObserverTarget} style={{ height: '20px', width: '100%' }} />
 
                             {isLoadingMorePosts && (

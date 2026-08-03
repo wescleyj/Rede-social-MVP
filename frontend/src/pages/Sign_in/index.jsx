@@ -12,6 +12,7 @@ export default function SignIn() {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
+    // Lida com a autenticação do usuário e redirecionamento para a página inicial
     async function checkUser(e) {
         e.preventDefault();
         if (isLoading) return;

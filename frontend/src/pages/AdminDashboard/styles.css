@@ -1,5 +1,5 @@
 .admin-main {
-    max-width: 680px;
+    max-width: 750px;
     width: 100%;
 }
 
@@ -7,22 +7,30 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 24px 16px 16px 16px;
-    height: auto;
-    min-height: 70px;
+    padding: 18px 24px;
+    min-height: 68px;
+    position: sticky;
+    top: 0;
+    background-color: rgba(3, 7, 18, 0.85);
+    backdrop-filter: blur(12px);
+    z-index: 10;
     border-bottom: 1px solid var(--border);
+    box-sizing: border-box;
 }
 
 .admin-header h2 {
     margin: 0 0 4px 0;
-    font-size: 1.35rem;
+    font-size: 19px;
     color: var(--text);
     font-weight: 700;
+    font-family: var(--font-display);
+    line-height: 1.2;
 }
 
 .admin-subtitle {
-    font-size: 0.85rem;
+    font-size: 13px;
     color: var(--text-muted);
+    display: block;
 }
 
 .admin-tabs {
@@ -82,7 +90,7 @@
 
 .admin-error-box {
     padding: 14px;
-    background-color: rgba(239, 68, 68, 0.1);
+    background-color: rgba(244, 63, 94, 0.1);
     border: 1px solid var(--danger);
     border-radius: 8px;
     color: var(--danger);
@@ -125,7 +133,7 @@
 }
 
 .type-pill {
-    background-color: var(--bg-hover);
+    background-color: var(--surface-hover);
     color: var(--text);
     padding: 3px 10px;
     border-radius: 12px;
@@ -185,10 +193,10 @@
 .report-reason-tag {
     font-size: 13px;
     color: var(--text);
-    background: rgba(239, 68, 68, 0.08);
+    background: rgba(244, 63, 94, 0.08);
     padding: 4px 10px;
     border-radius: 6px;
-    border: 1px solid rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(244, 63, 94, 0.2);
 }
 
 /* Target Preview */
@@ -291,22 +299,22 @@
 }
 
 .btn-toggle-status.btn-close {
-    background-color: #10b981;
-    color: #ffffff;
+    background-color: var(--success);
+    color: #020617;
 }
 
 .btn-toggle-status.btn-close:hover {
-    background-color: #059669;
+    background-color: #16a34a;
 }
 
 .btn-toggle-status.btn-reopen {
-    background-color: var(--bg-hover);
+    background-color: var(--surface-hover);
     color: var(--text);
     border: 1px solid var(--border);
 }
 
 .btn-toggle-status.btn-reopen:hover {
-    background-color: var(--surface-hover);
+    background-color: var(--border-light);
 }
 
 .btn-danger-action {
@@ -322,7 +330,7 @@
 }
 
 .btn-danger-action:hover {
-    background-color: #dc2626;
+    background-color: var(--danger-hover);
 }
 
 .btn-ban-action {
@@ -465,3 +473,59 @@
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+/* ==========================================================================
+   RESPONSIVIDADE: TABLET & MOBILE
+   ========================================================================== */
+@media (max-width: 768px) {
+    .admin-main {
+        max-width: 100%;
+    }
+
+    .admin-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        min-height: 54px;
+        padding: 12px 16px;
+    }
+
+    .admin-header h2 {
+        font-size: 17px;
+    }
+
+    .admin-subtitle {
+        font-size: 12px;
+    }
+
+    .admin-header .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .admin-content {
+        padding: 0 14px 20px 14px;
+    }
+
+    .report-card {
+        padding: 14px;
+    }
+
+    .report-actions {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .report-actions button {
+        flex: 1 1 calc(50% - 8px);
+        justify-content: center;
+    }
+
+    .modal-content {
+        width: 92%;
+        max-width: 100%;
+        padding: 18px 16px;
+        margin: 12px;
+    }
+}
+

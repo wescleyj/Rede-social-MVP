@@ -1,12 +1,13 @@
 import axios from 'axios';
 
+// Endereço base da API
 export const baseURL = 'http://localhost:8000';
 
 const api = axios.create({
     baseURL: baseURL,
 });
 
-// Intercepta as requisições para injetar o token JWT
+// Injeta o token JWT de autenticação no cabeçalho das requisições
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -15,7 +16,7 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-// Intercepta as respostas para renovar o token via /api/auth/refresh/ ou redirecionar se expirado
+// Trata renovação automática de tokens expirados e encerramento de sessão
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -23,8 +24,11 @@ api.interceptors.response.use(
         const isAuthRequest = originalRequest?.url?.includes('/api/auth/login/') || originalRequest?.url?.includes('/api/auth/refresh/');
         const isSkipAuthRedirect = originalRequest?.skipAuthRedirect;
 
+        // Lida com erro 401 tentando renovar o token de acesso via refresh token
         if (error.response?.status === 401 && !isAuthRequest && !isSkipAuthRedirect && !originalRequest?._retry) {
             const refreshToken = localStorage.getItem('refreshToken');
+
+            // Executa o refresh do token no servidor e repete a requisição original
             if (refreshToken) {
                 originalRequest._retry = true;
                 try {
@@ -42,6 +46,7 @@ api.interceptors.response.use(
                 }
             }
 
+            // Limpa credenciais inválidas e redireciona o usuário para o login quando a renovação falha
             localStorage.removeItem('token');
             localStorage.removeItem('refreshToken');
             window.location.href = '/signin';

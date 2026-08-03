@@ -4,21 +4,20 @@ import api from '../../../services/api';
 import '../../styles/auth.css';
 
 export default function SignUp() {
-  // Salva as informações do formulario para passar para a api
+  // Referências dos campos do formulário de cadastro
   const inputEmail = useRef();
   const inputNome = useRef();
   const inputUsername = useRef();
   const inputSenha = useRef();
-  const [mensagem, setMensagem] = useState(); // Usa State para conseguir atualizar informações na pagina sem ter que recarregar
+  const [mensagem, setMensagem] = useState();
   const [isLoading, setIsLoading] = useState(false);
 
+  // Lida com o cadastro de uma nova conta de usuário, tratando validações e erros
   async function createUser(e) {
     e.preventDefault();
     if (isLoading) return;
     setIsLoading(true);
     setMensagem(null);
-
-    // Tenta criar o usuario e informa o usuario do sucesso ou fracasso
     try {
       await api.post('/api/auth/register/', {
         name: inputNome.current.value.trim(),
@@ -27,11 +26,11 @@ export default function SignUp() {
         password: inputSenha.current.value
       })
       setMensagem({tipo: 'sucesso', texto: 'Sucesso na criação do usuário. Você já pode fazer login!'});
-      e.target.reset() // Limpa o forms
+      e.target.reset();
     } catch (error) {
       console.error(error)
 
-      // Ajustar com base no retorno do backend
+      // Mapeia mensagens de erro com base na resposta do servidor
       if (error.response?.status === 409) {
         setMensagem({tipo: 'erro', texto: 'Erro: email ou usuário já existente.'});
       } else if (error.response?.data?.message) {
@@ -62,7 +61,6 @@ export default function SignUp() {
             {mensagem && <p className={mensagem.tipo}>{mensagem.texto}</p>}
           </div>
 
-          {/* Forms de criação de usuario */}
           <form className="auth-form" onSubmit={createUser}>
             <div className="input-group">
               <label>Nome</label>
@@ -94,7 +92,6 @@ export default function SignUp() {
             <span>ou</span>
           </div>
 
-          {/* Leva o usuario para a pagina de login caso já tenha conta */}
           <div className="auth-footer">
             Já tem conta? <Link to="/signin">Entrar</Link>
           </div>

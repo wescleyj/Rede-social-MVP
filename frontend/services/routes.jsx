@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Navigate } from 'react-router-dom';
 import { AuthContext } from '../src/contexts/AuthContext.jsx';
 
-// Protege páginas como /home. Se não houver token, joga pro login.
+// Restringe o acesso apenas a usuários autenticados, redirecionando visitantes para o login
 export function RotaPrivada({ children }) {
     const token = localStorage.getItem('token');
 
@@ -13,7 +13,7 @@ export function RotaPrivada({ children }) {
     return children;
 }
 
-// Protege páginas como /signin e /signup. Se já houver token, joga pra home.
+// Restringe o acesso a visitantes, redirecionando usuários autenticados para a página inicial
 export function RotaPublica({ children }) {
     const token = localStorage.getItem('token');
 
@@ -24,11 +24,10 @@ export function RotaPublica({ children }) {
     return children;
 }
 
-// Protege páginas administrativas. Se não for admin, joga para home.
+// Restringe o acesso apenas a administradores, redirecionando usuários comuns para a página inicial
 export function RotaAdmin({ children }) {
     const { userData } = useContext(AuthContext);
 
-    // Se userData for null, significa que ainda está carregando no AuthProvider
     if (!userData) {
         return <div>Carregando...</div>;
     }

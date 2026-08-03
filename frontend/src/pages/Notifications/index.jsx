@@ -4,6 +4,7 @@ import LeftSidebar from '../../components/LeftSidebar';
 import api from '../../../services/api';
 import { AuthContext } from '../../contexts/AuthContext';
 import { buildImageUrl } from '../../utils/buildImageUrl.js';
+import UsersIcon from '../../assets/users.svg?react';
 import './styles.css';
 
 export default function Notifications() {
@@ -15,6 +16,7 @@ export default function Notifications() {
     const [actionLoadingId, setActionLoadingId] = useState(null);
     const [toastMessage, setToastMessage] = useState(null);
 
+    // Busca solicitações de seguidores pendentes e obtém dados detalhados dos solicitantes
     const fetchFollowRequests = useCallback(async () => {
         if (!userData || userData.isAnonymous) return;
         setIsLoadingRequests(true);
@@ -62,6 +64,7 @@ export default function Notifications() {
         fetchFollowRequests();
     }, [fetchFollowRequests]);
 
+    // Exibe notificações temporárias (toast) de feedback para o usuário
     const showToast = (type, text) => {
         setToastMessage({ type, text });
         setTimeout(() => {
@@ -69,6 +72,7 @@ export default function Notifications() {
         }, 3500);
     };
 
+    // Lida com a aprovação de uma solicitação para seguir, tratando feedback e erros
     const handleAcceptRequest = async (reqItem) => {
         if (actionLoadingId) return;
         setActionLoadingId(reqItem.id);
@@ -84,6 +88,7 @@ export default function Notifications() {
         }
     };
 
+    // Lida com a recusa de uma solicitação para seguir, tratando feedback e erros
     const handleDeclineRequest = async (reqItem) => {
         if (actionLoadingId) return;
         setActionLoadingId(reqItem.id);
@@ -183,9 +188,7 @@ export default function Notifications() {
                     ) : (
                         <div className="notifications-empty">
                             <div className="empty-icon-wrapper">
-                                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
-                                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-                                </svg>
+                                <UsersIcon width="32" height="32" />
                             </div>
                             <h3>Nenhuma solicitação pendente</h3>
                             <p>Quando alguém solicitar para seguir sua conta privada, as solicitações aparecerão aqui para você aceitar ou recusar.</p>
