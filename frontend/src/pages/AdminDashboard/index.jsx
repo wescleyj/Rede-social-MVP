@@ -20,6 +20,7 @@ export default function AdminDashboard() {
     // Form states for creating admin
     const [adminName, setAdminName] = useState('');
     const [adminUser, setAdminUser] = useState('');
+    const [adminEmail, setAdminEmail] = useState('');
     const [adminPass, setAdminPass] = useState('');
     const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
 
@@ -140,16 +141,18 @@ export default function AdminDashboard() {
             await api.post('/api/auth/register/', {
                 name: adminName.trim(),
                 username: adminUser.trim(),
-                email: `${adminUser.trim().toLowerCase()}@vortice.com`,
+                email: adminEmail.trim(),
                 password: adminPass
             });
             alert(`Administrador @${adminUser.trim()} cadastrado com sucesso.`);
             setAdminName('');
             setAdminUser('');
+            setAdminEmail('');
             setAdminPass('');
         } catch (error) {
             console.error("Erro ao criar admin:", error);
-            alert("Erro ao criar o administrador. Verifique se o username já está em uso ou se a senha atende aos requisitos.");
+            const errorMsg = error.response?.data?.detail || error.response?.data?.error || error.response?.data?.message || "Erro ao criar o administrador. Verifique se o username ou e-mail já estão em uso ou se a senha atende aos requisitos.";
+            alert(errorMsg);
         } finally {
             setIsCreatingAdmin(false);
         }
@@ -451,6 +454,18 @@ export default function AdminDashboard() {
                                             placeholder="Ex: mod_vortice"
                                             value={adminUser}
                                             onChange={e => setAdminUser(e.target.value)}
+                                            disabled={isCreatingAdmin}
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>E-mail</label>
+                                        <input 
+                                            type="email" 
+                                            required 
+                                            maxLength={100}
+                                            placeholder="Ex: mod@vortice.com"
+                                            value={adminEmail}
+                                            onChange={e => setAdminEmail(e.target.value)}
                                             disabled={isCreatingAdmin}
                                         />
                                     </div>

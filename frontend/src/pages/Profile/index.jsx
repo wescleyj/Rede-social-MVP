@@ -37,13 +37,8 @@ export default function Profile() {
     const [isSubmittingDelete, setIsSubmittingDelete] = useState(false);
 
     const [isFollowing, setIsFollowing] = useState(false);
+    const [isPending, setIsPending] = useState(false);
     const [followIsLoading, setFollowIsLoading] = useState(false);
-
-    // Mock: vamos simular que pessoa_2 nos segue de volta para testar as DMs
-    const isMutualFollow = isFollowing || username === 'pessoa_2';
-
-    // Estados do Modal de Denúncia de Perfil
-
 
     const requireAuth = (callback) => (e) => {
         if (e && e.stopPropagation) e.stopPropagation();
@@ -73,10 +68,15 @@ export default function Profile() {
                 const response = await api.get(`/api/users/info/${username}/`);
                 setProfileUser(response.data);
                 setIsFollowing(Boolean(response.data.is_following));
+                setIsPending(Boolean(response.data.is_pending));
+                if (username === userData?.username) {
+                    fetchFollowRequests();
+                }
             } catch (error) {
                 console.error("Erro ao carregar perfil:", error);
                 setProfileUser(null);
                 setIsFollowing(false);
+                setIsPending(false);
             }
         }
         
@@ -179,24 +179,56 @@ export default function Profile() {
         if (followIsLoading) return;
         setFollowIsLoading(true);
 
+        const targetUsername = profileUser?.username || username;
+
         try {
-            await api.post(`/api/users/follow/${username}/`);
-            setIsFollowing(prev => {
-                const nextState = !prev;
+            await api.post(`/api/users/follow/${targetUsername}/`);
+            
+            if (isFollowing) {
+                // Deixou de seguir
+                setIsFollowing(false);
+                setIsPending(false);
                 setProfileUser(u => u ? ({
                     ...u,
-                    followers_count: Math.max(0, (u.followers_count || 0) + (nextState ? 1 : -1)),
-                    is_following: nextState
+                    followers_count: Math.max(0, (u.followers_count || 0) - 1),
+                    is_following: false,
+                    is_pending: false
                 }) : u);
-                return nextState;
-            });
+            } else if (profileUser?.is_private) {
+                if (isPending) {
+                    // Cancelou solicitação pendente
+                    setIsPending(false);
+                    setProfileUser(u => u ? ({
+                        ...u,
+                        is_pending: false
+                    }) : u);
+                } else {
+                    // Enviou solicitação de seguir para perfil privado
+                    setIsPending(true);
+                    setProfileUser(u => u ? ({
+                        ...u,
+                        is_pending: true
+                    }) : u);
+                }
+            } else {
+                // Seguiu perfil público diretamente
+                setIsFollowing(true);
+                setIsPending(false);
+                setProfileUser(u => u ? ({
+                    ...u,
+                    followers_count: (u.followers_count || 0) + 1,
+                    is_following: true,
+                    is_pending: false
+                }) : u);
+            }
         } catch (error) {
             console.error("Erro ao seguir usuário:", error);
-            alert("Erro ao tentar seguir o usuário.");
+            alert("Erro ao tentar processar ação de seguir.");
         } finally {
             setFollowIsLoading(false);
         }
     }
+
 
 
     async function handleConfirmDeleteAccount(e) {
@@ -342,20 +374,12 @@ export default function Profile() {
                         ) : (
                             <>
                                 <button
-                                    className={`btn-primary ${isFollowing ? 'following' : ''}`}
+                                    className={`btn-primary ${isFollowing ? 'following' : ''} ${isPending ? 'pending' : ''}`}
                                     disabled={followIsLoading}
                                     onClick={requireAuth(handleFollow)}
+                                    title={isPending ? "Solicitação enviada. Clique para cancelar." : undefined}
                                 >
-                                    {isFollowing ? 'Seguindo' : 'Seguir'}
-                                </button>
-                                
-                                <button 
-                                    className="btn-secondary" 
-                                    onClick={requireAuth(() => navigate(`/messages/${username}`))}
-                                    disabled={!isMutualFollow}
-                                    title={!isMutualFollow ? "Vocês precisam se seguir para trocar mensagens" : "Enviar Mensagem"}
-                                >
-                                    Mensagem
+                                    {isFollowing ? 'Seguindo' : isPending ? 'Solicitado' : 'Seguir'}
                                 </button>
 
                                 {userData?.is_superuser && (
@@ -592,7 +616,12 @@ export default function Profile() {
                                 </svg>
                             </div>
                             <h3>Esta conta é privada</h3>
-                            <p>Siga @{profileUser.username} para ver as publicações e fotos.</p>
+                            <p>
+                                {isPending 
+                                    ? `Sua solicitação para seguir @${profileUser.username} foi enviada e está aguardando aprovação.`
+                                    : `Siga @${profileUser.username} para ver as publicações e fotos.`
+                                }
+                            </p>
                         </div>
                     ) : filteredPosts.length > 0 ? (
                         filteredPosts.map((post) => (

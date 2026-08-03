@@ -1,16 +1,35 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from "../../contexts/AuthContext.jsx";
 import { buildImageUrl } from "../../utils/buildImageUrl.js";
+import api from "../../../services/api.js";
 import './styles.css';
-
-
 
 export default function Sidebar() {
     const location = useLocation();
     const navigate = useNavigate();
     const { userData, logout } = useContext(AuthContext);
     const [showMenu, setShowMenu] = useState(false);
+    const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+
+    useEffect(() => {
+        if (!userData || userData.isAnonymous) {
+            setPendingRequestsCount(0);
+            return;
+        }
+
+        const checkRequests = async () => {
+            try {
+                const response = await api.get('/api/users/follow/requests/list/');
+                const results = response.data?.results || response.data || [];
+                setPendingRequestsCount(Array.isArray(results) ? results.length : 0);
+            } catch (err) {
+                // silencioso
+            }
+        };
+
+        checkRequests();
+    }, [userData, location.pathname]);
 
     if (!userData) {
         return <nav className="sidebar-container">Carregando...</nav>;
@@ -32,6 +51,23 @@ export default function Sidebar() {
 
                 <li className={location.pathname.startsWith('/pesquisa') ? 'active' : ''}>
                     <Link to="/pesquisa">Pesquisar</Link>
+                </li>
+
+                <li className={location.pathname === '/notificacoes' || location.pathname === '/notifications' ? 'active' : ''}>
+                    <Link 
+                        to={userData.isAnonymous ? '/signin' : '/notificacoes'}
+                        onClick={(e) => {
+                            if (userData.isAnonymous) {
+                                e.preventDefault();
+                                navigate('/signin');
+                            }
+                        }}
+                    >
+                        <span>Notificações</span>
+                        {pendingRequestsCount > 0 && (
+                            <span className="sidebar-nav-badge">{pendingRequestsCount}</span>
+                        )}
+                    </Link>
                 </li>
 
                 <li className={location.pathname === '/profile' ? 'active' : ''}>

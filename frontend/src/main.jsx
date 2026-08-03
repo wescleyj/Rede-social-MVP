@@ -8,6 +8,7 @@ import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 import Search from './pages/Search';
 import AdminDashboard from './pages/AdminDashboard';
+import Notifications from './pages/Notifications';
 import { RotaPublica, RotaPrivada, RotaAdmin } from "../services/routes.jsx";
 import { AuthProvider } from './contexts/AuthContext';
 import './index.css';
@@ -24,6 +25,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                     {/* Autenticação - só acessível se NÃO estiver logado */}
                     <Route path="/signin" element={<RotaPublica><SignIn /></RotaPublica>} />
                     <Route path="/signup" element={<RotaPublica><SignUp /></RotaPublica>} />
+
+                    {/* Notificações - requer login */}
+                    <Route path="/notificacoes" element={<RotaPrivada><Notifications /></RotaPrivada>} />
+                    <Route path="/notifications" element={<RotaPrivada><Notifications /></RotaPrivada>} />
 
                     {/* Perfil - /profile próprio requer login; /profile/:username é público */}
                     <Route path="/profile" element={<RotaPrivada><Profile /></RotaPrivada>} />

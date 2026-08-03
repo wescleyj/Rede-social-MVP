@@ -146,6 +146,18 @@
     border: 1px solid var(--border-light);
 }
 
+.profile-actions .btn-primary.pending {
+    background-color: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.profile-actions .btn-primary.pending:hover {
+    background-color: rgba(244, 63, 94, 0.12);
+    color: var(--danger);
+    border-color: rgba(244, 63, 94, 0.35);
+}
+
 .profile-actions .btn-report:hover {
     border-color: rgba(245, 158, 11, 0.5);
     color: #f59e0b;

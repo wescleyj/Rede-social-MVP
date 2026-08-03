@@ -72,7 +72,16 @@ export default function Search() {
         }
         try {
             await api.post(`/api/users/follow/${userParam.username}/`);
-            setUsers(users.map(u => u.username === userParam.username ? { ...u, is_following: !u.is_following } : u));
+            setUsers(users.map(u => {
+                if (u.username !== userParam.username) return u;
+                if (u.is_following) {
+                    return { ...u, is_following: false, is_pending: false };
+                } else if (u.is_private) {
+                    return { ...u, is_pending: !u.is_pending, is_following: false };
+                } else {
+                    return { ...u, is_following: true, is_pending: false };
+                }
+            }));
         } catch (err) {
             console.error("Erro ao seguir usuário", err);
         }
@@ -158,13 +167,14 @@ export default function Search() {
                                                                 </div>
                                                                 {(!userData || userData.username !== user.username) && (
                                                                     <button 
-                                                                        className={`btn-follow ${user.is_following ? 'following' : ''}`}
+                                                                        className={`btn-follow ${user.is_following ? 'following' : ''} ${user.is_pending ? 'pending' : ''}`}
+                                                                        title={user.is_pending ? "Solicitação enviada. Clique para cancelar." : undefined}
                                                                         onClick={(e) => {
                                                                             e.stopPropagation();
                                                                             handleFollowToggle(user);
                                                                         }}
                                                                     >
-                                                                        {user.is_following ? 'Seguindo' : 'Seguir'}
+                                                                        {user.is_following ? 'Seguindo' : user.is_pending ? 'Solicitado' : 'Seguir'}
                                                                     </button>
                                                                 )}
                                                             </div>
